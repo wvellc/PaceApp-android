@@ -1,0 +1,44 @@
+# Build
+build/
+*.apk
+*.aab
+
+# Gradle
+.gradle/
+
+# Local config
+local.properties
+
+# IDE
+.idea/
+*.iml
+.kotlin/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Native build
+.cxx/
+.externalNativeBuild/
+
+# Outputs
+captures/
+output.json
+output-metadata.json
+
+# Logs
+*.log
+
+# Keystore (IMPORTANT)
+*.jks
+*.keystore
+
+# Secrets
+secrets.properties
+credential.txt
+google-services.json
+
+# Crash logs
+hs_err_pid*
+replay_pid*
