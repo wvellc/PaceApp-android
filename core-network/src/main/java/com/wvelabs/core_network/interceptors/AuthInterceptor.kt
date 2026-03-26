@@ -32,7 +32,7 @@ class AuthInterceptor @Inject constructor(
         val response = chain.proceed(requestBuilder.build())
 
         // 4. Global 401 Handler mapped through your exact ErrorType enum!
-        val networkError = NetworkError.fromStatusCode(response.code(), response.message())
+        val networkError = NetworkError.fromStatusCode(response.code, response.message)
         if (networkError.errorType == ErrorType.UNAUTHORIZED) {
             sessionListener.onSessionExpired()
         }
