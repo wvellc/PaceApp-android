@@ -7,8 +7,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 
     // Hilt DI Plugins
+    alias(libs.plugins.ksp) // ✅ ADD KSP
     alias(libs.plugins.hilt.android)
-    kotlin("kapt")
 }
 
 android {
@@ -73,7 +73,7 @@ dependencies {
     // DEPENDENCY INJECTION (Hilt)
     // ---------------------------------------------------------
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler) // Or ksp(libs.hilt.compiler) if using KSP
+    ksp(libs.hilt.compiler)
 
     // This allows you to use `hiltViewModel()` inside your generated Compose screens!
     implementation(libs.androidx.hilt.navigation.compose)

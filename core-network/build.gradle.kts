@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp) // ✅ ADD KSP
     alias(libs.plugins.hilt.android)
-    kotlin("kapt")
 
 }
 
@@ -45,7 +45,7 @@ dependencies {
     implementation(libs.retrofit.serialization)
 
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.androidx.datastore.preferences)
 

@@ -58,25 +58,20 @@ abstract class CoreViewModel<S : ViewState, E : ViewEvent, Ef : ViewSideEffect> 
         block: suspend () -> T,
         onSuccess: (T) -> Unit,
         onError: ((Throwable) -> Unit)? = null,
-        showLoading: Boolean = true,
+        onLoading: ((Boolean) -> Unit)? = null,
     ) {
         viewModelScope.launch {
-            if (showLoading) updateLoading(true)
+            onLoading?.invoke(true)
             try {
                 val result = block()
                 onSuccess(result)
             } catch (e: Exception) {
                 onError?.invoke(e)
             } finally {
-                if (showLoading) updateLoading(false)
+                onLoading?.invoke(false)
             }
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun updateLoading(loading: Boolean) {
-        updateState {
-            copyWithDefaults(isLoading = loading) as S
-        }
-    }
+
 }

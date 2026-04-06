@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose) // Required for Kotlin 2.0+
+    alias(libs.plugins.ksp) // ✅ ADD KSP
     alias(libs.plugins.hilt.android)
-    kotlin("kapt")
 }
 
 android {
@@ -53,7 +53,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.compiler)
 
     //Coil
     implementation(libs.coil.compose)

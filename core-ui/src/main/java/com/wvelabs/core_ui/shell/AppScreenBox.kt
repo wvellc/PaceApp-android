@@ -49,10 +49,5 @@ fun AppScreenBox(
                 }
             }
         }
-
-        // 3. Global Blocking Loader
-        if (state.isLoading) {
-            loader()
-        }
     }
 }

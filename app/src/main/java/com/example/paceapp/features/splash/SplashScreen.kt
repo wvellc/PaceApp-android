@@ -3,6 +3,7 @@ package com.example.paceapp.features.splash
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -33,3 +34,6 @@ fun SplashScreen(
         onEvent = viewModel::setEvent
     )
 }
+@Preview
+@Composable
+fun SplashPreview() = SplashScreen()

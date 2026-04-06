@@ -2,10 +2,13 @@ package com.example.paceapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+val NeonAquaBlue = Color(0xFF2EB2FF)
+val RadiantBlue = Color(0xFF235BFF)
+val FluorescentMint = Color(0xFF2FF99C)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val White = Color(0xFFFFFFFF)
+val Error = Color(0xFFE43222)
+val InfernoRed = Color(0xFFFF4E36)
+val HintGray = Color(0xFFE5E5E5)
+val FashionGray = Color(0xFF8C8C8C)
+val DarkCharcoal = Color(0xFF323334)

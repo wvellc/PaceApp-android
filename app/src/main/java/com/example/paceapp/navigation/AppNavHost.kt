@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.paceapp.features.splash.SplashScreen
 
 @Composable
 fun AppNavHost(
@@ -21,10 +22,7 @@ fun AppNavHost(
         startDestination = startDestination,
         modifier = modifier
     ) {
-//        composable<Route.Splash> {
-//            // TODO: Replace with features.splash.SplashScreen
-//            PlaceholderScreen("Splash Screen\n(Checking Session...)")
-//        }
+        composable<Route.Splash> { SplashScreen() }
 //
 //        composable<Route.Auth> {
 //            // TODO: Replace with features.auth.LoginScreen
