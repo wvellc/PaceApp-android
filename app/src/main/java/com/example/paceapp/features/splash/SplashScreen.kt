@@ -6,6 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.collectLatest
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.components.SplashContent
@@ -34,6 +35,3 @@ fun SplashScreen(
         onEvent = viewModel::setEvent
     )
 }
-@Preview
-@Composable
-fun SplashPreview() = SplashScreen()

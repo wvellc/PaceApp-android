@@ -27,9 +27,6 @@ class SplashViewModel @Inject constructor(
 
     private fun initData() {
         if (state.value.isInitialized) return
-
-        // TODO: Initialization logic here
-
         setState { copy(isInitialized = true) }
     }
 }

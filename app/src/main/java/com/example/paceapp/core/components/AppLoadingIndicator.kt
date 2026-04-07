@@ -1,0 +1,21 @@
+package com.example.paceapp.core.components
+
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.example.paceapp.ui.theme.AppColors
+import com.wvelabs.core_ui.components.BaseLoader
+
+@Composable
+fun AppLoadingIndicator(
+    modifier: Modifier = Modifier,
+    isFullScreen: Boolean = true,
+) {
+    BaseLoader(
+        modifier = modifier,
+        isFullScreen = isFullScreen,
+        color = AppColors.White,
+        backgroundTint = AppColors.NeonAquaBlue.copy(alpha = 0.2f)
+        //TODO:Customize loader
+
+    )
+}

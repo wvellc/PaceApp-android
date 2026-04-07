@@ -1,5 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.PaceAppandroid" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.PaceApp" parent="android:ThemeOverlay.Material.Dark">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:background">@drawable/app_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:dialogTheme">@style/Theme.DialogScaleTheme</item>
+        <item name="isLightTheme">false</item>
+
+    </style>
+
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+        <item name="android:background">@drawable/app_background</item>
+        <item name="windowSplashScreenBackground">@color/background1</item>
+        <item name="android:windowActionBar">false</item>
+        <!-- Make system bars transparent -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+
+        <!-- Optional: Ensures no semi-opaque scrim on 3-button navigation (API 29+) -->
+        <item name="android:enforceNavigationBarContrast" tools:targetApi="29">false</item>
+        <item name="android:enforceStatusBarContrast" tools:targetApi="29">false</item>
+        <item name="postSplashScreenTheme">@style/Theme.PaceApp</item>
+    </style>
+
+    <style name="Theme.DialogScaleTheme" parent="@android:style/Theme.Dialog">
+        <item name="android:windowAnimationStyle">@style/DialogScaleAnimation</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.3</item>
+    </style>
+
+    <style name="DialogScaleAnimation">
+        <item name="android:windowEnterAnimation">@anim/scale_up_with_fade</item>
+        <item name="android:windowExitAnimation">@anim/scale_down_with_fade</item>
+    </style>
+
 </resources>

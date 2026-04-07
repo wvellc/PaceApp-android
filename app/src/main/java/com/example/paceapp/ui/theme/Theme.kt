@@ -1,19 +1,15 @@
 package com.example.paceapp.ui.theme
 
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
-import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.runtime.CompositionLocalProvider
 
 private val DarkColorScheme = darkColorScheme(
-    primary = NeonAquaBlue,
-    secondary = NeonAquaBlue,
-    tertiary = FluorescentMint
+
+    primary = AppColors.NeonAquaBlue,
+    secondary = AppColors.NeonAquaBlue,
+    tertiary = AppColors.FluorescentMint
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -28,13 +24,19 @@ private val DarkColorScheme = darkColorScheme(
 
 @Composable
 fun PaceAppTheme(
-    darkTheme: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    val paceTypography = PaceAppTypography()
+    CompositionLocalProvider(LocalAppTypography provides paceTypography) {
+        MaterialTheme(
+            colorScheme = DarkColorScheme,
+            content = content
+        )
+    }
+}
 
-    MaterialTheme(
-        colorScheme = DarkColorScheme,
-        typography = Typography,
-        content = content
-    )
+object AppTheme {
+    val typography: PaceAppTypography
+        @Composable
+        get() = LocalAppTypography.current
 }

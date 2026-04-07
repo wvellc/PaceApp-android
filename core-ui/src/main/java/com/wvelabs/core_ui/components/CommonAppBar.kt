@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun AppBar(
+fun CommonAppBar(
     title: String? = null,
     titleContent: @Composable (RowScope.() -> Unit)? = null,
     showBackButton: Boolean = true,
