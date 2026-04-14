@@ -14,6 +14,7 @@ class SplashContract {
 
     sealed class Event : ViewEvent {
         data object Init : Event()
+        data object OnGetStarted : Event()
     }
 
     sealed class Effect : ViewSideEffect {

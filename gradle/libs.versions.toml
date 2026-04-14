@@ -16,6 +16,7 @@ hilt-navigation-compose = "1.2.0"
 uiUnit = "1.10.5" # Updated for collectAsStateWithLifecycle
 ksp = "2.0.21-1.0.28" # Make sure the first part matches your Kotlin version, e.g., if you use Kotlin 1.9.24, use "1.9.24-1.0.20"
 coreSplashscreen = "1.2.0"
+ciqCompanionAppSdk = "2.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -50,6 +51,9 @@ androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navig
 
 # Spalsh screen
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
+
+#Garmin Connect
+ciq-companion-app-sdk = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", version.ref = "ciqCompanionAppSdk" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

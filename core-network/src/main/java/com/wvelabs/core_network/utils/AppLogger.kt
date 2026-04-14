@@ -13,16 +13,16 @@ object AppLogger {
 
     // ℹ️ INFO: Key milestones (App startup, Config loaded)
     fun i(message: String) {
-//        if (BuildConfig.DEBUG) Log.i(TAG, "ℹ️ $message")
+        if (BuildConfig.DEBUG) Log.i(TAG, "ℹ️ $message")
     }
 
     // ⚠️ WARNING: Non-fatal issues (Slow UI, missing optional data)
     fun w(message: String) {
-//        if (BuildConfig.DEBUG) Log.w(TAG, "⚠️ $message")
+        if (BuildConfig.DEBUG) Log.w(TAG, "⚠️ $message")
     }
 
     // ❌ ERROR: Fatal crashes or failed API calls
     fun e(message: String, throwable: Throwable? = null) {
-//        if (BuildConfig.DEBUG) Log.e(TAG, "❌ $message", throwable)
+        if (BuildConfig.DEBUG) Log.e(TAG, "❌ $message", throwable)
     }
 }

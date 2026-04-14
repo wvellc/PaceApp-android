@@ -14,8 +14,8 @@ import com.example.paceapp.R
 @Immutable
 data class PaceAppTypography(
     val fontFamily: FontFamily = GilroyFontFamily, // Set your custom font here
+    val size16: TextStyle = TextStyle(fontSize = 16.sp, fontFamily = fontFamily),
     val size34: TextStyle = TextStyle(fontSize = 34.sp, fontFamily = fontFamily),
-
 )
 val LocalAppTypography = staticCompositionLocalOf { PaceAppTypography() }
 val GilroyFontFamily = FontFamily(

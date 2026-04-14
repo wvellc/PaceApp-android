@@ -102,4 +102,10 @@ dependencies {
     // ---------------------------------------------------------
     implementation(project(":core-network"))
     implementation(project(":core-ui"))
+
+    // ---------------------------------------------------------
+    // GARMIN CONNECT
+    // ---------------------------------------------------------
+    implementation(libs.ciq.companion.app.sdk)
+
 }
