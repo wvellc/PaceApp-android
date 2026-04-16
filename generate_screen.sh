@@ -183,4 +183,30 @@ internal fun ${SCREEN_PASCAL}Content(
 mkdir -p "$CONTENT_FILE_PATH"
 echo "$CONTENT_FILE_CONTENT" > "${CONTENT_FILE_PATH}/${CONTENT_FILE_NAME}"
 
-echo "✅ Feature '$SCREEN_PASCAL' generated successfully!"
+# =====================================================================
+# 9. Create Navigation Route File
+# =====================================================================
+NAV_FILE_PATH="${BASE_FILE_PATH}/navigation"
+NAV_FILE_NAME="${SCREEN_PASCAL}Navigation.kt"
+NAV_FILE_CONTENT="package ${PACKAGE_PATH}.navigation
+
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import kotlinx.serialization.Serializable
+import ${PACKAGE_PATH}.${SCREEN_PASCAL}Screen
+
+@Serializable
+data object ${SCREEN_PASCAL}Route
+
+fun NavGraphBuilder.${SCREEN,,}Screen(
+    // TODO: Add navigation callbacks here (e.g., onNavigateBack: () -> Unit)
+) {
+    composable<${SCREEN_PASCAL}Route> {
+        ${SCREEN_PASCAL}Screen()
+    }
+}"
+
+mkdir -p "$NAV_FILE_PATH"
+echo "$NAV_FILE_CONTENT" > "${NAV_FILE_PATH}/${NAV_FILE_NAME}"
+
+echo "✅ Feature '$SCREEN_PASCAL' generated successfully with Navigation extensions!"

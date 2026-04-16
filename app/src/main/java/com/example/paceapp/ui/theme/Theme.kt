@@ -1,9 +1,11 @@
 package com.example.paceapp.ui.theme
 
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.text.TextStyle
 
 private val DarkColorScheme = darkColorScheme(
 
@@ -27,7 +29,10 @@ fun PaceAppTheme(
     content: @Composable () -> Unit
 ) {
     val paceTypography = PaceAppTypography()
-    CompositionLocalProvider(LocalAppTypography provides paceTypography) {
+    CompositionLocalProvider(
+        LocalAppTypography provides paceTypography,
+        LocalTextStyle provides TextStyle(fontFamily = paceTypography.fontFamily)
+    ) {
         MaterialTheme(
             colorScheme = DarkColorScheme,
             content = content

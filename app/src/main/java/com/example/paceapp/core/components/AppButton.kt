@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -21,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -29,16 +29,18 @@ import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.ui.theme.AppColors
 import com.example.paceapp.ui.theme.AppTheme
+import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
 fun AppButton(
     modifier: Modifier,
     title: String,
-    cornerShape: RoundedCornerShape = RoundedCornerShape(48.dp),
+    cornerShape: Shape = ContinuousRoundedRectangle(48.dp),
     iconAlignment: Alignment = Alignment.CenterEnd,
     @DrawableRes iconRes: Int? = null,
     onClick: () -> Unit = {},
-) {
+
+    ) {
 
     Box(
         modifier = modifier
@@ -69,10 +71,9 @@ fun AppButton(
                     start = if (iconRes != null) 32.dp else 0.dp,
                     end = if (iconRes != null) 32.dp else 0.dp
                 ),
-            style = AppTheme.typography.size16.copy(
-                color = AppColors.White,
-                fontWeight = FontWeight.Medium
-            ),
+            style = AppTheme.typography.size16,
+            fontWeight = FontWeight.Medium,
+            color = AppColors.White,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

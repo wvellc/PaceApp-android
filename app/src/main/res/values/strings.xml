@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Pace App</string>
+    <string name="app_name_capitalize">PACE APP</string>
+    <string name="get_started">Get Started</string>
+    <string name="turn">Turn</string>
+    <string name="pace">Pace</string>
+    <string name="into">Into</string>
+    <string name="performance">Performance</string>
 </resources>

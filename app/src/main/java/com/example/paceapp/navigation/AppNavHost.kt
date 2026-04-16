@@ -1,50 +1,27 @@
 package com.example.paceapp.navigation
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import com.example.paceapp.features.splash.SplashScreen
+import com.example.paceapp.features.authentication.login.navigation.loginScreen
+import com.example.paceapp.features.splash.navigation.SplashRoute
+import com.example.paceapp.features.splash.navigation.splashScreen
 
 @Composable
 fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    startDestination: Route = Route.Splash // Always start at Splash!
+    startDestination: Any = SplashRoute // Always start at Splash!
 ) {
     NavHost(
         navController = navController,
         startDestination = startDestination,
         modifier = modifier
     ) {
-        composable<Route.Splash> { SplashScreen() }
-//
-//        composable<Route.Auth> {
-//            // TODO: Replace with features.auth.LoginScreen
-//            PlaceholderScreen("Login Screen")
-//        }
-//
-//        composable<Route.Main> {
-//            // TODO: Replace with features.main.MainScreen
-//            PlaceholderScreen("Main Tabs Wrapper")
-//        }
-//
-//        composable<Route.Offline> {
-//            // TODO: Replace with features.offline.NoInternetScreen
-//            PlaceholderScreen("No Internet Connection")
-//        }
-    }
-}
+        splashScreen()
+        loginScreen()
 
-// A temporary UI so the app actually builds and runs
-@Composable
-fun PlaceholderScreen(title: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(text = title)
+
     }
 }

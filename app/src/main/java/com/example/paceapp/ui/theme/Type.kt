@@ -1,6 +1,5 @@
 package com.example.paceapp.ui.theme
 
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
@@ -16,7 +15,9 @@ data class PaceAppTypography(
     val fontFamily: FontFamily = GilroyFontFamily, // Set your custom font here
     val size16: TextStyle = TextStyle(fontSize = 16.sp, fontFamily = fontFamily),
     val size34: TextStyle = TextStyle(fontSize = 34.sp, fontFamily = fontFamily),
+    val size32: TextStyle = TextStyle(fontSize = 32.sp, fontFamily = fontFamily)
 )
+
 val LocalAppTypography = staticCompositionLocalOf { PaceAppTypography() }
 val GilroyFontFamily = FontFamily(
     Font(R.font.gilroy_light, FontWeight.Light),

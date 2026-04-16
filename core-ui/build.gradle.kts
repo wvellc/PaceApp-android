@@ -57,4 +57,6 @@ dependencies {
 
     //Coil
     implementation(libs.coil.compose)
+    //Kotlin Date time extension
+    implementation(libs.kotlinx.datetime)
 }

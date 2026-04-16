@@ -63,6 +63,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     debugImplementation(libs.androidx.compose.ui.tooling)
+    //Kotlin Date time extension
+    implementation(libs.kotlinx.datetime)
     // ---------------------------------------------------------
     // SPLASH SCREEN
     // ---------------------------------------------------------
@@ -96,16 +98,21 @@ dependencies {
 
     // DataStore (Needed for AppSessionManager)
     implementation(libs.androidx.datastore.preferences)
+    // ---------------------------------------------------------
+    // GARMIN CONNECT
+    // ---------------------------------------------------------
+    implementation(libs.ciq.companion.app.sdk)
 
+    // ---------------------------------------------------------
+    // CAPSULE - For smooth rounded corner
+    // ---------------------------------------------------------
+//    implementation(libs.capsule )
     // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)
     // ---------------------------------------------------------
     implementation(project(":core-network"))
     implementation(project(":core-ui"))
 
-    // ---------------------------------------------------------
-    // GARMIN CONNECT
-    // ---------------------------------------------------------
-    implementation(libs.ciq.companion.app.sdk)
+
 
 }
