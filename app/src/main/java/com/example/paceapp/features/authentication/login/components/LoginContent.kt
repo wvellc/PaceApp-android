@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.features.authentication.login.LoginContract.State
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 
@@ -14,10 +15,11 @@ internal fun LoginContent(
     state: State,
     onEvent: (Event) -> Unit
 ) {
-    Box(
+    AppBaseScreen(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        isLoading = state.isLoading,
+        hasPattern = true,
     ) {
-        Text(text = "Login Screen")
+
     }
 }

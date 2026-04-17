@@ -69,7 +69,6 @@ class GarminConnectHelper @Inject constructor(
     // --- Device Management ---
 
     fun getKnownDevices(): List<IQDevice> = connectIQ.knownDevices ?: emptyList()
-    fun getLinkedDevices(): List<IQDevice> = connectIQ.linkedCompanionDevices ?: listOf()
     fun getConnectedDevices(): List<IQDevice> = connectIQ.connectedDevices ?: emptyList()
 
     /**
@@ -77,7 +76,10 @@ class GarminConnectHelper @Inject constructor(
      * Automatically unregisters when the Flow collector cancels (e.g., Composable leaves screen).
      */
     fun getDeviceStatusFlow(device: IQDevice): Flow<IQDevice.IQDeviceStatus> = callbackFlow {
-        val listener = IQDeviceEventListener { iqDevice, status -> trySend(status) }
+        val listener = IQDeviceEventListener { iqDevice, status ->
+            AppLogger.d("Device Status Changed: $status")
+            trySend(status)
+        }
 
         connectIQ.registerForDeviceEvents(device, listener)
         trySend(device.status) // Emit current status immediately
@@ -95,7 +97,7 @@ class GarminConnectHelper @Inject constructor(
     fun getAppMessagesFlow(device: IQDevice, app: IQApp): Flow<Pair<List<Any>?, IQMessageStatus>> =
         callbackFlow {
             val listener = IQApplicationEventListener { iqDevice, iqApp, messageData, status ->
-                AppLogger.e("ON_MESSAGE_RECEIVED -  $iqDevice / ${iqApp.displayName} $messageData $status")
+                AppLogger.e("SUCCESS!! RECEIVED: $messageData (Type: ${messageData?.javaClass?.simpleName})")
                 trySend(
                     Pair(
                         messageData,

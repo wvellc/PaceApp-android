@@ -5,7 +5,6 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 
 object AppSessionKeys {
     val ONBOARDING_STATUS = booleanPreferencesKey("onboarding_status")
-    val IS_AUTHENTICATED = booleanPreferencesKey("is_authenticated")
     val ACCESS_TOKEN = stringPreferencesKey("jwt_access_token")
     
     // We will store complex objects (like UserData) as JSON Strings

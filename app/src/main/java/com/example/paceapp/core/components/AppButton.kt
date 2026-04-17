@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
@@ -29,13 +30,12 @@ import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.ui.theme.AppColors
 import com.example.paceapp.ui.theme.AppTheme
-import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
 fun AppButton(
     modifier: Modifier,
     title: String,
-    cornerShape: Shape = ContinuousRoundedRectangle(48.dp),
+    cornerShape: Shape = RoundedCornerShape(48.dp),
     iconAlignment: Alignment = Alignment.CenterEnd,
     @DrawableRes iconRes: Int? = null,
     onClick: () -> Unit = {},

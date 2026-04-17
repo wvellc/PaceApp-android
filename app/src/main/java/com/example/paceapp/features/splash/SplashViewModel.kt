@@ -6,7 +6,6 @@ package com.example.paceapp.features.splash
 import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.core.garmin.GarminDeviceRepository
-import com.example.paceapp.features.authentication.login.navigation.LoginRoute
 import com.example.paceapp.features.splash.SplashContract.Effect
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
@@ -14,19 +13,17 @@ import com.example.paceapp.session.AppSessionManager
 import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.wvelabs.core_network.utils.AppLogger
-import com.wvelabs.core_ui.navigation.NavManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-const val APP_ID = "bec1b23d90564b958370b9ded9266942"
+const val WATCH_APP_ID = "bec1b23d90564b958370b9ded9266942"
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val sessionManager: AppSessionManager,
-    private val navManager: NavManager,
     private val garminDeviceRepository: GarminDeviceRepository,
 ) : BaseViewModel<State, Event, Effect>() {
     var app: IQApp? = null
@@ -50,12 +47,18 @@ class SplashViewModel @Inject constructor(
     }
 
     private suspend fun checkAuthentication() {
-        val auth = sessionManager.getAccessToken()
-        if(auth!=null){
-            navManager.navigate(LoginRoute)
-        }
-            setState { copy(isAuthenticated = auth != null) }
+        val isAuthenticated = sessionManager.isAuthenticated()
 
+        if (isAuthenticated) {
+            setEffect { Effect.NavigateToDashboard }
+        } else {
+            setState { copy(showGetStarted = true) }
+        }
+    }
+
+    private fun handleOnGetStartedClick() {
+//        sendMessageToWatch()
+        setEffect { Effect.NavigateToLogin }
     }
 
     private fun initGarminService() {
@@ -63,11 +66,10 @@ class SplashViewModel @Inject constructor(
             if (!garminDeviceRepository.isGarminServiceReady.value) {
                 garminDeviceRepository.initializeGarminService()
             }
-            val device = garminDeviceRepository.getKnownDevices()
-
-            AppLogger.i("DEVICES - $device")
-            if (device.isNotEmpty()) {
-                observeDevice(device.first())
+            val devices = garminDeviceRepository.getKnownDevices()
+            AppLogger.i("DEVICES - $devices")
+            for (device in devices) {
+                observeDevice(device)
             }
         }
     }
@@ -75,34 +77,46 @@ class SplashViewModel @Inject constructor(
 
     private fun observeDevice(device: IQDevice) {
         viewModelScope.launch {
-            appDevice = device
             garminDeviceRepository.observeDeviceStatus(device).collect { status ->
                 if (status == IQDevice.IQDeviceStatus.CONNECTED) {
-                    app = garminDeviceRepository.getWatchAppInfo(APP_ID, device)
-                    AppLogger.e("APP_INFO - ${app?.applicationId} NAME - ${app?.displayName}")
-                    if (appDevice != null && app != null) {
-//                        observeApp(appDevice!!, app!!)
-                        //TODO:Fix Helper and test watch messages
+                    val confirmedApp = garminDeviceRepository.getWatchAppInfo(WATCH_APP_ID, device)
 
-//                        if (app.status == IQApp.IQAppStatus.INSTALLED) {
-//                            val appStatus = garminDeviceRepository.openAppOnWatch(device, app)
+                    if (confirmedApp != null) {
+                        AppLogger.d("App verified on watch. Starting listener...")
+                        observeApp(device, confirmedApp)
+                    } else {
+                        // Even if null, try creating a "fake" app object as a fallback
+                        observeApp(device, IQApp(WATCH_APP_ID))
+                    }
+
+//                    app = garminDeviceRepository.getWatchAppInfo(APP_ID, device)
+
+//                    if (appDevice != null && app != null) {
+//                        if (app!!.status == IQApp.IQAppStatus.INSTALLED) {
+//                            val appStatus = garminDeviceRepository.openAppOnWatch(device, app!!)
 //                            AppLogger.e("APP_STATUS -$appStatus")
 //                        }
-                    }
+//
+//                        observeApp(appDevice!!, app!!)
+//
+//                    }
                 }
             }
         }
 
     }
 
-    private suspend fun observeApp(device: IQDevice, app: IQApp) {
-        AppLogger.i("APP_NAME - ${app.displayName}")
-        garminDeviceRepository.observeDeviceMessage(device, app).collect { messageData ->
+    private suspend fun observeApp(device: IQDevice, myApp: IQApp) {
+        AppLogger.i("APP_NAME - ${device.friendlyName}")
+        app = myApp
+        appDevice = device
+        garminDeviceRepository.observeDeviceMessage(device, myApp).collect { messageData ->
+            AppLogger.i("MESSAGE - $messageData")
         }
     }
 
 
-    private fun handleOnGetStartedClick() {
+    private fun sendMessageToWatch() {
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 if (appDevice != null && app != null) {
@@ -115,12 +129,9 @@ class SplashViewModel @Inject constructor(
                             "new message 2",
                             "new message 3"
                         )
-
                     )
                 }
             }
-
         }
-
     }
 }

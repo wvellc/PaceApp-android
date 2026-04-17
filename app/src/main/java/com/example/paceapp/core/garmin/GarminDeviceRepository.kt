@@ -23,7 +23,6 @@ class GarminDeviceRepository @Inject constructor(
     fun getKnownDevices(): List<IQDevice> = garminHelper.getKnownDevices()
 
     fun getConnectedDevices(): List<IQDevice> = garminHelper.getConnectedDevices()
-    fun getLinkedDevices(): List<IQDevice> = garminHelper.getLinkedDevices()
 
 
     fun observeDeviceStatus(device: IQDevice): Flow<IQDevice.IQDeviceStatus> {

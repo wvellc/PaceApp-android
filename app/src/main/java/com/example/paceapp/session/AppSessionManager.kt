@@ -24,6 +24,7 @@ class AppSessionManager @Inject constructor(
         // Triggered by 401. You would emit an event here to navigate the user out.
     }
 
+
     // --- PRIMITIVES (Booleans, Strings) ---
 
     suspend fun setOnboardingStatus(isComplete: Boolean) {
@@ -36,8 +37,9 @@ class AppSessionManager @Inject constructor(
 
     suspend fun saveToken(token: String) {
         write(AppSessionKeys.ACCESS_TOKEN, token)
-        write(AppSessionKeys.IS_AUTHENTICATED, true)
     }
+
+    suspend fun isAuthenticated(): Boolean = getAccessToken() != null
 
     // --- COMPLEX OBJECTS (JSON) ---
     // Example: Storing a UserData object

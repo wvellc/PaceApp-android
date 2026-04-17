@@ -16,7 +16,7 @@ hilt-navigation-compose = "1.2.0"
 uiUnit = "1.10.5" # Updated for collectAsStateWithLifecycle
 ksp = "2.0.21-1.0.28" # Make sure the first part matches your Kotlin version, e.g., if you use Kotlin 1.9.24, use "1.9.24-1.0.20"
 coreSplashscreen = "1.2.0"
-ciqCompanionAppSdk = "2.4.0"
+ciqCompanionAppSdk = "2.2.0"
 kotlinxDatetime = "0.7.1"
 #capsuleVersion = "2.1.3"
 

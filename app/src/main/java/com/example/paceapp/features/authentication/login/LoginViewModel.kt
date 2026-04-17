@@ -1,16 +1,15 @@
 package com.example.paceapp.features.authentication.login
 
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-
 // App-specific base classes and managers
-import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.session.AppSessionManager
 
 // Screen imports
+import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.features.authentication.login.LoginContract.Effect
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.LoginContract.State
+import com.example.paceapp.session.AppSessionManager
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -22,6 +21,9 @@ class LoginViewModel @Inject constructor(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> initData()
+            is Event.OnBackClicked -> {
+                setEffect { Effect.NavigateBack }
+            }
         }
     }
 

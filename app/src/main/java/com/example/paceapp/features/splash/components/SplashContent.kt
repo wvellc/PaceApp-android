@@ -1,6 +1,7 @@
 package com.example.paceapp.features.splash.components
 
-import androidx.compose.animation.core.EaseIn
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
@@ -24,10 +25,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
-import com.example.paceapp.core.components.AppLogo
-import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
+import com.example.paceapp.core.components.AppLogo
+import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.animation.AnimationWrapper
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
@@ -46,9 +47,7 @@ internal fun SplashContent(
         hasPattern = true,
     ) { innerPaddings ->
 
-        AnimationWrapper(
-            enter = fadeIn(animationSpec = defaultAnimSpec(duration = 300))
-        ) {
+        AnimationWrapper {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -61,7 +60,7 @@ internal fun SplashContent(
                         .fillMaxWidth()
                         .animateEnterExit(
                             enter = scaleIn(
-                                animationSpec = defaultAnimSpec(easing = EaseIn),
+                                animationSpec = defaultAnimSpec(),
                                 initialScale = 0.4f,
                             )
                         ),
@@ -69,15 +68,20 @@ internal fun SplashContent(
                 )
                 Spacer(modifier = Modifier.weight(1f))
 
-                if(!state.isAuthenticated){
+                AnimatedVisibility(
+                    visible = state.showGetStarted,
+                ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateEnterExit(
-                                enter = fadeIn(animationSpec = defaultAnimSpec(easing = EaseIn)) +
+                                enter = fadeIn(animationSpec = defaultAnimSpec(delay = 500)) +
                                         slideInVertically(
                                             initialOffsetY = { height -> height / 2 },
-                                            animationSpec = defaultAnimSpec(easing = EaseIn)
+                                            animationSpec = defaultAnimSpec(
+                                                delay = 500,
+                                                easing = EaseInOut
+                                            )
                                         )
                             ),
                         horizontalAlignment = Alignment.CenterHorizontally

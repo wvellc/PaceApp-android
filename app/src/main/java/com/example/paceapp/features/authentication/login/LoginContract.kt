@@ -14,9 +14,10 @@ class LoginContract {
 
     sealed class Event : ViewEvent {
         data object Init : Event()
+        object OnBackClicked : Event()
     }
 
     sealed class Effect : ViewSideEffect {
-        // data object NavigateBack : Effect()
+         data object NavigateBack : Effect()
     }
 }

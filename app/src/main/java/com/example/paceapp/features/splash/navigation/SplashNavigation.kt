@@ -9,9 +9,13 @@ import kotlinx.serialization.Serializable
 data object SplashRoute
 
 fun NavGraphBuilder.splashScreen(
-    // TODO: Add navigation callbacks here (e.g., onNavigateBack: () -> Unit)
+    onNavigateToLogin: () -> Unit,
+    onNavigateToDashboard: () -> Unit,
 ) {
     composable<SplashRoute> {
-        SplashScreen()
+        SplashScreen(
+            onNavigateToLogin = onNavigateToLogin,
+            onNavigateToDashboard = onNavigateToDashboard,
+        )
     }
 }

@@ -9,9 +9,9 @@ import com.example.paceapp.features.authentication.login.LoginScreen
 data object LoginRoute
 
 fun NavGraphBuilder.loginScreen(
-    // TODO: Add navigation callbacks here (e.g., onNavigateBack: () -> Unit)
+    onBack :()-> Unit,
 ) {
     composable<LoginRoute> {
-        LoginScreen()
+        LoginScreen(onBack = onBack)
     }
 }

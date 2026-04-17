@@ -5,22 +5,22 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import com.wvelabs.core_ui.extensions.defaultAnimSpec
 
 @Composable
 fun AnimationWrapper(
-    enter: EnterTransition = EnterTransition.None,
+    enter: EnterTransition = fadeIn(animationSpec = defaultAnimSpec(duration = 300)),
     exit: ExitTransition = ExitTransition.None,
     content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
     // State to trigger the animation
-    var isVisible by remember { mutableStateOf(false) }
+    var isVisible by rememberSaveable { mutableStateOf(false) }
 
     // Trigger it exactly once when the screen first composes
     LaunchedEffect(Unit) {
