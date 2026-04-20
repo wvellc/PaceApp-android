@@ -3,6 +3,7 @@ package com.example.paceapp.features.splash
 // App-specific base classes and managers
 
 // Screen imports
+import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.core.garmin.GarminDeviceRepository
@@ -14,6 +15,7 @@ import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -23,6 +25,7 @@ const val WATCH_APP_ID = "bec1b23d90564b958370b9ded9266942"
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
+    @param:ApplicationContext private val context: Context,
     private val sessionManager: AppSessionManager,
     private val garminDeviceRepository: GarminDeviceRepository,
 ) : BaseViewModel<State, Event, Effect>() {

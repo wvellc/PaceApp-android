@@ -2,13 +2,15 @@ package com.example.paceapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-object  AppColors {
+object AppColors {
     val NeonAquaBlue = Color(0xFF2EB2FF)
+    val NeonAquaBlue20 = Color(0x332EB2FF)
     val RadiantBlue = Color(0xFF235BFF)
     val FluorescentMint = Color(0xFF2FF99C)
     val Transparent = Color.Transparent
 
     val White = Color(0xFFFFFFFF)
+    val White20 = Color(0x33FFFFFF)
     val Black = Color(0xFF000000)
     val Error = Color(0xFFE43222)
     val InfernoRed = Color(0xFFFF4E36)
@@ -23,5 +25,13 @@ object  AppColors {
     val borderGradient = listOf(
         Color(0xFF2FF99C),
         Color(0xFF020302),
+    )
+    val segmentButtonGradient = listOf(
+        Color(0xFF1F97EA),
+        Color(0xFF0E76BD)
+    )
+    val buttonGradient = listOf(
+        NeonAquaBlue,
+        RadiantBlue,
     )
 }

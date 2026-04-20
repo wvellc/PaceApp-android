@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.MonthNames
+import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -66,12 +67,12 @@ val LocalDate.Companion.YY_MM_DD: DateTimeFormat<LocalDate> by lazy {
         char('-')
         monthNumber()
         char('-')
-        dayOfMonth()
+        day(padding = Padding.ZERO)
     }
 }
 val LocalDate.Companion.DD_MMM_YYYY: DateTimeFormat<LocalDate> by lazy {
     Format {
-        dayOfMonth()
+        day(padding = Padding.ZERO)
         char(' ')
         monthName(MonthNames.ENGLISH_ABBREVIATED)
         char(',')

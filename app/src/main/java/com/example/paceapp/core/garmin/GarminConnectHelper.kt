@@ -23,7 +23,7 @@ import kotlin.coroutines.resume
 
 @Singleton
 class GarminConnectHelper @Inject constructor(
-    @ApplicationContext private val context: Context, // Crucial for Singleton memory safety
+    @param:ApplicationContext private val context: Context, // Crucial for Singleton memory safety
     private val connectIQ: ConnectIQ
 ) {
     // Global state reflecting the SDK's readiness across the entire app

@@ -37,17 +37,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
     buildFeatures {
         compose = true
         buildConfig = true
     }
-
 }
 
 dependencies {
@@ -106,13 +107,12 @@ dependencies {
     // ---------------------------------------------------------
     // CAPSULE - For smooth rounded corner
     // ---------------------------------------------------------
-//    implementation(libs.capsule )
+    implementation(libs.capsule)
     // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)
     // ---------------------------------------------------------
     implementation(project(":core-network"))
     implementation(project(":core-ui"))
-
 
 
 }

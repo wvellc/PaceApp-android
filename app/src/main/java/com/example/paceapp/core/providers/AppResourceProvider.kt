@@ -7,7 +7,7 @@ import javax.inject.Inject
 
 
 class AppResourceProvider @Inject constructor(
-    @ApplicationContext private val context: Context
+    @param:ApplicationContext private val context: Context
 ) : ResourceProvider {
 
     override fun getString(resId: Int): String {

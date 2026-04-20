@@ -6,4 +6,15 @@
     <string name="pace">Pace</string>
     <string name="into">Into</string>
     <string name="performance">Performance</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="email">Email</string>
+    <string name="login_to_your_account">Login to Your Account</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="enter_a_valid_email_address">Please enter a valid email address</string>
+    <string name="enter_a_valid_phone_number">Please enter a valid phone number</string>
+    <string name="password_error"><![CDATA[Use 8+ characters with letters, numbers & symbols]]></string>
+    <string name="confirm_password_error">Passwords must match for confirmation</string>
+    <string name="enter_a_valid_name">Please enter a valid name</string>
+    <string name="enter_a_valid_input">Please enter a valid input</string>
+    <string name="enter_a_valid_number">Please enter a valid number</string>
 </resources>

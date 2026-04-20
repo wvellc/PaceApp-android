@@ -16,9 +16,10 @@ import com.example.paceapp.navigation.AppNavHost
 import com.example.paceapp.ui.theme.PaceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
+
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private val mainViewModel: MainViewModel by viewModels()
+//    private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install the splash screen

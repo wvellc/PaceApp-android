@@ -1,10 +1,7 @@
 package com.example.paceapp.features.splash.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,6 +27,7 @@ import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppLogo
 import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.animation.AnimationWrapper
+import com.example.paceapp.core.components.animation.fadeInUpTransition
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
 import com.example.paceapp.ui.theme.AppColors
@@ -54,10 +52,10 @@ internal fun SplashContent(
                     .padding(innerPaddings)
                     .padding(16.dp),
             ) {
-                Spacer(modifier = Modifier.fillMaxHeight(fraction = 0.25f))
                 AppLogo(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(top = 120.dp)
                         .animateEnterExit(
                             enter = scaleIn(
                                 animationSpec = defaultAnimSpec(),
@@ -75,14 +73,7 @@ internal fun SplashContent(
                         modifier = Modifier
                             .fillMaxWidth()
                             .animateEnterExit(
-                                enter = fadeIn(animationSpec = defaultAnimSpec(delay = 500)) +
-                                        slideInVertically(
-                                            initialOffsetY = { height -> height / 2 },
-                                            animationSpec = defaultAnimSpec(
-                                                delay = 500,
-                                                easing = EaseInOut
-                                            )
-                                        )
+                                enter = fadeInUpTransition
                             ),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -115,7 +106,7 @@ internal fun SplashContent(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             title = stringResource(R.string.get_started),
-                            iconRes = R.drawable.ic_arrow,
+                            trailingIconRes = R.drawable.ic_arrow,
                             onClick = { onEvent(Event.OnGetStarted) }
                         )
                     }
