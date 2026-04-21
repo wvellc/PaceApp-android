@@ -32,8 +32,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.ui.theme.AppColors
-import com.example.paceapp.ui.theme.AppTheme
+import com.example.paceapp.theme.AppColors
+import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt

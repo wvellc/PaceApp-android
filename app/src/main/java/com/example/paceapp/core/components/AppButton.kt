@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.ui.theme.AppColors
-import com.example.paceapp.ui.theme.AppTheme
+import com.example.paceapp.theme.AppColors
+import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
 
 enum class AppButtonStyle {
@@ -89,8 +89,8 @@ fun AppButton(
             .background(
                 color = AppColors.Black.copy(alpha = 0.2f)
             )
+            .alpha(alpha = if (enabled) 1f else 0.5f)
             .then(styleModifier)
-            .alpha(alpha = if (enabled) 1f else 0.2f)
             .padding(15.dp)
     ) {
         Text(
@@ -126,5 +126,7 @@ fun ButtonPreview() = AppButton(
     modifier = Modifier.fillMaxWidth(),
     title = "Lorem ipsum dolor",
     trailingIconRes = R.drawable.ic_arrow,
+    enabled = false,
+    style = AppButtonStyle.FILLED_GRADIENT,
     iconAlignment = Alignment.CenterEnd
 )

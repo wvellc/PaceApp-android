@@ -1,0 +1,53 @@
+package com.example.paceapp.core.components
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import com.example.paceapp.theme.AppColors
+import com.example.paceapp.theme.AppTheme
+
+@Composable
+fun AppTextButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    contentColor: Color = AppColors.NeonAquaBlue,
+    disabledContentColor: Color = AppColors.NeonAquaBlue20,
+    style: TextStyle = AppTheme.typography.size14,
+    fontWeight: FontWeight? = FontWeight.SemiBold,
+    contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
+    // Allows adding icons via a RowScope if needed later
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null
+) {
+    TextButton(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        colors = ButtonDefaults.textButtonColors(
+            contentColor = contentColor,
+            disabledContentColor = disabledContentColor
+        ),
+        contentPadding = contentPadding,
+        shape = MaterialTheme.shapes.small,
+    ) {
+        if (leadingIcon != null) {
+            leadingIcon()
+        }
+        Text(
+            text = text,
+            style = style.copy(fontWeight = fontWeight ?: FontWeight.SemiBold)
+        )
+        if (trailingIcon != null) {
+            trailingIcon()
+        }
+    }
+}

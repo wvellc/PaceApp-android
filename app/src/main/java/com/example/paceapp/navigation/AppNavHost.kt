@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.example.paceapp.features.authentication.login.navigation.loginScreen
+import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
 import com.example.paceapp.features.splash.navigation.splashScreen
 import com.wvelabs.core_ui.utils.rememberGlobalExitHandler
@@ -78,8 +79,14 @@ fun AppNavHost(
             onNavigateToDashboard = navActions::toDashboard,
         )
 
-        loginScreen(onBack = navActions::goBack)
+        //Login screen
+        loginScreen(
+            onBack = navActions::goBack,
+            onNavigateToWebview = navActions::toWebView
+        )
 
+        //Webview
+        webviewScreen()
 
     }
 }

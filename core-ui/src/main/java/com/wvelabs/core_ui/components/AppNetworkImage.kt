@@ -15,8 +15,9 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+
 
 @Composable
 fun AppNetworkImage(
@@ -27,10 +28,9 @@ fun AppNetworkImage(
     shape: Shape = RectangleShape,
     border: BorderStroke? = null,
     contentScale: ContentScale = ContentScale.Crop,
-    crossfade: Boolean = true,
     backgroundColor: Color = Color.Transparent,
     placeholder: Painter? = null,
-    error: Painter? = null
+    error: Painter? = null,
 ) {
 
     Box(
@@ -43,7 +43,6 @@ fun AppNetworkImage(
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(imageUrl)
-                .crossfade(crossfade)
                 .build(),
             contentDescription = contentDescription,
             contentScale = contentScale,

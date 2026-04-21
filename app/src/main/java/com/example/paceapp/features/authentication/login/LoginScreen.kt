@@ -4,7 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.paceapp.features.authentication.login.LoginContract.Effect
 import com.example.paceapp.features.authentication.login.LoginContract.Event
@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onBack: () -> Unit,
+    onNavigateToWebview: (url: String, title: String?) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     BackHandler(enabled = true) {
@@ -31,6 +32,7 @@ fun LoginScreen(
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
+                is Effect.NavigateToWebview -> onNavigateToWebview(effect.url, effect.title)
             }
         }
     }

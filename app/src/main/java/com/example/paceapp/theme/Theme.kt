@@ -1,4 +1,4 @@
-package com.example.paceapp.ui.theme
+package com.example.paceapp.theme
 
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme

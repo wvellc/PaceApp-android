@@ -8,12 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.paceapp.R
-import com.example.paceapp.ui.theme.AppColors
+import com.example.paceapp.theme.AppColors
 import com.wvelabs.core_ui.shell.BaseScreenBox
 
 @Composable
@@ -21,9 +20,11 @@ fun AppBaseScreen(
     modifier: Modifier = Modifier,
     animationWrapper: @Composable (content: @Composable () -> Unit) -> Unit = { content -> content() },
     isLoading: Boolean = false,
-    customBackground: @Composable () -> Unit = {},
+    customBackground: (@Composable () -> Unit)? = null,
     hasPattern: Boolean = false,
     appBar: @Composable () -> Unit = {},
+    applySystemInsets: Boolean = true,
+    appLoader: @Composable () -> Unit = { AppLoadingIndicator() },
     content: @Composable ((innerPaddings: PaddingValues) -> Unit),
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -32,6 +33,7 @@ fun AppBaseScreen(
             appBar = appBar,
             modifier = modifier,
             content = content,
+            applySystemInsets = applySystemInsets,
             background = {
                 Box(
                     modifier = Modifier
@@ -42,7 +44,9 @@ fun AppBaseScreen(
                             )
                         )
                 ) {
-                    customBackground()
+                    if (customBackground != null) {
+                        customBackground()
+                    }
 
                     if (hasPattern) {
                         Image(
@@ -58,7 +62,7 @@ fun AppBaseScreen(
         )
         // Global Loading Overlay
         if (isLoading) {
-            AppLoadingIndicator()
+            appLoader()
         }
     }
 }

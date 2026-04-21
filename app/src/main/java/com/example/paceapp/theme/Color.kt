@@ -1,4 +1,4 @@
-package com.example.paceapp.ui.theme
+package com.example.paceapp.theme
 
 import androidx.compose.ui.graphics.Color
 

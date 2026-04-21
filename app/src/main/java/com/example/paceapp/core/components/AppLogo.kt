@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
-import com.example.paceapp.ui.theme.AppColors
-import com.example.paceapp.ui.theme.AppTheme
+import com.example.paceapp.theme.AppColors
+import com.example.paceapp.theme.AppTheme
 
 enum class LogoStyle {
     Horizontal, Vertical

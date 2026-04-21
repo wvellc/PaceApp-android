@@ -12,17 +12,19 @@ class LoginContract {
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
         val selectedLoginType: LoginTypes = LoginTypes.EMAIL,
-        val sendOtpEnabled : Boolean = false,
     ) : ViewState
 
     sealed class Event : ViewEvent {
         data object Init : Event()
         object OnBackClicked : Event()
         data class OnLoginTypeSelected(val loginType: LoginTypes) : Event()
+        data class OnLoginClick(val value: String) : Event()
+        data class ToWebview(val url: String) : Event()
 
     }
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
+        data class NavigateToWebview(val url: String, val title: String? = null) : Effect()
     }
 }

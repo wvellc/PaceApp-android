@@ -3,7 +3,9 @@ package com.example.paceapp.features.authentication.login
 // App-specific base classes and managers
 
 // Screen imports
+import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.base.BaseViewModel
+import com.example.paceapp.core.providers.AppResourceProvider
 import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.LoginContract.Effect
 import com.example.paceapp.features.authentication.login.LoginContract.Event
@@ -14,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val sessionManager: AppSessionManager
+    private val sessionManager: AppSessionManager,
+    private val resourceProvider: AppResourceProvider,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -27,19 +30,32 @@ class LoginViewModel @Inject constructor(
             }
 
             is Event.OnLoginTypeSelected -> handleOnLoginTypeSelected(event.loginType)
+
+            is Event.OnLoginClick -> handleOnLoginClicked(event.value)
+            is Event.ToWebview -> handleWebviewNavigation(event.url)
         }
     }
 
 
     private fun initData() {
         if (state.value.isInitialized) return
-
-        // TODO: Initialization logic here
-
         setState { copy(isInitialized = true) }
     }
 
     private fun handleOnLoginTypeSelected(loginType: LoginTypes) {
         setState { copy(selectedLoginType = loginType) }
     }
+
+    private fun handleOnLoginClicked(value: String) {}
+
+    private fun handleWebviewNavigation(url: String) {
+        val title = when (url) {
+            AppWebUrls.TERM_CONDITIONS -> "Terms of Service"
+            AppWebUrls.PRIVACY_POLICY -> "Privacy Policy"
+            else -> "Web View"
+        }
+        setEffect { Effect.NavigateToWebview(url, title) }
+    }
+
+
 }

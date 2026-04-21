@@ -24,7 +24,7 @@ object Validator {
         val regEx = when (type) {
             ValidatorType.Email -> Patterns.EMAIL_ADDRESS
             ValidatorType.Name -> Pattern.compile("^[a-zA-Z ]{2,}$")
-            ValidatorType.Phone -> Pattern.compile("(^(?:[+0]9)?[0-9]{10,14}\$)")
+            ValidatorType.Phone -> Pattern.compile("^(?:[+0]9)?[0-9]{10,14}$")
             ValidatorType.Text -> Pattern.compile("^([a-zA-Z0-9\\s\\n'`!@#$%^&*()])+$")
             ValidatorType.Number -> Pattern.compile("^\\d*\\.?\\d+\$")
             /// Password (Hard) Regex

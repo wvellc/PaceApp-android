@@ -48,12 +48,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.ui.theme.AppColors
-import com.example.paceapp.ui.theme.AppTheme
+import com.example.paceapp.theme.AppColors
+import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
@@ -81,18 +82,18 @@ fun AppTextField(
     iconColor: Color = AppColors.HintGray,
 
     // Custom Border Width Controls
-    unfocusedBorderWidth: Dp = 1.2.dp,
+    unfocusedBorderWidth: Dp = 1.dp,
     focusedBorderWidth: Dp = 2.dp,
 
     // Simplified Error State
     showErrorMessage: Boolean = false, // Parent can force an error state
-    errorTextStyle: TextStyle = AppTheme.typography.size14.copy(fontWeight = FontWeight.Medium),
+    errorTextStyle: TextStyle = AppTheme.typography.size16.copy(fontWeight = FontWeight.Medium),
 
     @DimenRes showPasswordIcon: Int? = null,
     @DimenRes hidePasswordIcon: Int? = null,
 
     title: String? = null,
-    titleSpacing: Dp = 0.dp,
+    titleSpacing: Dp = 5.dp,
 ) {
     var isError by remember { mutableStateOf(false) }
     var isPasswordShown by remember { mutableStateOf(false) }
@@ -113,7 +114,8 @@ fun AppTextField(
         isError -> AppColors.Error
         else -> borderColor
     }
-    val currentBorderWidth = if (isFocused && enabled && !isError) focusedBorderWidth else unfocusedBorderWidth
+    val currentBorderWidth =
+        if (isFocused && enabled && !isError) focusedBorderWidth else unfocusedBorderWidth
     val currentIconColor = if (isError) AppColors.Error else iconColor
 
     Column(
@@ -125,6 +127,7 @@ fun AppTextField(
             Text(
                 text = title,
                 style = AppTheme.typography.size20.copy(color = AppColors.White)
+
             )
         }
 
@@ -132,7 +135,9 @@ fun AppTextField(
         Row(
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth().background(color = Color.Transparent),
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(color = Color.Transparent),
         ) {
 
             // Phone Prefix UI
@@ -197,8 +202,14 @@ fun AppTextField(
                     singleLine = maxLines <= 1,
                     maxLines = maxLines,
                     minLines = minLines,
-                    textStyle = textStyle.copy(color = if (enabled) AppColors.White else AppColors.FashionGray),
-                    cursorBrush = SolidColor(borderColor),
+                    textStyle = textStyle.copy(
+                        color = when {
+                            enabled -> AppColors.White
+                            else -> AppColors.FashionGray
+                        }
+                    ),
+                    cursorBrush = SolidColor(AppColors.NeonAquaBlue),
+
                     keyboardOptions = KeyboardOptions(
                         keyboardType = keyboardType,
                         imeAction = imeAction,
@@ -237,9 +248,10 @@ fun AppTextField(
                                     Text(
                                         text = hint,
                                         style = textStyle,
-                                        color = AppColors.HintGray
+                                        color = AppColors.HintGray.copy(0.8f)
                                     )
                                 }
+
                                 innerTextField()
                             }
 
@@ -281,252 +293,58 @@ fun AppTextField(
         }
     }
 }
-/*
 
-import androidx.annotation.DimenRes
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.example.paceapp.R
-import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.ui.theme.AppColors
-import com.example.paceapp.ui.theme.AppTheme
-import com.kyant.capsule.ContinuousRoundedRectangle
-
+@Preview(showBackground = true, backgroundColor = 0xFF235BFF)
 @Composable
-fun AppTextField(
-    modifier: Modifier,
-    hint: String,
-    focusRequester: FocusRequester = remember { FocusRequester() },
-    borderShape: Shape = ContinuousRoundedRectangle(12.dp),
-    value: TextFieldValue = TextFieldValue(),
-    onValueChange: (TextFieldValue) -> Unit = {},
-    trailingIcon: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    oldPassword: TextFieldValue? = null,
-    titlePadding: Dp = 0.dp,
-    validatorType: ValidatorType = ValidatorType.None,
-    imeAction: ImeAction = ImeAction.Unspecified,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
-    keyboardActions: KeyboardActions = KeyboardActions(),
-    title: String? = null,
-    enabled: Boolean = true,
-    readOnly: Boolean = false,
-    maxLines: Int = 1,
-    minLines: Int = 1,
-    textStyle: TextStyle = AppTheme.typography.size18.copy(
-        fontWeight = FontWeight.Medium
-    ),
-    borderColor: Color = AppColors.White,
-    iconColor: Color = AppColors.HintGray,
-    @DimenRes showPasswordIcon: Int? = null,
-    @DimenRes hidePasswordIcon: Int? = null
-) {
-    var isError by remember { mutableStateOf(false) }
-    var isPasswordShown by remember { mutableStateOf(false) }
-    val keyboard = LocalSoftwareKeyboardController.current
-
-    val colors = OutlinedTextFieldDefaults.colors(
-        //Focused
-        focusedContainerColor = AppColors.Transparent,
-        focusedBorderColor = borderColor,
-        focusedLeadingIconColor = iconColor,
-        focusedTrailingIconColor = iconColor,
-
-        //Unfocused
-        unfocusedContainerColor = AppColors.Transparent,
-        unfocusedBorderColor = borderColor,
-        unfocusedLeadingIconColor = iconColor,
-        unfocusedTrailingIconColor = iconColor,
-
-        //Disabled
-        disabledContainerColor = AppColors.Transparent,
-        disabledBorderColor = AppColors.FashionGray,
-        disabledLeadingIconColor = iconColor,
-        disabledTrailingIconColor = iconColor,
-
-        //Error
-        errorContainerColor = AppColors.Transparent,
-        errorBorderColor = AppColors.Error,
-        errorLeadingIconColor = iconColor,
-        errorTrailingIconColor = iconColor,
-    )
-    //Keyboard type
-    val keyboardType = when (validatorType) {
-        ValidatorType.Email -> KeyboardType.Email
-        ValidatorType.Phone -> KeyboardType.Phone
-        ValidatorType.Password -> KeyboardType.Password
-        ValidatorType.ConfirmPassword -> KeyboardType.Password
-        ValidatorType.Name -> KeyboardType.Text
-        ValidatorType.Text -> KeyboardType.Text
-        ValidatorType.Number -> KeyboardType.Decimal
-        ValidatorType.None -> KeyboardType.Text
-    }
-
-
-    val eyeIcon: @Composable () -> Unit = {
-        if (showPasswordIcon != null && hidePasswordIcon != null) {
-            IconButton(
-                onClick = { isPasswordShown = !isPasswordShown }
-            ) {
-                Icon(
-                    painter = painterResource(
-                        when (isPasswordShown) {
-                            true -> showPasswordIcon
-                            false -> hidePasswordIcon
-                        }
-                    ),
-                    contentDescription = null,
-                )
-            }
-        }
-    }
-
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = modifier
-            .background(color = Color.Transparent),
+fun AppTextFieldPreview() {
+    // We use a simplified theme wrapper or just rely on the hardcoded colors in your component
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        if (validatorType == ValidatorType.Phone) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .height(48.dp)
-                    .clip(borderShape)
-                    .border(
-                        width = 1.2.dp,
-                        color = borderColor,
-                        shape = borderShape
-                    )
-                    .defaultClickable(
-                        rippleColor = AppColors.White20,
-                        onClick = {}
-                    )
-                    .padding(horizontal = 8.dp)
-            ) {
-                Text(
-                    "+91",
-                    style = textStyle,
-                    color = AppColors.White,
-                )
-                Image(
-                    painter = painterResource(R.drawable.ic_down_arrow),
-                    contentDescription = null,
-                )
-            }
-        }
-        // Text Field
-        OutlinedTextField(
 
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp)
-                .focusRequester(focusRequester)
-                .onFocusEvent {
-                    //Check confirm password
-                    if (validatorType == ValidatorType.ConfirmPassword) {
-                        val hasError = Validator.validate(
-                            value.text,
-                            validatorType
-                        ) != null
+        // 1. Standard Email Field (Empty)
+        AppTextField(
+            title = "Email",
+            hint = "Enter your email address",
+            validatorType = ValidatorType.Email,
+            value = TextFieldValue(""),
+            onValueChange = {}
+        )
 
-                        isError = when {
-                            hasError || value.text.isNotBlank() -> oldPassword?.text != value.text
-                            else -> false
-                        }
-                    }
-                    if (it.isFocused && isError) {
-                        keyboard?.show()
-                    }
-                },
-            enabled = enabled,
-            readOnly = readOnly,
-            value = value,
-            singleLine = maxLines <= 1,
-            maxLines = maxLines,
-            minLines = minLines,
-            visualTransformation = when {
-                validatorType.isPasswordTypeField() && !isPasswordShown -> PasswordVisualTransformation()
-                else -> VisualTransformation.None
-            },
-            onValueChange = {
-                //If this is confirm password field then compare it to oldPassword Field
-                isError = if (validatorType == ValidatorType.ConfirmPassword) {
-                    Validator.validate(
-                        it.text,
-                        validatorType
-                    ) != null || oldPassword?.text != it.text
-                } else {
-                    Validator.validate(it.text, validatorType) != null
-                }
-                onValueChange.invoke(it)
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType,
-                imeAction = imeAction,
-                capitalization = capitalization,
-            ),
+        // 2. Phone Field (Shows the static +91 dropdown)
+        var phoneValue by remember { mutableStateOf(TextFieldValue("")) }
+        AppTextField(
+            title = "Phone Number",
+            hint = "1234567890",
+            validatorType = ValidatorType.Phone,
+            value = phoneValue,
+            onValueChange = { phoneValue = it }
+        )
 
-            keyboardActions = keyboardActions,
-            isError = isError,
-            colors = colors,
-            interactionSource = interactionSource,
-            shape = borderShape,
-            leadingIcon = leadingIcon,
-            trailingIcon = if (validatorType.isPasswordTypeField()) eyeIcon else trailingIcon,
-            placeholder = {
-                Text(
-                    hint,
-                    style = textStyle,
-                    color = AppColors.RadiantBlue,
-                )
-            },
-            textStyle = textStyle,
+        // 3. Password Field (With dummy text to show dots)
+        var passwordValue by remember { mutableStateOf(TextFieldValue("secret123")) }
+        AppTextField(
+            title = "Password",
+            hint = "Enter your password",
+            validatorType = ValidatorType.Password,
+            value = passwordValue,
+            onValueChange = { passwordValue = it },
+//            // Make sure these match your actual drawable names!
+//            showPasswordIcon = R.drawable.ic_eye_open,
+//            hidePasswordIcon = R.drawable.ic_eye_closed
+        )
 
+        // 4. Forced Error State
+        AppTextField(
+            title = "Forced Error State",
+            hint = "Email Address",
+            validatorType = ValidatorType.Email,
+            value = TextFieldValue("invalid-email-format"),
+            onValueChange = {},
+            showErrorMessage = true // 🚀 Forces the error message to expand
         )
     }
 }
-*/

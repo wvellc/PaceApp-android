@@ -17,4 +17,11 @@
     <string name="enter_a_valid_name">Please enter a valid name</string>
     <string name="enter_a_valid_input">Please enter a valid input</string>
     <string name="enter_a_valid_number">Please enter a valid number</string>
+    <string name="email_address">Email Address</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="by_continuing_you_agree_to_our">By continuing, you agree to our</string>
+    <string name="terms_of_service">Terms of Service</string>
+    <string name="and">and</string>
+    <string name="back">Back</string>
+
 </resources>

@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,8 +29,8 @@ import com.example.paceapp.core.components.animation.AnimationWrapper
 import com.example.paceapp.core.components.animation.fadeInUpTransition
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
-import com.example.paceapp.ui.theme.AppColors
-import com.example.paceapp.ui.theme.AppTheme
+import com.example.paceapp.theme.AppColors
+import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
 
 @Composable
@@ -49,13 +48,12 @@ internal fun SplashContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPaddings)
                     .padding(16.dp),
             ) {
                 AppLogo(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 120.dp)
+                        .padding(top = innerPaddings.calculateTopPadding() + 120.dp)
                         .animateEnterExit(
                             enter = scaleIn(
                                 animationSpec = defaultAnimSpec(),
@@ -71,10 +69,7 @@ internal fun SplashContent(
                 ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .animateEnterExit(
-                                enter = fadeInUpTransition
-                            ),
+                            .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         val spanStyle = SpanStyle(
@@ -94,21 +89,31 @@ internal fun SplashContent(
                         }
 
                         Text(
+
                             annotatedString,
                             style = AppTheme.typography.size32.copy(
                                 fontWeight = FontWeight.Light,
                                 textAlign = TextAlign.Center
                             ),
-                            color = AppColors.White
+                            color = AppColors.White,
+                            modifier = Modifier.animateEnterExit(
+                                enter = fadeInUpTransition
+                            ),
                         )
                         Spacer(modifier = Modifier.height(25.dp))
                         AppButton(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .animateEnterExit(
+                                    enter = fadeInUpTransition
+                                ),
                             title = stringResource(R.string.get_started),
                             trailingIconRes = R.drawable.ic_arrow,
                             onClick = { onEvent(Event.OnGetStarted) }
                         )
+                        //Bottom inset paddings
+                        Spacer(modifier = Modifier.height(innerPaddings.calculateBottomPadding()))
+
                     }
                 }
 

@@ -20,20 +20,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun CommonAppBar(
+fun BaseAppBar(
     title: String? = null,
+    titleStyle: TextStyle = TextStyle.Default,
     titleContent: @Composable (RowScope.() -> Unit)? = null,
     showBackButton: Boolean = true,
     isCollapsed: Boolean = true,
     collapsedHeight: Dp = 56.dp,
     expandedHeight: Dp = 56.dp,// If these are equal, it behaves as a normal App Bar
     backButtonIcon: @Composable () -> Unit = { /* Default Back Icon */ },
-    onBackClick: (() -> Unit)? = null,
     background: @Composable BoxScope.() -> Unit = {},
     actionsArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     actions: @Composable RowScope.() -> Unit = {},
@@ -84,8 +86,9 @@ fun CommonAppBar(
                         Text(
                             text = title,
                             maxLines = 1,
+                            textAlign = TextAlign.Center,
                             overflow = TextOverflow.Ellipsis,
-                            // style = AppTheme.typography.title
+                            style = titleStyle
                         )
                     }
                 }

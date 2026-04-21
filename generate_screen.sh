@@ -119,7 +119,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Event
 import ${PACKAGE_PATH}.components.${SCREEN_PASCAL}Content

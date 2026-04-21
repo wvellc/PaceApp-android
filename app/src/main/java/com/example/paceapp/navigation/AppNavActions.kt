@@ -2,6 +2,7 @@ package com.example.paceapp.navigation
 
 import androidx.navigation.NavHostController
 import com.example.paceapp.features.authentication.login.navigation.LoginRoute
+import com.example.paceapp.features.common.webview.navigation.WebviewRoute
 
 class AppNavActions(
     private val navController: NavHostController,
@@ -28,11 +29,17 @@ class AppNavActions(
 //            launchSingleTop = true
 //        }
     }
-//
-//    // Look how clean passing arguments is now! No Uri.encode needed!
-//    fun toWebView(url: String, title: String) {
-//        navController.navigate(WebViewRoute(url = url, title = title)) {
-//            launchSingleTop = true
-//        }
-//    }
+
+    // Look how clean passing arguments is now! No Uri.encode needed!
+    fun toWebView(url: String, title: String? = null, isZoomEnabled: Boolean = false) {
+        navController.navigate(
+            WebviewRoute(
+                url = url,
+                title = title,
+                isZoomEnabled = isZoomEnabled
+            )
+        ) {
+            launchSingleTop = true
+        }
+    }
 }
