@@ -63,10 +63,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    implementation(libs.androidx.compose.ui.tooling)
 
     //Kotlin Date time extension
     implementation(libs.kotlinx.datetime)
+
 
     // ---------------------------------------------------------
     // SPLASH SCREEN
@@ -115,6 +116,11 @@ dependencies {
     // CAPSULE - For smooth rounded corner
     // ---------------------------------------------------------
     implementation(libs.capsule)
+
+    // ---------------------------------------------------------
+    // COUNTRY CODE PICKER
+    // ---------------------------------------------------------
+    implementation(libs.country.picker)
 
     // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)

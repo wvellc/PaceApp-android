@@ -29,7 +29,8 @@ ciqCompanionAppSdk = "2.2.0"
 capsuleVersion = "2.1.1"
 
 # Testing / UI Support
-uiUnit = "1.10.6" # Matches internal BOM 2026.03.00 versions
+uiUnit = "1.10.6"
+countryPicker = "3.0.1" # Matches internal BOM 2026.03.00 versions
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -74,6 +75,9 @@ kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime",
 
 #CAPSULE
 capsule = { group = "io.github.kyant0", name = "capsule", version.ref = "capsuleVersion" }
+
+#COUNTRY CODE PICKER
+country-picker = { group = "com.github.arpitkatiyar1999", name = "Country-Picker", version.ref = "countryPicker" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

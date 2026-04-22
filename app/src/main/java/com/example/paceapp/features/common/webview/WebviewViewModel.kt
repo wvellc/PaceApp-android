@@ -10,6 +10,7 @@ import com.example.paceapp.features.common.webview.WebviewContract.Effect
 import com.example.paceapp.features.common.webview.WebviewContract.Event
 import com.example.paceapp.features.common.webview.WebviewContract.State
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
+import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 

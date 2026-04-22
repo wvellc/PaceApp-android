@@ -88,10 +88,10 @@ fun AppTextField(
     // Simplified Error State
     showErrorMessage: Boolean = false, // Parent can force an error state
     errorTextStyle: TextStyle = AppTheme.typography.size16.copy(fontWeight = FontWeight.Medium),
-
+    onCountryCodeClick: () -> Unit = {},
     @DimenRes showPasswordIcon: Int? = null,
     @DimenRes hidePasswordIcon: Int? = null,
-
+    countryCode: String? = null,
     title: String? = null,
     titleSpacing: Dp = 5.dp,
 ) {
@@ -141,27 +141,15 @@ fun AppTextField(
         ) {
 
             // Phone Prefix UI
-            if (validatorType == ValidatorType.Phone) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(7.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .height(48.dp)
-                        .clip(borderShape)
-                        .border(
-                            width = unfocusedBorderWidth,
-                            color = borderColor,
-                            shape = borderShape
-                        )
-                        .defaultClickable(rippleColor = AppColors.White20, onClick = {})
-                        .padding(horizontal = 12.dp)
-                ) {
-                    Text("+91", style = textStyle, color = AppColors.White)
-                    Image(
-                        painter = painterResource(R.drawable.ic_down_arrow),
-                        contentDescription = null
-                    )
-                }
+            if (validatorType == ValidatorType.Phone && countryCode != null) {
+                CountryCodeField(
+                    borderShape = borderShape,
+                    unfocusedBorderWidth = unfocusedBorderWidth,
+                    borderColor = borderColor,
+                    textStyle = textStyle,
+                    countryCode = countryCode,
+                    onCodeClick = onCountryCodeClick,
+                )
             }
 
             // The Text Field & Error Column
@@ -291,6 +279,37 @@ fun AppTextField(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun CountryCodeField(
+    borderShape: Shape,
+    unfocusedBorderWidth: Dp,
+    borderColor: Color,
+    textStyle: TextStyle,
+    countryCode: String,
+    onCodeClick: () -> Unit,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(7.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .height(48.dp)
+            .clip(borderShape)
+            .border(
+                width = unfocusedBorderWidth,
+                color = borderColor,
+                shape = borderShape
+            )
+            .defaultClickable(rippleColor = AppColors.White20, onClick = onCodeClick)
+            .padding(horizontal = 12.dp)
+    ) {
+        Text(countryCode, style = textStyle, color = AppColors.White)
+        Image(
+            painter = painterResource(R.drawable.ic_down_arrow),
+            contentDescription = null
+        )
     }
 }
 

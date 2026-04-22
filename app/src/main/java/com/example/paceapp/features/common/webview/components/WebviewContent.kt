@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,9 +42,15 @@ internal fun WebviewContent(
     onEvent: (Event) -> Unit
 ) {
     var lastRequestedUrl by remember { mutableStateOf("") }
+    var isInitialized by remember { mutableStateOf(false) }
 
+    LaunchedEffect(state.isLoading) {
+        if (!state.isLoading) {
+            isInitialized = true
+        }
+    }
     val webViewAlpha by animateFloatAsState(
-        targetValue = if (state.isLoading) 0f else 1f,
+        targetValue = if (!isInitialized) 0f else 1f,
         animationSpec = tween(durationMillis = 400), // 400ms fade is the Android standard
         label = "WebView Fade"
     )

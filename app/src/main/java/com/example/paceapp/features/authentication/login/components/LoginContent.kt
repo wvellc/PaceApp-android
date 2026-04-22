@@ -187,6 +187,7 @@ internal fun LoginContent(
 
                         LoginTypes.PHONE -> AppTextField(
                             hint = "1234567890",
+                            countryCode = "+1",
                             borderColor = AppColors.White20,
                             modifier = Modifier.fillMaxWidth(),
                             validatorType = ValidatorType.Phone,
@@ -198,6 +199,7 @@ internal fun LoginContent(
                             showErrorMessage = true,
                             capitalization = KeyboardCapitalization.None,
                             focusRequester = phoneFocus,
+                            onCountryCodeClick = { onEvent(Event.OnCountryCodeClick) }
                         )
                     }
                 }

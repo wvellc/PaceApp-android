@@ -75,22 +75,23 @@ fun BaseAppBar(
                 modifier = Modifier
                     .weight(1f)
                     .padding(horizontal = 8.dp),
-                contentAlignment = Alignment.CenterStart
+                contentAlignment = Alignment.Center
             ) {
-                when {
-                    titleContent != null -> {
-                        Row(content = titleContent)
-                    }
-
-                    title != null -> {
-                        Text(
-                            text = title,
-                            maxLines = 1,
-                            textAlign = TextAlign.Center,
-                            overflow = TextOverflow.Ellipsis,
-                            style = titleStyle
-                        )
-                    }
+                if (titleContent != null) {
+                    Row(
+                        content = titleContent,
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    )
+                } else if (title != null) {
+                    Text(
+                        text = title,
+                        maxLines = 1,
+                        textAlign = TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        style = titleStyle,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
 

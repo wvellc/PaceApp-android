@@ -3,6 +3,7 @@ package com.example.paceapp.features.authentication.login
 // App-specific base classes and managers
 
 // Screen imports
+import com.example.paceapp.R
 import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.core.providers.AppResourceProvider
@@ -33,6 +34,8 @@ class LoginViewModel @Inject constructor(
 
             is Event.OnLoginClick -> handleOnLoginClicked(event.value)
             is Event.ToWebview -> handleWebviewNavigation(event.url)
+            is Event.OnCountryCodeClick -> handleOnCountryCodeClick()
+
         }
     }
 
@@ -50,12 +53,15 @@ class LoginViewModel @Inject constructor(
 
     private fun handleWebviewNavigation(url: String) {
         val title = when (url) {
-            AppWebUrls.TERM_CONDITIONS -> "Terms of Service"
-            AppWebUrls.PRIVACY_POLICY -> "Privacy Policy"
-            else -> "Web View"
+            AppWebUrls.TERM_CONDITIONS -> resourceProvider.getString(R.string.terms_of_service)
+            AppWebUrls.PRIVACY_POLICY -> resourceProvider.getString(R.string.privacy_policy)
+            else -> null
         }
         setEffect { Effect.NavigateToWebview(url, title) }
     }
 
+    private fun handleOnCountryCodeClick() {
+
+    }
 
 }

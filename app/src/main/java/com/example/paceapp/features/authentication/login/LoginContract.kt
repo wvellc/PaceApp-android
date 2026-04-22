@@ -16,7 +16,9 @@ class LoginContract {
 
     sealed class Event : ViewEvent {
         data object Init : Event()
-        object OnBackClicked : Event()
+        data object OnBackClicked : Event()
+        data object OnCountryCodeClick : Event()
+
         data class OnLoginTypeSelected(val loginType: LoginTypes) : Event()
         data class OnLoginClick(val value: String) : Event()
         data class ToWebview(val url: String) : Event()
