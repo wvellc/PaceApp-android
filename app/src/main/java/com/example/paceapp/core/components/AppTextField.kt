@@ -2,11 +2,12 @@ package com.example.paceapp.core.components
 
 import androidx.annotation.DimenRes
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -14,19 +15,29 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.TextFieldDecorator
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,29 +56,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.paceapp.R
-import com.example.paceapp.core.extensions.defaultClickable
+import com.arpitkatiyarprojects.countrypicker.models.CountryDetails
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
+
 
 @Composable
 fun AppTextField(
     modifier: Modifier = Modifier,
     hint: String,
+    state: TextFieldState,
+    oldPasswordState: TextFieldState? = null,
     focusRequester: FocusRequester = remember { FocusRequester() },
     borderShape: Shape = ContinuousRoundedRectangle(12.dp),
-    value: TextFieldValue = TextFieldValue(),
-    onValueChange: (TextFieldValue) -> Unit = {},
-    trailingIcon: @Composable (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    oldPassword: TextFieldValue? = null,
     validatorType: ValidatorType = ValidatorType.None,
     imeAction: ImeAction = ImeAction.Unspecified,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
@@ -80,7 +85,7 @@ fun AppTextField(
     textStyle: TextStyle = AppTheme.typography.size18.copy(fontWeight = FontWeight.Medium),
     borderColor: Color = AppColors.White,
     iconColor: Color = AppColors.HintGray,
-
+    onKeyboardAction: KeyboardActionHandler? = null,
     // Custom Border Width Controls
     unfocusedBorderWidth: Dp = 1.dp,
     focusedBorderWidth: Dp = 2.dp,
@@ -88,18 +93,16 @@ fun AppTextField(
     // Simplified Error State
     showErrorMessage: Boolean = false, // Parent can force an error state
     errorTextStyle: TextStyle = AppTheme.typography.size16.copy(fontWeight = FontWeight.Medium),
-    onCountryCodeClick: () -> Unit = {},
     @DimenRes showPasswordIcon: Int? = null,
     @DimenRes hidePasswordIcon: Int? = null,
-    countryCode: String? = null,
+    onCountrySelected: (country: CountryDetails) -> Unit = {},
+    height: Dp = 48.dp,
     title: String? = null,
     titleSpacing: Dp = 5.dp,
+    selectedCountryCode: String = "",
+    trailingIcon: @Composable (() -> Unit)? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
 ) {
-    var isError by remember { mutableStateOf(false) }
-    var isPasswordShown by remember { mutableStateOf(false) }
-    var isFocused by remember { mutableStateOf(false) }
-    val keyboard = LocalSoftwareKeyboardController.current
-
     val keyboardType = when (validatorType) {
         ValidatorType.Email -> KeyboardType.Email
         ValidatorType.Phone -> KeyboardType.Phone
@@ -109,6 +112,30 @@ fun AppTextField(
         ValidatorType.None -> KeyboardType.Text
     }
 
+
+    var isPasswordShown by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
+    val keyboard = LocalSoftwareKeyboardController.current
+    var isInitialized by rememberSaveable { mutableStateOf(state.text.isNotEmpty()) }
+
+    val isError = remember(state.text, isFocused, isInitialized, oldPasswordState?.text) {
+        val currentText = state.text.toString()
+
+        val hasValidationError = if (validatorType == ValidatorType.ConfirmPassword) {
+            when {
+                currentText.isBlank() -> false // Don't show "no match" if empty
+                oldPasswordState?.text?.toString() != currentText -> true
+                else -> Validator.validate(currentText, validatorType) != null
+            }
+        } else {
+            Validator.validate(currentText, validatorType) != null
+        }
+
+        // ONLY show the error if the field is dirty (has been touched)
+        isInitialized && hasValidationError
+    }
+
+
     val currentBorderColor = when {
         !enabled -> AppColors.FashionGray
         isError -> AppColors.Error
@@ -117,6 +144,76 @@ fun AppTextField(
     val currentBorderWidth =
         if (isFocused && enabled && !isError) focusedBorderWidth else unfocusedBorderWidth
     val currentIconColor = if (isError) AppColors.Error else iconColor
+    val currentTextStyle = textStyle.copy(
+        color = when {
+            enabled -> AppColors.White
+            else -> AppColors.FashionGray
+        }
+    )
+    LaunchedEffect(state.text) {
+        // Once the user types something, the field is considered "Dirty" forever
+        if (state.text.isNotEmpty()) {
+            isInitialized = true
+        }
+    }
+
+    // Optional: Also mark as dirty if the user focuses and then leaves (Blur)
+    LaunchedEffect(isFocused) {
+        if (!isFocused && state.text.isNotEmpty()) {
+            isInitialized = true
+        }
+    }
+
+    //Text field decoration
+    val decorator = TextFieldDecorator { innerTextField ->
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(borderShape)
+                .border(
+                    width = currentBorderWidth,
+                    color = currentBorderColor,
+                    shape = borderShape
+                )
+                .padding(horizontal = 16.dp)
+        ) {
+            if (leadingIcon != null) {
+                Box(modifier = Modifier.padding(end = 8.dp)) { leadingIcon() }
+            }
+
+            Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                // Hint (Using state.text instead of value.text)
+                if (state.text.isEmpty()) {
+                    Text(
+                        text = hint,
+                        style = textStyle,
+                        color = AppColors.HintGray.copy(0.8f)
+                    )
+                }
+                innerTextField()
+            }
+
+            // Trailing Icon
+            if (validatorType.isPasswordTypeField() && showPasswordIcon != null && hidePasswordIcon != null) {
+                IconButton(
+                    onClick = { isPasswordShown = !isPasswordShown },
+                    modifier = Modifier.padding(start = 8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(if (isPasswordShown) showPasswordIcon else hidePasswordIcon),
+                        contentDescription = "Toggle Password",
+                        tint = currentIconColor
+                    )
+                }
+            } else if (trailingIcon != null) {
+                Box(modifier = Modifier.padding(start = 8.dp)) { trailingIcon() }
+            }
+        }
+    }
 
     Column(
         modifier = modifier,
@@ -140,127 +237,76 @@ fun AppTextField(
                 .background(color = Color.Transparent),
         ) {
 
-            // Phone Prefix UI
-            if (validatorType == ValidatorType.Phone && countryCode != null) {
+            // Prefix UI
+            AnimatedVisibility(
+                visible = validatorType == ValidatorType.Phone,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
                 CountryCodeField(
-                    borderShape = borderShape,
-                    unfocusedBorderWidth = unfocusedBorderWidth,
-                    borderColor = borderColor,
-                    textStyle = textStyle,
-                    countryCode = countryCode,
-                    onCodeClick = onCountryCodeClick,
+                    modifier = Modifier
+                        .height(height)
+                        .clip(borderShape)
+                        .border(
+                            width = unfocusedBorderWidth,
+                            color = borderColor,
+                            shape = borderShape
+                        ),
+                    textStyle = currentTextStyle,
+                    defaultCountryCode = selectedCountryCode,
+                    onCountrySelected = onCountrySelected,
                 )
             }
 
             // The Text Field & Error Column
             Column(modifier = Modifier.weight(1f)) {
-                BasicTextField(
-                    modifier = Modifier
-                        .height(48.dp) // Fixed height to match prefix
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .onFocusEvent { focusState ->
-                            isFocused = focusState.isFocused
-                            if (validatorType == ValidatorType.ConfirmPassword) {
-                                isError = when {
-                                    value.text.isBlank() -> false
-                                    oldPassword?.text != value.text -> true
-                                    else -> Validator.validate(value.text, validatorType) != null
-                                }
-                            }
-                            if (focusState.isFocused && isError) {
-                                keyboard?.show()
-                            }
-                        },
-                    value = value,
-                    onValueChange = { newValue ->
-                        isError = if (validatorType == ValidatorType.ConfirmPassword) {
-                            when {
-                                newValue.text.isBlank() -> false
-                                oldPassword?.text != newValue.text -> true
-                                else -> Validator.validate(newValue.text, validatorType) != null
-                            }
-                        } else {
-                            Validator.validate(newValue.text, validatorType) != null
-                        }
-                        onValueChange.invoke(newValue)
-                    },
-                    enabled = enabled,
-                    readOnly = readOnly,
-                    singleLine = maxLines <= 1,
-                    maxLines = maxLines,
-                    minLines = minLines,
-                    textStyle = textStyle.copy(
-                        color = when {
-                            enabled -> AppColors.White
-                            else -> AppColors.FashionGray
-                        }
-                    ),
-                    cursorBrush = SolidColor(AppColors.NeonAquaBlue),
 
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = keyboardType,
-                        imeAction = imeAction,
-                        capitalization = capitalization,
-                    ),
-                    keyboardActions = keyboardActions,
-                    interactionSource = interactionSource,
-                    visualTransformation = when {
-                        validatorType.isPasswordTypeField() && !isPasswordShown -> PasswordVisualTransformation()
-                        else -> VisualTransformation.None
-                    },
-                    decorationBox = { innerTextField ->
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(48.dp)
-                                .clip(borderShape)
-                                .border(
-                                    width = currentBorderWidth,
-                                    color = currentBorderColor,
-                                    shape = borderShape
-                                )
-                                .padding(horizontal = 16.dp)
-                        ) {
-                            if (leadingIcon != null) {
-                                Box(modifier = Modifier.padding(end = 8.dp)) { leadingIcon() }
-                            }
+                val fieldModifier = Modifier
+                    .height(height)
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    .onFocusEvent { focusState -> isFocused = focusState.isFocused }
 
-                            Box(
-                                modifier = Modifier.weight(1f),
-                                contentAlignment = Alignment.CenterStart
-                            ) {
-                                // Hint
-                                if (value.text.isEmpty()) {
-                                    Text(
-                                        text = hint,
-                                        style = textStyle,
-                                        color = AppColors.HintGray.copy(0.8f)
-                                    )
-                                }
 
-                                innerTextField()
-                            }
-
-                            // Trailing Icon
-                            if (validatorType.isPasswordTypeField() && showPasswordIcon != null && hidePasswordIcon != null) {
-                                IconButton(
-                                    onClick = { isPasswordShown = !isPasswordShown },
-                                    modifier = Modifier.padding(start = 8.dp)
-                                ) {
-                                    Icon(
-                                        painter = painterResource(if (isPasswordShown) showPasswordIcon else hidePasswordIcon),
-                                        contentDescription = "Toggle Password Visibility",
-                                        tint = currentIconColor
-                                    )
-                                }
-                            } else if (trailingIcon != null) {
-                                Box(modifier = Modifier.padding(start = 8.dp)) { trailingIcon() }
-                            }
-                        }
-                    }
-                )
+                if (validatorType.isPasswordTypeField()) {
+                    BasicSecureTextField(
+                        state = state,
+                        modifier = fieldModifier,
+                        enabled = enabled,
+                        textStyle = currentTextStyle,
+                        cursorBrush = SolidColor(AppColors.NeonAquaBlue),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = keyboardType,
+                            imeAction = imeAction,
+                        ),
+                        onKeyboardAction = onKeyboardAction,
+                        interactionSource = interactionSource,
+                        decorator = decorator,
+                        // Natively handles the dots vs text without VisualTransformation!
+                        textObfuscationMode = if (isPasswordShown) TextObfuscationMode.Visible else TextObfuscationMode.Hidden
+                    )
+                } else {
+                    BasicTextField(
+                        state = state,
+                        modifier = fieldModifier,
+                        enabled = enabled,
+                        readOnly = readOnly,
+                        textStyle = currentTextStyle,
+                        cursorBrush = SolidColor(AppColors.NeonAquaBlue),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = keyboardType,
+                            imeAction = imeAction,
+                            capitalization = capitalization,
+                        ),
+                        onKeyboardAction = onKeyboardAction,
+                        interactionSource = interactionSource,
+                        decorator = decorator,
+                        lineLimits = if (maxLines == 1) TextFieldLineLimits.SingleLine else TextFieldLineLimits.MultiLine(
+                            minLines,
+                            maxLines
+                        )
+                    )
+                }
 
                 // The Animated Error Message
                 validatorType.errorResId?.let { errorRes ->
@@ -282,88 +328,38 @@ fun AppTextField(
     }
 }
 
-@Composable
-private fun CountryCodeField(
-    borderShape: Shape,
-    unfocusedBorderWidth: Dp,
-    borderColor: Color,
-    textStyle: TextStyle,
-    countryCode: String,
-    onCodeClick: () -> Unit,
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(7.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .height(48.dp)
-            .clip(borderShape)
-            .border(
-                width = unfocusedBorderWidth,
-                color = borderColor,
-                shape = borderShape
-            )
-            .defaultClickable(rippleColor = AppColors.White20, onClick = onCodeClick)
-            .padding(horizontal = 12.dp)
-    ) {
-        Text(countryCode, style = textStyle, color = AppColors.White)
-        Image(
-            painter = painterResource(R.drawable.ic_down_arrow),
-            contentDescription = null
-        )
-    }
-}
-
 @Preview(showBackground = true, backgroundColor = 0xFF235BFF)
 @Composable
 fun AppTextFieldPreview() {
-    // We use a simplified theme wrapper or just rely on the hardcoded colors in your component
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-
-        // 1. Standard Email Field (Empty)
+        //  Standard Email Field
         AppTextField(
             title = "Email",
             hint = "Enter your email address",
             validatorType = ValidatorType.Email,
-            value = TextFieldValue(""),
-            onValueChange = {}
+            state = rememberTextFieldState(),
         )
 
-        // 2. Phone Field (Shows the static +91 dropdown)
-        var phoneValue by remember { mutableStateOf(TextFieldValue("")) }
-        AppTextField(
-            title = "Phone Number",
-            hint = "1234567890",
-            validatorType = ValidatorType.Phone,
-            value = phoneValue,
-            onValueChange = { phoneValue = it }
-        )
-
-        // 3. Password Field (With dummy text to show dots)
-        var passwordValue by remember { mutableStateOf(TextFieldValue("secret123")) }
+        //  Password Field
+        val passwordState = rememberTextFieldState("Secret#1")
         AppTextField(
             title = "Password",
             hint = "Enter your password",
             validatorType = ValidatorType.Password,
-            value = passwordValue,
-            onValueChange = { passwordValue = it },
-//            // Make sure these match your actual drawable names!
-//            showPasswordIcon = R.drawable.ic_eye_open,
-//            hidePasswordIcon = R.drawable.ic_eye_closed
+            state = passwordState,
         )
-
-        // 4. Forced Error State
         AppTextField(
-            title = "Forced Error State",
-            hint = "Email Address",
-            validatorType = ValidatorType.Email,
-            value = TextFieldValue("invalid-email-format"),
-            onValueChange = {},
-            showErrorMessage = true // 🚀 Forces the error message to expand
+            title = "Confirm Password",
+            hint = "Enter your password",
+            oldPasswordState = passwordState,
+            validatorType = ValidatorType.ConfirmPassword,
+            showErrorMessage = true,
+            state = rememberTextFieldState(initialText = "Secret#2"),
         )
     }
 }

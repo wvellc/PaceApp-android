@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.example.paceapp.features.authentication.login.navigation.loginScreen
+import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
 import com.example.paceapp.features.splash.navigation.splashScreen
@@ -87,6 +88,9 @@ fun AppNavHost(
 
         //Webview
         webviewScreen()
+
+        //Verify Otp
+        verifyOtpScreen()
 
     }
 }

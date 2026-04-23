@@ -3,6 +3,7 @@ package com.example.paceapp.features.authentication.login
 // App-specific base classes and managers
 
 // Screen imports
+import androidx.lifecycle.viewModelScope
 import com.example.paceapp.R
 import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.base.BaseViewModel
@@ -11,13 +12,12 @@ import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.LoginContract.Effect
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.LoginContract.State
-import com.example.paceapp.session.AppSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val sessionManager: AppSessionManager,
     private val resourceProvider: AppResourceProvider,
 ) : BaseViewModel<State, Event, Effect>() {
 
@@ -32,10 +32,9 @@ class LoginViewModel @Inject constructor(
 
             is Event.OnLoginTypeSelected -> handleOnLoginTypeSelected(event.loginType)
 
-            is Event.OnLoginClick -> handleOnLoginClicked(event.value)
+            is Event.OnLoginClick -> handleOnLoginClicked()
             is Event.ToWebview -> handleWebviewNavigation(event.url)
-            is Event.OnCountryCodeClick -> handleOnCountryCodeClick()
-
+            is Event.OnCountrySelected -> handleOnCountrySelected(event.dialCode)
         }
     }
 
@@ -46,10 +45,13 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun handleOnLoginTypeSelected(loginType: LoginTypes) {
-        setState { copy(selectedLoginType = loginType) }
+        if(state.value.selectedLoginType!=loginType)
+        setState {
+            copy(selectedLoginType = loginType)
+        }
     }
 
-    private fun handleOnLoginClicked(value: String) {}
+    private fun handleOnLoginClicked() {}
 
     private fun handleWebviewNavigation(url: String) {
         val title = when (url) {
@@ -60,8 +62,8 @@ class LoginViewModel @Inject constructor(
         setEffect { Effect.NavigateToWebview(url, title) }
     }
 
-    private fun handleOnCountryCodeClick() {
-
+    private fun handleOnCountrySelected(code: String) {
+        setState { copy(countryCode = code) }
     }
 
 }

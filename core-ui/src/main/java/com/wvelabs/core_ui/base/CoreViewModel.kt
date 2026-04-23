@@ -14,40 +14,40 @@ import kotlinx.coroutines.launch
  * Base ViewModel for MVI pattern.
  */
 abstract class CoreViewModel<S : ViewState, E : ViewEvent, Ef : ViewSideEffect> : ViewModel() {
-
     /**
      * Define the initial state of the view.
      */
-    abstract fun setInitialState(): S
+    protected abstract fun setInitialState(): S
 
     /**
      * Handle user events.
      */
-    abstract fun handleEvents(event: E)
+    protected abstract fun handleEvents(event: E)
 
     private val initialState: S by lazy { setInitialState() }
 
-    private val _viewState = MutableStateFlow(initialState)
-    val viewState: StateFlow<S> = _viewState.asStateFlow()
+    // RENAMED: _viewState -> _state to match old BaseViewModel
+    private val _state = MutableStateFlow(initialState)
+    val state: StateFlow<S> = _state.asStateFlow()
 
     private val _effect = Channel<Ef>(Channel.BUFFERED)
-    val effect = _effect.receiveAsFlow()
-
-    protected val currentState: S get() = _viewState.value
+    open val effect = _effect.receiveAsFlow()
 
     /**
      * Public entry point for events.
      */
-    fun onEvent(event: E) {
+    fun setEvent(event: E) {
         handleEvents(event)
     }
 
-    protected fun updateState(reducer: S.() -> S) {
-        _viewState.update { it.reducer() }
+    // Reducer pattern
+    protected fun setState(reducer: S.() -> S) {
+        _state.update { it.reducer() }
     }
 
-    protected fun sendEffect(effect: Ef) {
-        viewModelScope.launch { _effect.send(effect) }
+    //  Lambda builder for effects (e.g., setEffect { Effect.Navigate })
+    protected fun setEffect(builder: () -> Ef) {
+        viewModelScope.launch { _effect.send(builder()) }
     }
 
     /**
@@ -72,6 +72,5 @@ abstract class CoreViewModel<S : ViewState, E : ViewEvent, Ef : ViewSideEffect> 
             }
         }
     }
-
 
 }

@@ -1,6 +1,7 @@
 package com.example.paceapp.features.authentication.login
 
 // Importing interfaces from your untouchable core library!
+import androidx.compose.foundation.text.input.TextFieldState
 import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
@@ -12,16 +13,19 @@ class LoginContract {
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
         val selectedLoginType: LoginTypes = LoginTypes.EMAIL,
+        val countryCode: String = "+1",
+        val emailState: TextFieldState = TextFieldState(),
+        val phoneState: TextFieldState = TextFieldState(),
     ) : ViewState
 
     sealed class Event : ViewEvent {
         data object Init : Event()
         data object OnBackClicked : Event()
-        data object OnCountryCodeClick : Event()
 
         data class OnLoginTypeSelected(val loginType: LoginTypes) : Event()
-        data class OnLoginClick(val value: String) : Event()
+        data object OnLoginClick : Event()
         data class ToWebview(val url: String) : Event()
+        data class OnCountrySelected(val dialCode: String) : Event()
 
     }
 

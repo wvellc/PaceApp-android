@@ -27,8 +27,8 @@ class MainActivity : ComponentActivity() {
 //        splashScreen.setKeepOnScreenCondition {
 //            !mainViewModel.isSdkReady.value
 //        }
-        super.onCreate(savedInstanceState)
 
+        super.onCreate(savedInstanceState)
         setContent {
             val navController = rememberNavController()
 

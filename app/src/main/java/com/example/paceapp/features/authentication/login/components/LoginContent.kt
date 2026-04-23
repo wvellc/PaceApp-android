@@ -1,6 +1,7 @@
 package com.example.paceapp.features.authentication.login.components
 
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,14 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,7 +31,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -51,6 +50,7 @@ import com.example.paceapp.core.components.animation.AnimationWrapper
 import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.core.extensions.verticalScrollOnIme
+import com.example.paceapp.core.utils.CountryMapper
 import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.example.paceapp.features.authentication.data.enums.title
 import com.example.paceapp.features.authentication.login.LoginContract.Event
@@ -67,31 +67,24 @@ internal fun LoginContent(
     onEvent: (Event) -> Unit
 ) {
 
-    //Phone field state
-    var phoneField by remember { mutableStateOf(TextFieldValue()) }
-
-
-    //Email field state
-    var emailField by remember { mutableStateOf(TextFieldValue()) }
-
     //Focus requesters
     val (emailFocus, phoneFocus) = remember { FocusRequester.createRefs() }
 
-    val isButtonEnabled by remember(state.selectedLoginType, phoneField.text) {
+    val isButtonEnabled by remember(state.selectedLoginType, state.phoneState.text) {
         derivedStateOf {
             when (state.selectedLoginType) {
                 LoginTypes.EMAIL -> {
-                    val rawEmail = emailField.text.trim()
+                    val rawEmail = state.emailState.text.trim()
                     rawEmail.isNotBlank() && Validator.validate(
-                        rawEmail,
+                        rawEmail.toString(),
                         ValidatorType.Email
                     ) == null
                 }
 
                 LoginTypes.PHONE -> {
-                    val rawPhone = phoneField.text.trim()
+                    val rawPhone = state.phoneState.text.trim()
                     rawPhone.isNotBlank() && Validator.validate(
-                        rawPhone,
+                        rawPhone.toString(),
                         ValidatorType.Phone
                     ) == null
                 }
@@ -101,14 +94,20 @@ internal fun LoginContent(
 
     //Login field type change
     LaunchedEffect(state.selectedLoginType) {
-        emailField = TextFieldValue("")
-        phoneField = TextFieldValue("")
-        delay(100)
-
         // Request focus on the specific field!
         when (state.selectedLoginType) {
-            LoginTypes.EMAIL -> emailFocus.requestFocus()
-            LoginTypes.PHONE -> phoneFocus.requestFocus()
+            LoginTypes.EMAIL -> {
+                emailFocus.requestFocus()
+                delay(300)
+                state.phoneState.clearText()
+
+            }
+
+            LoginTypes.PHONE -> {
+                phoneFocus.requestFocus()
+                delay(300)
+                state.emailState.clearText()
+            }
         }
     }
 
@@ -167,16 +166,15 @@ internal fun LoginContent(
                 Crossfade(
                     targetState = state.selectedLoginType,
                     modifier = Modifier,
-                    animationSpec = defaultAnimSpec(),
-                ) { state ->
-                    when (state) {
+                    animationSpec = defaultAnimSpec(duration = 300, easing = EaseInOut),
+                ) { loginTypes ->
+                    when (loginTypes) {
                         LoginTypes.EMAIL -> AppTextField(
+                            state = state.emailState,
                             hint = stringResource(R.string.email_address),
                             borderColor = AppColors.White20,
                             modifier = Modifier.fillMaxWidth(),
                             validatorType = ValidatorType.Email,
-                            value = emailField,
-                            onValueChange = { emailField = it },
                             imeAction = ImeAction.Done,
                             showErrorMessage = true,
                             unfocusedBorderWidth = 1.2.dp,
@@ -187,19 +185,24 @@ internal fun LoginContent(
 
                         LoginTypes.PHONE -> AppTextField(
                             hint = "1234567890",
-                            countryCode = "+1",
+                            state = state.phoneState,
                             borderColor = AppColors.White20,
                             modifier = Modifier.fillMaxWidth(),
                             validatorType = ValidatorType.Phone,
-                            value = phoneField,
-                            onValueChange = { phoneField = it },
                             imeAction = ImeAction.Done,
                             unfocusedBorderWidth = 1.2.dp,
                             focusedBorderWidth = 1.2.dp,
                             showErrorMessage = true,
+                            selectedCountryCode = CountryMapper.getIsoFromDialCode(state.countryCode),
                             capitalization = KeyboardCapitalization.None,
                             focusRequester = phoneFocus,
-                            onCountryCodeClick = { onEvent(Event.OnCountryCodeClick) }
+                            onCountrySelected = { country ->
+                                onEvent(
+                                    Event.OnCountrySelected(
+                                        dialCode = country.countryPhoneNumberCode
+                                    )
+                                )
+                            }
                         )
                     }
                 }
@@ -211,16 +214,8 @@ internal fun LoginContent(
                     style = AppButtonStyle.FILLED_GRADIENT,
                     title = stringResource(R.string.send_otp),
                     enabled = isButtonEnabled
-                ) {
-                    onEvent(
-                        Event.OnLoginClick(
-                            when (state.selectedLoginType) {
-                                LoginTypes.EMAIL -> emailField.text.trim()
-                                LoginTypes.PHONE -> phoneField.text.trim()
-                            }
-                        )
-                    )
-                }
+                ) { onEvent(Event.OnLoginClick) }
+
                 val spanStyle = SpanStyle(
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.White,
