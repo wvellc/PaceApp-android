@@ -27,28 +27,30 @@ fun BaseScreenBox(
         background()
 
         // Animated Column for UI Stacking
-        animationWrapper {
-            Scaffold(
-                modifier = modifier,
-                containerColor = Color.Transparent, //Set to transparent so your custom background() shows through!
-                contentWindowInsets = if (applySystemInsets) WindowInsets.systemBars else WindowInsets(
-                    0,
-                    0,
-                    0,
-                    0
-                ),
-                topBar = {
-                    Box(
-                        modifier = when {
-                            applySystemInsets -> Modifier.statusBarsPadding()
-                            else -> Modifier
-                        }
-                    ) {
-                        appBar()
+        Scaffold(
+            modifier = modifier,
+            containerColor = Color.Transparent, //Set to transparent so your custom background() shows through!
+            contentWindowInsets = if (applySystemInsets) WindowInsets.systemBars else WindowInsets(
+                0,
+                0,
+                0,
+                0
+            ),
+            topBar = {
+                Box(
+                    modifier = when {
+                        applySystemInsets -> Modifier.statusBarsPadding()
+                        else -> Modifier
                     }
-                },
-                content = content,
-            )
-        }
+                ) {
+                    appBar()
+                }
+            },
+            content = { padding ->
+                animationWrapper {
+                    content(padding)
+                }
+            },
+        )
     }
 }

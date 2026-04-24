@@ -97,7 +97,7 @@ internal fun SplashContent(
                             ),
                             color = AppColors.White,
                             modifier = Modifier.animateEnterExit(
-                                enter = fadeInUpTransition
+                                enter = fadeInUpTransition()
                             ),
                         )
                         Spacer(modifier = Modifier.height(25.dp))
@@ -105,7 +105,7 @@ internal fun SplashContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .animateEnterExit(
-                                    enter = fadeInUpTransition
+                                    enter = fadeInUpTransition()
                                 ),
                             title = stringResource(R.string.get_started),
                             trailingIconRes = R.drawable.ic_arrow,

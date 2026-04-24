@@ -35,6 +35,12 @@ fun CommonAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     showAppLogo: Boolean = false,
 ) {
+    val appLogo: @Composable () -> Unit = {
+        AppLogo(
+            modifier = Modifier,
+            logoStyle = LogoStyle.Horizontal,
+        )
+    }
     BaseAppBar(
         title = title,
         titleStyle = AppTheme.typography.size16.copy(
@@ -57,14 +63,7 @@ fun CommonAppBar(
         expandedHeight = expandedHeight,
         background = background,
         actions = actions,
-        titleContent = {
-            if (showAppLogo) {
-                AppLogo(
-                    modifier = Modifier,
-                    logoStyle = LogoStyle.Horizontal,
-                )
-            }
-        },
+        titleContent = if (showAppLogo) appLogo else null
     )
 }
 

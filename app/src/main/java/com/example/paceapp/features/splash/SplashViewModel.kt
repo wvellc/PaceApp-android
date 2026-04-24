@@ -41,7 +41,7 @@ class SplashViewModel @Inject constructor(
     }
 
     private fun initData() {
-        if (state.value.isInitialized) return
+        if (currentState.isInitialized) return
         viewModelScope.launch {
             checkAuthentication()
         }

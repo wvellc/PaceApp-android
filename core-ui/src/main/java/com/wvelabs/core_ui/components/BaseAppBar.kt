@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,11 +31,11 @@ import androidx.compose.ui.unit.dp
 fun BaseAppBar(
     title: String? = null,
     titleStyle: TextStyle = TextStyle.Default,
-    titleContent: @Composable (RowScope.() -> Unit)? = null,
+    titleContent: (@Composable () -> Unit)? = null,
     showBackButton: Boolean = true,
     isCollapsed: Boolean = true,
     collapsedHeight: Dp = 56.dp,
-    expandedHeight: Dp = 56.dp,// If these are equal, it behaves as a normal App Bar
+    expandedHeight: Dp = 56.dp,
     backButtonIcon: @Composable () -> Unit = { /* Default Back Icon */ },
     background: @Composable BoxScope.() -> Unit = {},
     actionsArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
@@ -51,17 +52,40 @@ fun BaseAppBar(
             .height(currentHeight)
             .statusBarsPadding()
     ) {
-        // 1. Background Layer (Bottom)
+        // Background Layer
         background()
 
-        // 2. Control Layer (Top)
-        Row(
+        // Centered Title Layer (This stays in the absolute center of the screen)
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 4.dp),
+                // Use a safe horizontal padding to prevent the title
+                // from ever touching/overlapping the buttons.
+                // 72dp-80dp is usually safe for 1-2 icons.
+                .padding(horizontal = 80.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            if (titleContent != null) {
+                titleContent()
+            } else if (title != null) {
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    style = titleStyle,
+                )
+            }
+        }
+
+        // Back Button
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+                .align(Alignment.CenterStart)
+                .padding(start = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // BACK BUTTON SLOT
             if (showBackButton) {
                 Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                     backButtonIcon()
@@ -69,41 +93,17 @@ fun BaseAppBar(
             } else {
                 Spacer(modifier = Modifier.width(12.dp))
             }
-
-            // DYNAMIC TITLE AREA
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(horizontal = 8.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                if (titleContent != null) {
-                    Row(
-                        content = titleContent,
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    )
-                } else if (title != null) {
-                    Text(
-                        text = title,
-                        maxLines = 1,
-                        textAlign = TextAlign.Center,
-                        overflow = TextOverflow.Ellipsis,
-                        style = titleStyle,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-            }
-
-            // ACTIONS SLOT
-            Row(
-                modifier = Modifier.wrapContentWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = actionsArrangement,
-                content = actions
-            )
-
-            Spacer(modifier = Modifier.width(4.dp))
         }
+
+        // Actions
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+                .align(Alignment.CenterEnd)
+                .padding(end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = actionsArrangement,
+            content = actions
+        )
     }
 }

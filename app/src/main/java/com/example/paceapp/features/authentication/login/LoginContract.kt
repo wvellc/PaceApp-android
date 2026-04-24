@@ -16,6 +16,7 @@ class LoginContract {
         val countryCode: String = "+1",
         val emailState: TextFieldState = TextFieldState(),
         val phoneState: TextFieldState = TextFieldState(),
+        val isSendOTPEnabled: Boolean = false
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -31,6 +32,15 @@ class LoginContract {
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
-        data class NavigateToWebview(val url: String, val title: String? = null) : Effect()
+        data class NavigateToVerifyOtp(
+            val loginType: LoginTypes,
+            val emailPhoneValue: String,
+            val countryCode: String?
+        ) : Effect()
+
+        data class NavigateToWebview(val url: String, val title: String?) : Effect()
+        class RequestFocus(val type: LoginTypes) : Effect() {
+
+        }
     }
 }

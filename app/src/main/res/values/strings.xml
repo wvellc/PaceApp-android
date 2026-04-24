@@ -23,5 +23,8 @@
     <string name="terms_of_service">Terms of Service</string>
     <string name="and">and</string>
     <string name="back">Back</string>
+    <string name="email_verification">Email Verification</string>
+    <string name="phone_verification">Phone Verification</string>
+    <string name="verify_otp_message">Enter 6 digit verification code sent to your %s</string>
 
 </resources>

@@ -14,28 +14,71 @@ CORE_NETWORK_PACKAGE="com.wvelabs.core_network"
 
 # 3. Validate Input
 if [ -z "$1" ]; then
-  echo "❌ Error: Missing arguments."
-  echo "💡 Usage 1 (Single Screen): bash generate_screen.sh splash"
-  echo "💡 Usage 2 (Nested Screen): bash generate_screen.sh auth login"
-  exit 1
+    echo "❌ Error: Missing arguments."
+    echo "💡 Usage 1 (Single Screen): bash generate_screen.sh splash"
+    echo "💡 Usage 2 (Nested Screen): bash generate_screen.sh auth login"
+    exit 1
 fi
 
-# 4. Handle 1 vs 2 Arguments
+# =====================================================================
+# Pre-Flight: Check & Create BaseViewModel
+# =====================================================================
+BASE_VM_PATH="${APP_FOLDER_PATH}/core/base"
+BASE_VM_FILE="${BASE_VM_PATH}/BaseViewModel.kt"
+
+echo "🔍 Checking Architecture Prerequisites..."
+
+if [ ! -f "$BASE_VM_FILE" ]; then
+    echo "⚠️ BaseViewModel not found. Generating it now..."
+    mkdir -p "$BASE_VM_PATH"
+
+cat <<EOF > "$BASE_VM_FILE"
+package ${APP_PACKAGE_NAME}.core.base
+
+import ${CORE_UI_PACKAGE}.base.CoreViewModel
+import ${CORE_UI_PACKAGE}.base.ViewEvent
+import ${CORE_UI_PACKAGE}.base.ViewSideEffect
+import ${CORE_UI_PACKAGE}.base.ViewState
+
+abstract class BaseViewModel<S : ViewState, E : ViewEvent, Ef : ViewSideEffect> :
+    CoreViewModel<S, E, Ef>() {
+
+    // Clean syntax helper for child ViewModels
+    protected val currentState: S get() = state.value
+}
+EOF
+    echo "✅ BaseViewModel created successfully!"
+else
+    # Scan existing file for currentState
+    if ! grep -q "currentState" "$BASE_VM_FILE"; then
+        echo "⚠️ WARNING: BaseViewModel exists but is missing the 'currentState' helper."
+        echo "   Please add this manually to your BaseViewModel.kt:"
+        echo "   protected val currentState: S get() = state.value"
+    else
+        echo "✅ BaseViewModel verified!"
+    fi
+fi
+
+# =====================================================================
+# 4. Handle 1 vs 2 Arguments (Feature Generation)
+# =====================================================================
 FEATURE=$(echo "$1" | tr '[:upper:]' '[:lower:]')
 
 if [ -z "$2" ]; then
-  # ONE ARGUMENT MODE
-  SCREEN=$FEATURE
-  SCREEN_PASCAL="$(tr '[:lower:]' '[:upper:]' <<< ${1:0:1})${1:1}"
-  PACKAGE_PATH="${APP_PACKAGE_NAME}.features.${FEATURE}"
-  BASE_FILE_PATH="${APP_FOLDER_PATH}/features/${FEATURE}"
+    # ONE ARGUMENT MODE
+    SCREEN=$FEATURE
+    SCREEN_PASCAL="$(tr '[:lower:]' '[:upper:]' <<< ${1:0:1})${1:1}"
+    PACKAGE_PATH="${APP_PACKAGE_NAME}.features.${FEATURE}"
+    BASE_FILE_PATH="${APP_FOLDER_PATH}/features/${FEATURE}"
 else
-  # TWO ARGUMENTS MODE
-  SCREEN=$(echo "$2" | tr '[:upper:]' '[:lower:]')
-  SCREEN_PASCAL="$(tr '[:lower:]' '[:upper:]' <<< ${2:0:1})${2:1}"
-  PACKAGE_PATH="${APP_PACKAGE_NAME}.features.${FEATURE}.${SCREEN}"
-  BASE_FILE_PATH="${APP_FOLDER_PATH}/features/${FEATURE}/${SCREEN}"
+    # TWO ARGUMENTS MODE
+    SCREEN=$(echo "$2" | tr '[:upper:]' '[:lower:]')
+    SCREEN_PASCAL="$(tr '[:lower:]' '[:upper:]' <<< ${2:0:1})${2:1}"
+    PACKAGE_PATH="${APP_PACKAGE_NAME}.features.${FEATURE}.${SCREEN}"
+    BASE_FILE_PATH="${APP_FOLDER_PATH}/features/${FEATURE}/${SCREEN}"
 fi
+
+echo "🚀 Generating Feature: $SCREEN_PASCAL..."
 
 # =====================================================================
 # 5. Create Contract File
@@ -43,15 +86,12 @@ fi
 CONTRACT_FILE_NAME="${SCREEN_PASCAL}Contract.kt"
 CONTRACT_FILE_CONTENT="package ${PACKAGE_PATH}
 
-// Importing interfaces from your untouchable core library!
 import ${CORE_UI_PACKAGE}.base.ViewEvent
 import ${CORE_UI_PACKAGE}.base.ViewSideEffect
 import ${CORE_UI_PACKAGE}.base.ViewState
 
 class ${SCREEN_PASCAL}Contract {
-
     data class State(
-        val isInitialized: Boolean = false,
         val isLoading: Boolean = false
     ) : ViewState
 
@@ -60,7 +100,7 @@ class ${SCREEN_PASCAL}Contract {
     }
 
     sealed class Effect : ViewSideEffect {
-        // data object NavigateBack : Effect()
+        data object NavigateBack : Effect()
     }
 }"
 
@@ -75,35 +115,23 @@ VIEWMODEL_FILE_CONTENT="package ${PACKAGE_PATH}
 
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-
-// App-specific base classes and managers
 import ${APP_PACKAGE_NAME}.core.base.BaseViewModel
-import ${APP_PACKAGE_NAME}.session.AppSessionManager
 
-// Screen imports
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Effect
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Event
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.State
 
 @HiltViewModel
-class ${SCREEN_PASCAL}ViewModel @Inject constructor(
-    private val sessionManager: AppSessionManager
-) : BaseViewModel<State, Event, Effect>() {
+class ${SCREEN_PASCAL}ViewModel @Inject constructor() : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.Init -> initData()
+            is Event.Init -> {
+                // TODO: Initialize Data
+            }
         }
-    }
-
-    private fun initData() {
-        if (state.value.isInitialized) return
-
-        // TODO: Initialization logic here
-
-        setState { copy(isInitialized = true) }
     }
 }"
 
@@ -121,28 +149,26 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+
+import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Effect
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Event
 import ${PACKAGE_PATH}.components.${SCREEN_PASCAL}Content
 
 @Composable
 fun ${SCREEN_PASCAL}Screen(
-    viewModel: ${SCREEN_PASCAL}ViewModel = hiltViewModel()
+    viewModel: ${SCREEN_PASCAL}ViewModel = hiltViewModel(),
+    onBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // Init view model
-    LaunchedEffect(key1 = Unit) {
-        viewModel.setEvent(Event.Init)
-    }
-
-    // Handle one-time effects
     LaunchedEffect(key1 = Unit) {
         viewModel.effect.collectLatest { effect ->
-            // when (effect) { ... }
+            when (effect) {
+                is Effect.NavigateBack -> onBack()
+            }
         }
     }
 
-    // Render content
     ${SCREEN_PASCAL}Content(
         state = state,
         onEvent = viewModel::setEvent
@@ -164,6 +190,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.State
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Event
 
@@ -199,14 +226,16 @@ import ${PACKAGE_PATH}.${SCREEN_PASCAL}Screen
 data object ${SCREEN_PASCAL}Route
 
 fun NavGraphBuilder.${SCREEN,,}Screen(
-    // TODO: Add navigation callbacks here (e.g., onNavigateBack: () -> Unit)
+    onBack: () -> Unit
 ) {
     composable<${SCREEN_PASCAL}Route> {
-        ${SCREEN_PASCAL}Screen()
+        ${SCREEN_PASCAL}Screen(
+            onBack = onBack
+        )
     }
 }"
 
 mkdir -p "$NAV_FILE_PATH"
 echo "$NAV_FILE_CONTENT" > "${NAV_FILE_PATH}/${NAV_FILE_NAME}"
 
-echo "✅ Feature '$SCREEN_PASCAL' generated successfully with Navigation extensions!"
+echo "🎉 Feature '${SCREEN_PASCAL}' generated successfully!"

@@ -9,19 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.input.clearText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component1
-import androidx.compose.ui.focus.FocusRequester.Companion.FocusRequesterFactory.component2
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
@@ -44,7 +37,6 @@ import com.example.paceapp.core.components.AppLogo
 import com.example.paceapp.core.components.AppSegmentedButtons
 import com.example.paceapp.core.components.AppTextField
 import com.example.paceapp.core.components.LogoStyle
-import com.example.paceapp.core.components.Validator
 import com.example.paceapp.core.components.ValidatorType
 import com.example.paceapp.core.components.animation.AnimationWrapper
 import com.example.paceapp.core.extensions.clearFocusOnTap
@@ -59,58 +51,14 @@ import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
-import kotlinx.coroutines.delay
 
 @Composable
 internal fun LoginContent(
     state: State,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
+    emailFocus: FocusRequester,
+    phoneFocus: FocusRequester
 ) {
-
-    //Focus requesters
-    val (emailFocus, phoneFocus) = remember { FocusRequester.createRefs() }
-
-    val isButtonEnabled by remember(state.selectedLoginType, state.phoneState.text) {
-        derivedStateOf {
-            when (state.selectedLoginType) {
-                LoginTypes.EMAIL -> {
-                    val rawEmail = state.emailState.text.trim()
-                    rawEmail.isNotBlank() && Validator.validate(
-                        rawEmail.toString(),
-                        ValidatorType.Email
-                    ) == null
-                }
-
-                LoginTypes.PHONE -> {
-                    val rawPhone = state.phoneState.text.trim()
-                    rawPhone.isNotBlank() && Validator.validate(
-                        rawPhone.toString(),
-                        ValidatorType.Phone
-                    ) == null
-                }
-            }
-        }
-    }
-
-    //Login field type change
-    LaunchedEffect(state.selectedLoginType) {
-        // Request focus on the specific field!
-        when (state.selectedLoginType) {
-            LoginTypes.EMAIL -> {
-                emailFocus.requestFocus()
-                delay(300)
-                state.phoneState.clearText()
-
-            }
-
-            LoginTypes.PHONE -> {
-                phoneFocus.requestFocus()
-                delay(300)
-                state.emailState.clearText()
-            }
-        }
-    }
-
     AppBaseScreen(
         modifier = Modifier
             .fillMaxSize()
@@ -119,7 +67,7 @@ internal fun LoginContent(
         hasPattern = true,
         animationWrapper = { content -> AnimationWrapper { content() } }
     ) { innerPaddings ->
-
+        //Scroll container
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,6 +75,7 @@ internal fun LoginContent(
                 .padding(innerPaddings)
                 .padding(16.dp)
         ) {
+            //Logo
             AppLogo(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -134,6 +83,7 @@ internal fun LoginContent(
                 imageSize = DpSize(136.dp, 91.dp),
                 logoStyle = LogoStyle.Vertical
             )
+            //Login form
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,6 +92,7 @@ internal fun LoginContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                //Title
                 Text(
                     stringResource(R.string.login_to_your_account),
                     style = AppTheme.typography.size20.copy(
@@ -150,6 +101,7 @@ internal fun LoginContent(
                     color = AppColors.White,
                 )
 
+                //Login types
                 AppSegmentedButtons(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -163,12 +115,14 @@ internal fun LoginContent(
                     onSegmentSelected = { onEvent(Event.OnLoginTypeSelected(it)) },
                 )
 
+                //Text field based on login type
                 Crossfade(
                     targetState = state.selectedLoginType,
                     modifier = Modifier,
                     animationSpec = defaultAnimSpec(duration = 300, easing = EaseInOut),
                 ) { loginTypes ->
                     when (loginTypes) {
+                        //Email field
                         LoginTypes.EMAIL -> AppTextField(
                             state = state.emailState,
                             hint = stringResource(R.string.email_address),
@@ -183,6 +137,7 @@ internal fun LoginContent(
                             focusRequester = emailFocus,
                         )
 
+                        //Phone number field
                         LoginTypes.PHONE -> AppTextField(
                             hint = "1234567890",
                             state = state.phoneState,
@@ -207,19 +162,22 @@ internal fun LoginContent(
                     }
                 }
 
-
+                //Send otp button
                 AppButton(
                     modifier = Modifier
                         .fillMaxWidth(),
                     style = AppButtonStyle.FILLED_GRADIENT,
                     title = stringResource(R.string.send_otp),
-                    enabled = isButtonEnabled
+                    enabled = state.isSendOTPEnabled
                 ) { onEvent(Event.OnLoginClick) }
 
+                //Terms condition style
                 val spanStyle = SpanStyle(
                     fontWeight = FontWeight.SemiBold,
                     color = AppColors.White,
                 )
+
+                //Spanned string
                 val annotatedString = buildAnnotatedString {
                     append("${stringResource(R.string.by_continuing_you_agree_to_our)} ")
 
@@ -236,6 +194,7 @@ internal fun LoginContent(
                     append(stringResource(R.string.terms_of_service))
                     pop()
 
+                    //And label
                     append(" ${stringResource(R.string.and)} ")
 
                     // Privacy policy
@@ -251,7 +210,7 @@ internal fun LoginContent(
                     append("${stringResource(R.string.privacy_policy)}.")
                     pop()
                 }
-
+                //Term condition text
                 Text(
                     annotatedString,
                     style = AppTheme.typography.size16.copy(

@@ -83,7 +83,8 @@ fun AppNavHost(
         //Login screen
         loginScreen(
             onBack = navActions::goBack,
-            onNavigateToWebview = navActions::toWebView
+            onNavigateToWebview = navActions::toWebView,
+            onNavigateToVerifyOtp = navActions::toVerifyOtp,
         )
 
         //Webview
