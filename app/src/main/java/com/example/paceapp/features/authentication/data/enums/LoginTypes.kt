@@ -3,8 +3,10 @@ package com.example.paceapp.features.authentication.data.enums
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import com.example.paceapp.R
+import kotlinx.serialization.Serializable
 
-enum class LoginTypes{
+@Serializable
+enum class LoginTypes {
     EMAIL,
     PHONE,
 }

@@ -92,6 +92,7 @@ import ${CORE_UI_PACKAGE}.base.ViewState
 
 class ${SCREEN_PASCAL}Contract {
     data class State(
+        val isInitialized: Boolean = false,
         val isLoading: Boolean = false
     ) : ViewState
 
@@ -128,10 +129,16 @@ class ${SCREEN_PASCAL}ViewModel @Inject constructor() : BaseViewModel<State, Eve
 
     override fun handleEvents(event: Event) {
         when (event) {
-            is Event.Init -> {
-                // TODO: Initialize Data
-            }
+            is Event.Init -> initData()
         }
+    }
+
+    private fun initData() {
+        if (currentState.isInitialized) return
+
+        // TODO: Initialize Data
+
+        setState { copy(isInitialized = true) }
     }
 }"
 
@@ -161,6 +168,12 @@ fun ${SCREEN_PASCAL}Screen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    // Init view model
+    LaunchedEffect(key1 = Unit) {
+          viewModel.setEvent(Event.Init)
+    }
+
+    // Handle one-time effects
     LaunchedEffect(key1 = Unit) {
         viewModel.effect.collectLatest { effect ->
             when (effect) {
@@ -169,6 +182,7 @@ fun ${SCREEN_PASCAL}Screen(
         }
     }
 
+    // Render content
     ${SCREEN_PASCAL}Content(
         state = state,
         onEvent = viewModel::setEvent

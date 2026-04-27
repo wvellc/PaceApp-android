@@ -1,6 +1,7 @@
 package com.example.paceapp.session
 
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 object AppSessionKeys {
@@ -11,7 +12,10 @@ object AppSessionKeys {
     val USER_DETAILS = stringPreferencesKey("user_details")
     val CONFIG_DETAILS = stringPreferencesKey("config_details")
 
+
     // The list of keys to IGNORE when wiping the session (brilliant UX detail, by the way)
     val IGNORE_KEY_LIST = listOf(ONBOARDING_STATUS, CONFIG_DETAILS)
+
+    val TIMER_TARGET_TIMESTAMP = longPreferencesKey("timer_target_timestamp")
 
 }

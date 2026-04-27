@@ -8,6 +8,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import com.example.paceapp.theme.AppColors
@@ -15,16 +16,14 @@ import com.example.paceapp.theme.AppTheme
 
 @Composable
 fun AppTextButton(
-    text: String,
+    text: Any, // Accept String or AnnotatedString
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentColor: Color = AppColors.NeonAquaBlue,
     disabledContentColor: Color = AppColors.NeonAquaBlue20,
-    style: TextStyle = AppTheme.typography.size14,
-    fontWeight: FontWeight? = FontWeight.SemiBold,
+    style: TextStyle = AppTheme.typography.size14.copy(fontWeight = FontWeight.SemiBold),
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
-    // Allows adding icons via a RowScope if needed later
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null
 ) {
@@ -39,15 +38,14 @@ fun AppTextButton(
         contentPadding = contentPadding,
         shape = MaterialTheme.shapes.small,
     ) {
-        if (leadingIcon != null) {
-            leadingIcon()
+        if (leadingIcon != null) leadingIcon()
+
+        // Handle both String and AnnotatedString types
+        when (text) {
+            is AnnotatedString -> Text(text = text, style = style)
+            is String -> Text(text = text, style = style)
         }
-        Text(
-            text = text,
-            style = style.copy(fontWeight = fontWeight ?: FontWeight.SemiBold)
-        )
-        if (trailingIcon != null) {
-            trailingIcon()
-        }
+
+        if (trailingIcon != null) trailingIcon()
     }
 }

@@ -6,11 +6,12 @@ package com.example.paceapp.features.splash
 import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
+import com.example.paceapp.core.data.enums.AuthDestination
+import com.example.paceapp.core.data.usecases.AuthRouteManager
 import com.example.paceapp.core.garmin.GarminDeviceRepository
 import com.example.paceapp.features.splash.SplashContract.Effect
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
-import com.example.paceapp.session.AppSessionManager
 import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.wvelabs.core_network.utils.AppLogger
@@ -26,7 +27,7 @@ const val WATCH_APP_ID = "bec1b23d90564b958370b9ded9266942"
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val sessionManager: AppSessionManager,
+    private val authRouteManager: AuthRouteManager,
     private val garminDeviceRepository: GarminDeviceRepository,
 ) : BaseViewModel<State, Event, Effect>() {
     var app: IQApp? = null
@@ -42,25 +43,24 @@ class SplashViewModel @Inject constructor(
 
     private fun initData() {
         if (currentState.isInitialized) return
-        viewModelScope.launch {
-            checkAuthentication()
-        }
+        checkAuthentication()
         setState { copy(isInitialized = true) }
-//        initGarminService()
     }
 
-    private suspend fun checkAuthentication() {
-        val isAuthenticated = sessionManager.isAuthenticated()
+    private fun checkAuthentication() {
+        viewModelScope.launch {
 
-        if (isAuthenticated) {
-            setEffect { Effect.NavigateToDashboard }
-        } else {
-            setState { copy(showGetStarted = true) }
+            val destination = authRouteManager.getNextDestination()
+            AppLogger.e("DESTINATION - $destination")
+            when (destination) {
+                AuthDestination.DASHBOARD -> setEffect { Effect.NavigateToDashboard }
+                AuthDestination.BUILD_PROFILE -> setEffect { Effect.NavigateToBuildProfile }
+                AuthDestination.LOGIN -> setState { copy(showGetStarted = true) }
+            }
         }
     }
 
     private fun handleOnGetStartedClick() {
-//        sendMessageToWatch()
         setEffect { Effect.NavigateToLogin }
     }
 

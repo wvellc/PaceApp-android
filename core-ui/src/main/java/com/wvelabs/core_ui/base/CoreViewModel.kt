@@ -56,7 +56,7 @@ abstract class CoreViewModel<S : ViewState, E : ViewEvent, Ef : ViewSideEffect> 
      */
     fun <T> safeLaunch(
         block: suspend () -> T,
-        onSuccess: (T) -> Unit,
+        onSuccess: (T) -> Unit = {},
         onError: ((Throwable) -> Unit)? = null,
         onLoading: ((Boolean) -> Unit)? = null,
     ) {

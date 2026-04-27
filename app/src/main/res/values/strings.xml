@@ -26,5 +26,10 @@
     <string name="email_verification">Email Verification</string>
     <string name="phone_verification">Phone Verification</string>
     <string name="verify_otp_message">Enter 6 digit verification code sent to your %s</string>
+    <string name="next">Next</string>
+    <string name="resend_code">Resend Code</string>
+    <string name="didn_t_receive_otp_resend_in">"Didn’t receive OTP? Resend in "</string>
+    <string name="otp_success_title">Your %1$s has been verified.</string>
+    <string name="otp_success_subtitle">You will soon be directed to the main page.</string>
 
 </resources>

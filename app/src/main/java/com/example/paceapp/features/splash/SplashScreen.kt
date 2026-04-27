@@ -1,6 +1,5 @@
 package com.example.paceapp.features.splash
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -16,9 +15,10 @@ fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel(),
     onNavigateToLogin: () -> Unit,
     onNavigateToDashboard: () -> Unit,
+    onNavigateToBuildProfile: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-     // Init view model
+    // Init view model
     LaunchedEffect(key1 = Unit) {
         viewModel.setEvent(Event.Init)
     }
@@ -28,6 +28,7 @@ fun SplashScreen(
             when (effect) {
                 is Effect.NavigateToLogin -> onNavigateToLogin()
                 is Effect.NavigateToDashboard -> onNavigateToDashboard()
+                is Effect.NavigateToBuildProfile -> onNavigateToBuildProfile()
 
             }
         }

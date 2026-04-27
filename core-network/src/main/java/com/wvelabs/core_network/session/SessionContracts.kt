@@ -13,3 +13,9 @@ interface SessionCache {
 interface SessionListener {
     fun onSessionExpired()
 }
+
+interface TimerCache {
+    suspend fun saveTimerTarget(timestamp: Long)
+    suspend fun getTimerTarget(): Long
+    suspend fun clearTimerTarget()
+}

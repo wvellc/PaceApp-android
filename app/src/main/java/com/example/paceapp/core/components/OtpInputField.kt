@@ -1,4 +1,4 @@
-package com.example.paceapp.core.components.otpfield
+package com.example.paceapp.core.components
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -29,6 +29,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -63,7 +64,7 @@ fun OtpField(
     cursorColor: Color = AppColors.NeonAquaBlue,
 ) {
     val focusRequester = remember { FocusRequester() }
-
+    val keyboardController = LocalSoftwareKeyboardController.current // Add this
     if (autoFocus) {
         LaunchedEffect(Unit) {
             // A small delay is sometimes needed to ensure the UI is
@@ -92,7 +93,10 @@ fun OtpField(
         // Visual Representation
         Row(
             horizontalArrangement = Arrangement.spacedBy(boxSpacing),
-            modifier = Modifier.defaultClickable(rippleColor = null) { focusRequester.requestFocus() }
+            modifier = Modifier.defaultClickable(rippleColor = null) {
+                focusRequester.requestFocus()
+                keyboardController?.show()
+            }
         ) {
             repeat(otpLength) { index ->
                 val char = otpValue.getOrNull(index)?.toString() ?: ""

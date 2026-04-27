@@ -14,13 +14,19 @@ class VerifyOtpContract {
         val emailPhoneValue: String = "",
         val countryCode: String? = null,
         val isLoading: Boolean = false,
+        val otp: String = "",
     ) : ViewState
 
     sealed class Event : ViewEvent {
         data object Init : Event()
+        data object OnResendOtpClicked : Event()
+        data object OnNextClick : Event()
+        data class OnOtpChange(val otp: String) : Event()
+
     }
 
     sealed class Effect : ViewSideEffect {
+        data class NavigateToOtpSuccess(val loginTypes: LoginTypes): Effect()
         // data object NavigateBack : Effect()
     }
 }

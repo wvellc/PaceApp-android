@@ -4,43 +4,98 @@ package com.example.paceapp.features.authentication.verifyotp
 
 // Screen imports
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.paceapp.core.base.BaseViewModel
+import com.example.paceapp.core.data.models.UserData
+import com.example.paceapp.core.utils.AppConstants
+import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Effect
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Event
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.State
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.session.AppSessionManager
+import com.wvelabs.core_network.timer.TimerFactory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
+
 
 @HiltViewModel
 class VerifyOtpViewModel @Inject constructor(
     private val sessionManager: AppSessionManager,
     val savedStateHandle: SavedStateHandle,
+    timerFactory: TimerFactory,
 ) : BaseViewModel<State, Event, Effect>() {
+    private val otpTimer = timerFactory.create(viewModelScope)
+    val countDown = otpTimer.time
 
-    override fun setInitialState() = State(
-
-    )
+    override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
-
         when (event) {
             is Event.Init -> initData()
+            is Event.OnResendOtpClicked -> handleResendOtpClick()
+            is Event.OnOtpChange -> updateOtp(event.otp)
+            is Event.OnNextClick -> handleNextClick()
         }
     }
+
 
     private fun initData() {
         if (currentState.isInitialized) return
         val args = savedStateHandle.toRoute<VerifyOtpRoute>()
-
+        //Set argument data
         setState {
             copy(
-                isInitialized = true, loginType = args.loginType,
+                loginType = args.loginType,
                 emailPhoneValue = args.emailPhoneValue,
                 countryCode = args.countryCode
             )
         }
+        //Init otp timer
+        otpTimer.start(duration = 1.minutes, isCountdown = true)
+        setState { copy(isInitialized = true) }
     }
+
+    private fun updateOtp(otp: String) {
+        setState { copy(otp = otp) }
+    }
+
+    private fun handleResendOtpClick() {
+        //TODO:Add Resend OTP API call
+        otpTimer.restart()
+    }
+
+    private fun handleNextClick() {
+        //Safety check
+        if (currentState.otp.length < AppConstants.OTP_LENGTH) return
+        //TODO:Call verify OTP API
+        val loginType = currentState.loginType
+        //Replace with data from API
+        val userData = UserData(
+            loginType = loginType,
+            email = when (loginType) {
+                LoginTypes.EMAIL -> currentState.emailPhoneValue
+                else -> null
+            },
+            countryCode = currentState.countryCode,
+            phoneNumber = when (loginType) {
+                LoginTypes.PHONE -> currentState.emailPhoneValue
+                else -> null
+            },
+        )
+
+        safeLaunch({
+            sessionManager.saveToken(AppConstants.DUMMY_TOKEN)
+            sessionManager.setUserDetails(userData)
+        }, onLoading = { loading ->
+            setState { copy(isLoading = loading) }
+        }, onSuccess = {
+            //Navigate to OTP success
+            setEffect { Effect.NavigateToOtpSuccess(loginTypes = currentState.loginType) }
+        })
+
+    }
+
 }

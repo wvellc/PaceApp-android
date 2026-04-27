@@ -10,8 +10,8 @@ import com.wvelabs.core_ui.components.BaseLoader
 fun AppLoadingIndicator(
     modifier: Modifier = Modifier,
     isFullScreen: Boolean = true,
-    backgroundColor: Color = AppColors.NeonAquaBlue.copy(alpha = 0.5f),
-    loaderColor: Color = AppColors.White
+    backgroundColor: Color = AppColors.White20,
+    loaderColor: Color = AppColors.NeonAquaBlue
 ) {
     BaseLoader(
         modifier = modifier,

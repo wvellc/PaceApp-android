@@ -91,7 +91,7 @@ fun AppButton(
             )
             .alpha(alpha = if (enabled) 1f else 0.5f)
             .then(styleModifier)
-            .padding(15.dp)
+            .padding(15.dp),
     ) {
         Text(
             title,

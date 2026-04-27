@@ -9,17 +9,21 @@ import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
 import com.example.paceapp.navigation.AppNavHost
+import com.example.paceapp.session.AppSessionManager
 import com.example.paceapp.theme.PaceAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-//    private val mainViewModel: MainViewModel by viewModels()
+    //    private val mainViewModel: MainViewModel by viewModels()
+    @Inject
+    lateinit var sessionManager: AppSessionManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // Install the splash screen
-        val splashScreen = installSplashScreen()
+       installSplashScreen()
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT)
@@ -33,7 +37,10 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
 
             PaceAppTheme {
-                AppNavHost(navController = navController)
+                AppNavHost(
+                    navController = navController,
+                    sessionManager = sessionManager
+                )
             }
         }
     }

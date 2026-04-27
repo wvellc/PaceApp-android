@@ -1,26 +1,25 @@
-package com.example.paceapp.features.splash
+package com.example.paceapp.features.authentication.otpsuccess
 
-// Importing interfaces from your untouchable core library!
+import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
 
-class SplashContract {
-
+class OtpSuccessContract {
     data class State(
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
-        val showGetStarted: Boolean = false,
+        val loginType: LoginTypes = LoginTypes.EMAIL,
     ) : ViewState
 
     sealed class Event : ViewEvent {
         data object Init : Event()
-        data object OnGetStarted : Event()
+        data object OnBackClicked : Event()
+        data object OnContinueClicked : Event()
     }
 
     sealed class Effect : ViewSideEffect {
-        data object NavigateToLogin : Effect()
-        data object NavigateToDashboard : Effect()
+        data object NavigateBack : Effect()
         data object NavigateToBuildProfile : Effect()
     }
 }

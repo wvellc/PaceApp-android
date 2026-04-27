@@ -6,15 +6,19 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.example.paceapp.features.authentication.buildprofile.navigation.buildProfileScreen
 import com.example.paceapp.features.authentication.login.navigation.loginScreen
+import com.example.paceapp.features.authentication.otpsuccess.navigation.otpSuccessScreen
 import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
 import com.example.paceapp.features.splash.navigation.splashScreen
+import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_ui.utils.rememberGlobalExitHandler
 
 @Composable
@@ -22,6 +26,7 @@ fun AppNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     startDestination: Any = SplashRoute,
+    sessionManager: AppSessionManager,
 ) {
     //Nav action
     val triggerExit = rememberGlobalExitHandler()
@@ -31,7 +36,12 @@ fun AppNavHost(
     // Navigation transition animation and duration
     val durationMillis = 400
     val defaultEasing = FastOutSlowInEasing
-
+    // Listen for the global session expired event
+    LaunchedEffect(Unit) {
+        sessionManager.sessionExpiredEvent.collect {
+            navActions.toLogin()
+        }
+    }
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -78,6 +88,7 @@ fun AppNavHost(
         splashScreen(
             onNavigateToLogin = navActions::toLogin,
             onNavigateToDashboard = navActions::toDashboard,
+            onNavigateToBuildProfile = navActions::toBuildProfile
         )
 
         //Login screen
@@ -91,7 +102,18 @@ fun AppNavHost(
         webviewScreen()
 
         //Verify Otp
-        verifyOtpScreen()
+        verifyOtpScreen(onNavigateToOtpSuccess = navActions::toOtpSuccess)
+
+        //Otp success
+        otpSuccessScreen(
+            onBack = navActions::goBack,
+            onNavigateToBuildProfile = navActions::toBuildProfile,
+        )
+
+        //Build profile
+        buildProfileScreen(
+            onBack = navActions::goBack
+        )
 
     }
 }

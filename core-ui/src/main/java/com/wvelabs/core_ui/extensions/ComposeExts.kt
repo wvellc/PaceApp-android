@@ -2,11 +2,13 @@ package com.wvelabs.core_ui.extensions
 
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutBack
 import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -111,6 +113,20 @@ fun <T> defaultAnimSpec(
     tween(easing = easing, durationMillis = duration, delayMillis = delay)
 
 fun fadeInUpTransition(
+    from: Float = 1f,
+    delay: Int = 0,
+    duration: Int = 500,
+) = fadeIn(animationSpec = defaultAnimSpec(delay = delay, duration = duration)) +
+        slideInVertically(
+            initialOffsetY = { height -> (height * from).toInt() },
+            animationSpec = defaultAnimSpec(
+                delay = delay + 100,// Slight offset from fade for that "layered" feel
+                duration = duration,
+                easing = EaseInOut
+            )
+        )
+
+fun fadeInUpTransition(
     index: Int,
     duration: Int = 800,
     delay: Int = 100,
@@ -144,3 +160,8 @@ fun slideInLeftTransition(
         defaultAnimSpec(duration, delay)
     ) { offset + (index * 12) }
 }
+
+fun  defaultScaleIn() = scaleIn(
+    animationSpec = defaultAnimSpec(),
+    initialScale = 0.4f,
+)

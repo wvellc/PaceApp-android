@@ -1,8 +1,10 @@
 package com.example.paceapp.navigation
 
 import androidx.navigation.NavHostController
+import com.example.paceapp.features.authentication.buildprofile.navigation.BuildProfileRoute
 import com.example.paceapp.features.authentication.data.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.navigation.LoginRoute
+import com.example.paceapp.features.authentication.otpsuccess.navigation.OtpSuccessRoute
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
 
@@ -50,10 +52,24 @@ class AppNavActions(
         }
     }
 
+    fun toOtpSuccess(loginType: LoginTypes) {
+        navController.navigate(OtpSuccessRoute(loginType = loginType)) {
+            popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
     fun toDashboard() {
 //        navController.navigate(DashboardRoute) {
 //            popUpTo(navController.graph.id) { inclusive = true }
 //            launchSingleTop = true
 //        }
+    }
+
+    fun toBuildProfile() {
+        navController.navigate(BuildProfileRoute) {
+            popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 }

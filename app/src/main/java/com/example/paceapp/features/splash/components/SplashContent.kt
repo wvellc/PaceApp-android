@@ -26,12 +26,13 @@ import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppLogo
 import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.animation.AnimationWrapper
-import com.example.paceapp.core.components.animation.fadeInUpTransition
 import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
+import com.wvelabs.core_ui.extensions.defaultScaleIn
+import com.wvelabs.core_ui.extensions.fadeInUpTransition
 
 @Composable
 internal fun SplashContent(
@@ -55,10 +56,7 @@ internal fun SplashContent(
                         .fillMaxWidth()
                         .padding(top = innerPaddings.calculateTopPadding() + 120.dp)
                         .animateEnterExit(
-                            enter = scaleIn(
-                                animationSpec = defaultAnimSpec(),
-                                initialScale = 0.4f,
-                            )
+                            enter = defaultScaleIn()
                         ),
                     logoStyle = LogoStyle.Vertical
                 )
