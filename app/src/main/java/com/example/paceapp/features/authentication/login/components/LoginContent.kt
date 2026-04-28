@@ -32,7 +32,6 @@ import com.example.paceapp.R
 import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
-import com.example.paceapp.core.components.AppButtonStyle
 import com.example.paceapp.core.components.AppLogo
 import com.example.paceapp.core.components.AppSegmentedButtons
 import com.example.paceapp.core.components.AppTextField
@@ -43,8 +42,8 @@ import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.core.utils.CountryMapper
-import com.example.paceapp.features.authentication.data.enums.LoginTypes
-import com.example.paceapp.features.authentication.data.enums.title
+import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.data.enums.title
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.LoginContract.State
 import com.example.paceapp.theme.AppColors

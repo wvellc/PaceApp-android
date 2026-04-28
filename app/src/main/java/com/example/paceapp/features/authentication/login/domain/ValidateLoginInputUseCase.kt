@@ -2,7 +2,7 @@ package com.example.paceapp.features.authentication.login.domain
 
 import com.example.paceapp.core.components.Validator
 import com.example.paceapp.core.components.ValidatorType
-import com.example.paceapp.features.authentication.data.enums.LoginTypes
+import com.example.paceapp.core.data.enums.LoginTypes
 import javax.inject.Inject
 
 class ValidateLoginInputUseCase @Inject constructor(){

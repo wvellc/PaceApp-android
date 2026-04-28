@@ -2,7 +2,7 @@ package com.example.paceapp.features.authentication.otpsuccess.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.example.paceapp.features.authentication.data.enums.LoginTypes
+import com.example.paceapp.core.data.enums.LoginTypes
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessScreen
 import kotlinx.serialization.Serializable
 

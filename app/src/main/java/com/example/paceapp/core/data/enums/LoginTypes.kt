@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.data.enums
+package com.example.paceapp.core.data.enums
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
