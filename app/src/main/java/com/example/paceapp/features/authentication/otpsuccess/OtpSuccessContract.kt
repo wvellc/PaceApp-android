@@ -20,6 +20,7 @@ class OtpSuccessContract {
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
+        data object NavigateToTabHost : Effect()
         data object NavigateToBuildProfile : Effect()
     }
 }

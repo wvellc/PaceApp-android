@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.example.paceapp.R
 import com.example.paceapp.features.authentication.buildprofile.navigation.buildProfileScreen
 import com.example.paceapp.features.authentication.login.navigation.loginScreen
 import com.example.paceapp.features.authentication.otpsuccess.navigation.otpSuccessScreen
@@ -29,7 +31,8 @@ fun AppNavHost(
     sessionManager: AppSessionManager,
 ) {
     //Nav action
-    val triggerExit = rememberGlobalExitHandler()
+    val triggerExit =
+        rememberGlobalExitHandler(message = stringResource(R.string.back_press_to_exit_message))
     val navActions = remember(navController) {
         AppNavActions(navController, onRootExit = triggerExit)
     }
@@ -87,7 +90,7 @@ fun AppNavHost(
         //Splash screen
         splashScreen(
             onNavigateToLogin = navActions::toLogin,
-            onNavigateToDashboard = navActions::toDashboard,
+            onNavigateToTabHost = navActions::toTabHost,
             onNavigateToBuildProfile = navActions::toBuildProfile
         )
 
@@ -102,12 +105,16 @@ fun AppNavHost(
         webviewScreen()
 
         //Verify Otp
-        verifyOtpScreen(onNavigateToOtpSuccess = navActions::toOtpSuccess)
+        verifyOtpScreen(
+            onNavigateToOtpSuccess = navActions::toOtpSuccess,
+            onBack = navActions::goBack,
+        )
 
         //Otp success
         otpSuccessScreen(
             onBack = navActions::goBack,
             onNavigateToBuildProfile = navActions::toBuildProfile,
+            onNavigateToTabHost = navActions::toTabHost,
         )
 
         //Build profile

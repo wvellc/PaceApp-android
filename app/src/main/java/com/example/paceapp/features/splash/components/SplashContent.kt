@@ -1,7 +1,6 @@
 package com.example.paceapp.features.splash.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
+import com.example.paceapp.core.components.AppButtonStyle
 import com.example.paceapp.core.components.AppLogo
 import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.animation.AnimationWrapper
@@ -30,7 +30,6 @@ import com.example.paceapp.features.splash.SplashContract.Event
 import com.example.paceapp.features.splash.SplashContract.State
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
-import com.wvelabs.core_ui.extensions.defaultAnimSpec
 import com.wvelabs.core_ui.extensions.defaultScaleIn
 import com.wvelabs.core_ui.extensions.fadeInUpTransition
 
@@ -105,6 +104,7 @@ internal fun SplashContent(
                                 .animateEnterExit(
                                     enter = fadeInUpTransition()
                                 ),
+                            style = AppButtonStyle.OUTLINED_GRADIENT,
                             title = stringResource(R.string.get_started),
                             trailingIconRes = R.drawable.ic_arrow,
                             onClick = { onEvent(Event.OnGetStarted) }

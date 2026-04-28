@@ -44,7 +44,7 @@ fun AppButton(
     cornerShape: Shape = ContinuousRoundedRectangle(48.dp),
     iconAlignment: Alignment = Alignment.CenterEnd,
     @DrawableRes trailingIconRes: Int? = null,
-    style: AppButtonStyle = AppButtonStyle.OUTLINED_GRADIENT,
+    style: AppButtonStyle = AppButtonStyle.FILLED_GRADIENT,
     backgroundColor: Color = AppColors.HintGray,
     contentColor: Color = AppColors.White,
     enabled: Boolean = true,

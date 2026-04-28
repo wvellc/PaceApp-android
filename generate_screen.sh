@@ -130,6 +130,9 @@ class ${SCREEN_PASCAL}ViewModel @Inject constructor() : BaseViewModel<State, Eve
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> initData()
+            is Event.OnBackClick -> {
+                 setEffect { Effect.NavigateBack }
+            }
         }
     }
 

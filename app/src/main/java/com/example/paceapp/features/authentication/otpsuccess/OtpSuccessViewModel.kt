@@ -4,12 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.paceapp.core.base.BaseViewModel
+import com.example.paceapp.core.data.enums.AuthDestination
 import com.example.paceapp.core.data.usecases.AuthRouteManager
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Effect
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Event
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.State
 import com.example.paceapp.features.authentication.otpsuccess.navigation.OtpSuccessRoute
 import com.example.paceapp.session.AppSessionManager
+import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -43,29 +45,23 @@ class OtpSuccessViewModel @Inject constructor(
                 loginType = args.loginType,
             )
         }
-        fetchSessionData()
-        setState { copy(isInitialized = true,) }
+        setState { copy(isInitialized = true) }
     }
 
-    private fun fetchSessionData() {
-        viewModelScope.launch {
-            val user = sessionManager.getUserDetails()
-            setState { copy() }
-        }
-    }
 
     private fun onContinueClicked() {
         viewModelScope.launch {
             val destination = authRouteManager.getNextDestination()
 
             // Same logic, but mapped to this specific screen's Contract
-//            when (destination) {
-//                AuthDestination.DASHBOARD -> setEffect { Effect.GoToDashboard }
-//                AuthDestination.BUILD_PROFILE -> setEffect { Effect.GoToProfileSetup }
-//                AuthDestination.LOGIN -> {
-//                    AppLogger.e("Error")
-//                }
-//            }
+            when (destination) {
+                AuthDestination.TAB_HOST -> setEffect { Effect.NavigateToTabHost }
+                AuthDestination.BUILD_PROFILE -> setEffect { Effect.NavigateToBuildProfile }
+                AuthDestination.LOGIN -> {
+                    AppLogger.e("Error: Auth token expired")
+                    sessionManager.onSessionExpired()
+                }
+            }
         }
     }
 }

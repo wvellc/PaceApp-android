@@ -123,6 +123,11 @@ dependencies {
     implementation(libs.country.picker)
 
     // ---------------------------------------------------------
+    // GLASS BACKDROP UI
+    // ---------------------------------------------------------
+    implementation(libs.backdrop)
+
+    // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)
     // ---------------------------------------------------------
     implementation(project(":core-network"))

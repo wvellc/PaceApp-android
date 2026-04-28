@@ -59,17 +59,18 @@ class AppNavActions(
         }
     }
 
-    fun toDashboard() {
-//        navController.navigate(DashboardRoute) {
-//            popUpTo(navController.graph.id) { inclusive = true }
-//            launchSingleTop = true
-//        }
-    }
-
     fun toBuildProfile() {
         navController.navigate(BuildProfileRoute) {
             popUpTo(navController.graph.id) { inclusive = true }
             launchSingleTop = true
         }
+    }
+
+
+    fun toTabHost() {
+//        navController.navigate(TabHostRoute) {
+//            popUpTo(navController.graph.id) { inclusive = true }
+//            launchSingleTop = true
+//        }
     }
 }

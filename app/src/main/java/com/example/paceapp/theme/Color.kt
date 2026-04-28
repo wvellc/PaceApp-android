@@ -11,12 +11,14 @@ object AppColors {
 
     val White = Color(0xFFFFFFFF)
     val White20 = Color(0x33FFFFFF)
+    val White85 = Color(0xD9FFFFFF)
     val Black = Color(0xFF000000)
     val Error = Color(0xFFE43222)
     val InfernoRed = Color(0xFFFF4E36)
     val HintGray = Color(0xFFE5E5E5)
     val FashionGray = Color(0xFF8C8C8C)
     val DarkCharcoal = Color(0xFF323334)
+    val Orange = Color(0xFFFF9500)
 
     val backgroundGradient = listOf(
         Color(0xFF0C2D8C),

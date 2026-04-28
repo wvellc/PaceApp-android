@@ -30,7 +30,8 @@ capsuleVersion = "2.1.1"
 
 # Testing / UI Support
 uiUnit = "1.10.6"
-countryPicker = "3.0.1" # Matches internal BOM 2026.03.00 versions
+countryPicker = "3.0.1"
+backdrop = "1.0.6" # Matches internal BOM 2026.03.00 versions
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -43,6 +44,7 @@ androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graph
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 # Networking (For :core-network)
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -78,6 +80,9 @@ capsule = { group = "io.github.kyant0", name = "capsule", version.ref = "capsule
 
 #COUNTRY CODE PICKER
 country-picker = { group = "com.github.arpitkatiyar1999", name = "Country-Picker", version.ref = "countryPicker" }
+
+#GLASS UI
+backdrop = { group = "io.github.kyant0", name = "backdrop", version.ref = "backdrop" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

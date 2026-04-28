@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.collectLatest
 fun SplashScreen(
     viewModel: SplashViewModel = hiltViewModel(),
     onNavigateToLogin: () -> Unit,
-    onNavigateToDashboard: () -> Unit,
+    onNavigateToTabHost: () -> Unit,
     onNavigateToBuildProfile: () -> Unit = {},
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -27,7 +27,7 @@ fun SplashScreen(
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is Effect.NavigateToLogin -> onNavigateToLogin()
-                is Effect.NavigateToDashboard -> onNavigateToDashboard()
+                is Effect.NavigateToTabHost -> onNavigateToTabHost()
                 is Effect.NavigateToBuildProfile -> onNavigateToBuildProfile()
 
             }

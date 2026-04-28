@@ -25,6 +25,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import com.example.paceapp.theme.AppColors
 import com.kyant.capsule.continuities.G2Continuity
 import com.kyant.capsule.continuities.G2ContinuityProfile
+import com.wvelabs.core_ui.alerts.MessageType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -93,6 +94,7 @@ fun Modifier.verticalScrollOnIme(
         .imePadding()
         .verticalScroll(scrollState)
 }
+
 val g2Continuity = G2Continuity(
     profile = G2ContinuityProfile.RoundedRectangle.copy(
         extendedFraction = 0.5,
@@ -105,3 +107,13 @@ val g2Continuity = G2Continuity(
         arcFraction = 0.25
     )
 )
+
+//Message type colors
+val MessageType.tintColor: Color
+    get() = when (this) {
+        MessageType.Success -> AppColors.FluorescentMint
+        MessageType.Error -> AppColors.Error
+        MessageType.Warning -> AppColors.Orange
+        MessageType.Info -> AppColors.RadiantBlue
+        MessageType.Loading -> AppColors.HintGray
+    }

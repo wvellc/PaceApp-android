@@ -13,9 +13,13 @@ data class VerifyOtpRoute(
     val countryCode: String? = null
 )
 
-fun NavGraphBuilder.verifyOtpScreen(onNavigateToOtpSuccess: (LoginTypes) -> Unit) {
+fun NavGraphBuilder.verifyOtpScreen(
+    onNavigateToOtpSuccess: (LoginTypes) -> Unit,
+    onBack: () -> Unit
+) {
     composable<VerifyOtpRoute> {
         VerifyOtpScreen(
+            onBack = onBack,
             onNavigateToOtpSuccess = onNavigateToOtpSuccess,
         )
     }

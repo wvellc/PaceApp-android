@@ -106,7 +106,6 @@ fun AppSuccessView(
                         .animateEnterExit(
                             enter = fadeInUpTransition(delay = 100)
                         ),
-                    style = AppButtonStyle.FILLED_GRADIENT,
                     title = buttonLabel,
                     onClick = onButtonClick,
                 )

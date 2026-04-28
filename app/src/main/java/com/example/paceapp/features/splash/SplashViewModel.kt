@@ -53,7 +53,7 @@ class SplashViewModel @Inject constructor(
             val destination = authRouteManager.getNextDestination()
             AppLogger.e("DESTINATION - $destination")
             when (destination) {
-                AuthDestination.DASHBOARD -> setEffect { Effect.NavigateToDashboard }
+                AuthDestination.TAB_HOST -> setEffect { Effect.NavigateToTabHost }
                 AuthDestination.BUILD_PROFILE -> setEffect { Effect.NavigateToBuildProfile }
                 AuthDestination.LOGIN -> setState { copy(showGetStarted = true) }
             }

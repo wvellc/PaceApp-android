@@ -166,7 +166,6 @@ internal fun LoginContent(
                 AppButton(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    style = AppButtonStyle.FILLED_GRADIENT,
                     title = stringResource(R.string.send_otp),
                     enabled = state.isSendOTPEnabled
                 ) { onEvent(Event.OnLoginClick) }

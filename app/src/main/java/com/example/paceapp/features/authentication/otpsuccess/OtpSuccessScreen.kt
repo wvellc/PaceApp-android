@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.paceapp.features.authentication.login.LoginContract
 import kotlinx.coroutines.flow.collectLatest
 
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Effect
@@ -17,6 +16,7 @@ import com.example.paceapp.features.authentication.otpsuccess.components.OtpSucc
 fun OtpSuccessScreen(
     viewModel: OtpSuccessViewModel = hiltViewModel(),
     onBack: () -> Unit,
+    onNavigateToTabHost: () -> Unit,
     onNavigateToBuildProfile: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -28,6 +28,7 @@ fun OtpSuccessScreen(
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
+                is Effect.NavigateToTabHost -> onNavigateToTabHost()
                 is Effect.NavigateToBuildProfile -> onNavigateToBuildProfile()
             }
         }

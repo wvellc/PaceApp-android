@@ -20,7 +20,7 @@ class SplashContract {
 
     sealed class Effect : ViewSideEffect {
         data object NavigateToLogin : Effect()
-        data object NavigateToDashboard : Effect()
+        data object NavigateToTabHost : Effect()
         data object NavigateToBuildProfile : Effect()
     }
 }

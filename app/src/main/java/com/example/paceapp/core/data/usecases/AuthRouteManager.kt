@@ -22,7 +22,7 @@ class AuthRouteManager @Inject constructor(
         val user = sessionManager.getUserDetails()
         // If authenticated, check the user's profile status
         return if (user?.isProfileComplete == true) {
-            AuthDestination.DASHBOARD
+            AuthDestination.TAB_HOST
         } else {
             AuthDestination.BUILD_PROFILE
         }

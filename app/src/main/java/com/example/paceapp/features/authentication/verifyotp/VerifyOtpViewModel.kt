@@ -16,7 +16,11 @@ import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.S
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_network.timer.TimerFactory
+import com.wvelabs.core_ui.alerts.AppAlerts
+import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.minutes
 
@@ -35,6 +39,10 @@ class VerifyOtpViewModel @Inject constructor(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> initData()
+            is Event.OnBackClick -> {
+                setEffect { Effect.NavigateBack }
+            }
+
             is Event.OnResendOtpClicked -> handleResendOtpClick()
             is Event.OnOtpChange -> updateOtp(event.otp)
             is Event.OnNextClick -> handleNextClick()
@@ -55,6 +63,7 @@ class VerifyOtpViewModel @Inject constructor(
         }
         //Init otp timer
         otpTimer.start(duration = 1.minutes, isCountdown = true)
+        showSuccessToast()
         setState { copy(isInitialized = true) }
     }
 
@@ -63,8 +72,21 @@ class VerifyOtpViewModel @Inject constructor(
     }
 
     private fun handleResendOtpClick() {
+        showSuccessToast()
         //TODO:Add Resend OTP API call
         otpTimer.restart()
+    }
+
+    private fun showSuccessToast() {
+        viewModelScope.launch {
+            //dummy delay
+            delay(1000)
+            AppAlerts.showToast(
+                "OTP has been sent to ${currentState.emailPhoneValue}",
+                type = MessageType.Info,
+            )
+        }
+
     }
 
     private fun handleNextClick() {

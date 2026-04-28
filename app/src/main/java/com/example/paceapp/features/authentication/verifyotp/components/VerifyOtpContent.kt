@@ -56,7 +56,12 @@ internal fun VerifyOtpContent(
             .clearFocusOnTap(focusManager),
         isLoading = state.isLoading,
         hasPattern = true,
-        appBar = { CommonAppBar(title = title) },
+        appBar = {
+            CommonAppBar(title = title, onBackClick = {
+                focusManager.clearFocus(force = true)
+                onEvent(Event.OnBackClick)
+            })
+        },
         animationWrapper = { content -> FadeInUpWrapper(enterTransition = fadeInUpTransition(from = 0.02f)) { content() } }
     ) { innerPaddings ->
         //Scroll container
@@ -104,7 +109,6 @@ internal fun VerifyOtpContent(
             AppButton(
                 modifier = Modifier
                     .fillMaxWidth(),
-                style = AppButtonStyle.FILLED_GRADIENT,
                 title = stringResource(R.string.next),
                 enabled = state.otp.length >= otpLength
             ) {

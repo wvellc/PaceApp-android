@@ -21,9 +21,9 @@ import coil3.request.ImageRequest
 
 @Composable
 fun AppNetworkImage(
-    imageUrl: String?,
-    contentDescription: String?,
     modifier: Modifier = Modifier,
+    imageUrl: String?,
+    contentDescription: String? = null,
     size: Dp? = null,
     shape: Shape = RectangleShape,
     border: BorderStroke? = null,

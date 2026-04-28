@@ -1,5 +1,6 @@
 package com.example.paceapp.features.authentication.buildprofile
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -10,6 +11,7 @@ import kotlinx.coroutines.flow.collectLatest
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Effect
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.features.authentication.buildprofile.components.BuildProfileContent
+import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract
 
 @Composable
 fun BuildProfileScreen(
@@ -17,7 +19,9 @@ fun BuildProfileScreen(
     onBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-
+    BackHandler(enabled = true) {
+        viewModel.setEvent(Event.OnBackClick)
+    }
     // Init view model
     LaunchedEffect(key1 = Unit) {
           viewModel.setEvent(Event.Init)

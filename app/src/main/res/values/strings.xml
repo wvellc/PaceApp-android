@@ -31,5 +31,16 @@
     <string name="didn_t_receive_otp_resend_in">"Didn’t receive OTP? Resend in "</string>
     <string name="otp_success_title">Your %1$s has been verified.</string>
     <string name="otp_success_subtitle">You will soon be directed to the main page.</string>
+    <string name="back_press_to_exit_message">Press back again to exit</string>
+
+    <!-- Profile Build Steps -->
+    <string name="profile_step_account_setup_title">Create Account</string>
+    <string name="profile_step_pair_watch_title">Pair Watch</string>
+    <string name="profile_step_start_pairing">Start Pairing</string>
+    <string name="profile_step_select_model_title">Choose your model</string>
+    <string name="profile_step_pair">Pair</string>
+    <string name="profile_step_set_gait_title">Set Gait</string>
+    <string name="profile_step_connect_strava_title">Connect Strava</string>
+    <string name="profile_step_connect">Connect</string>
 
 </resources>

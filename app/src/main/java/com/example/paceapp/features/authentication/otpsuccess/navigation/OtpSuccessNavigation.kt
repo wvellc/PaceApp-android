@@ -12,11 +12,13 @@ data class OtpSuccessRoute(val loginType: LoginTypes)
 fun NavGraphBuilder.otpSuccessScreen(
     onBack: () -> Unit,
     onNavigateToBuildProfile: () -> Unit,
+    onNavigateToTabHost: () -> Unit,
 ) {
     composable<OtpSuccessRoute> {
         OtpSuccessScreen(
             onBack = onBack,
-            onNavigateToBuildProfile = onNavigateToBuildProfile
+            onNavigateToTabHost = onNavigateToTabHost,
+            onNavigateToBuildProfile = onNavigateToBuildProfile,
         )
     }
 }
