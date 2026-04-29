@@ -11,6 +11,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -19,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
+import com.example.paceapp.core.components.imagepicker.AppImagePicker
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -26,6 +31,9 @@ import com.wvelabs.core_ui.components.AppNetworkImage
 
 @Composable
 fun AccountSetContent() {
+
+    var showPicker by remember { mutableStateOf(false) }
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -54,7 +62,7 @@ fun AccountSetContent() {
                 )
                 .background(color = AppColors.White)
                 .defaultClickable {
-
+                    showPicker = true
                 },
             contentAlignment = Alignment.Center,
         ) {
@@ -67,5 +75,14 @@ fun AccountSetContent() {
                 modifier = Modifier.fillMaxSize(),
             )
         }
+
+
+        AppImagePicker(
+            isVisible = showPicker,
+            showReplaceSheet = true,
+            onDismiss = { showPicker = false },
+            onAction = { action -> },
+        )
     }
 }
+

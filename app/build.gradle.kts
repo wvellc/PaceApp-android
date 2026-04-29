@@ -128,6 +128,11 @@ dependencies {
     implementation(libs.backdrop)
 
     // ---------------------------------------------------------
+    // Image cropper
+    // ---------------------------------------------------------
+    implementation(libs.ucrop)
+
+    // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)
     // ---------------------------------------------------------
     implementation(project(":core-network"))

@@ -61,6 +61,11 @@ dependencies {
     //Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    //Image cropper
+    implementation(libs.ucrop)
+
     //Kotlin Date time extension
     implementation(libs.kotlinx.datetime)
+
 }

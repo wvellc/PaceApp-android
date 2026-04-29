@@ -2,9 +2,12 @@ package com.wvelabs.core_ui.extensions
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
+import androidx.core.content.FileProvider
+import java.io.File
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -43,3 +46,8 @@ fun Context.openNotificationSettings() {
 }
 
 
+fun Context.createTempPictureUri(): Uri {
+    val tempDir = File(this.cacheDir, "images").apply { mkdirs() }
+    val tempFile = File.createTempFile("IMAGE_${System.currentTimeMillis()}_", ".jpg", tempDir)
+    return FileProvider.getUriForFile(this, "${this.packageName}.fileprovider", tempFile)
+}

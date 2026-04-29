@@ -42,5 +42,10 @@
     <string name="profile_step_set_gait_title">Set Gait</string>
     <string name="profile_step_connect_strava_title">Connect Strava</string>
     <string name="profile_step_connect">Connect</string>
+    <string name="camera">Camera</string>
+    <string name="photo_gallery">Photo Gallery</string>
+    <string name="replace">Replace</string>
+    <string name="remove">Remove</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

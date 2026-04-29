@@ -24,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
@@ -41,6 +42,7 @@ enum class AppButtonStyle {
 fun AppButton(
     modifier: Modifier,
     title: String,
+    height: Dp = 54.dp,
     cornerShape: Shape = ContinuousRoundedRectangle(48.dp),
     iconAlignment: Alignment = Alignment.CenterEnd,
     @DrawableRes trailingIconRes: Int? = null,
@@ -84,7 +86,7 @@ fun AppButton(
 
     Box(
         modifier = modifier
-            .height(54.dp)
+            .height(height)
             .clip(shape = cornerShape)
             .background(
                 color = AppColors.Black.copy(alpha = 0.2f)
