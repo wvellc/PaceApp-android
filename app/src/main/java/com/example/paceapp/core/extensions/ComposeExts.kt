@@ -77,14 +77,14 @@ fun Modifier.clearFocusOnTap(focusManager: FocusManager): Modifier =
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Modifier.verticalScrollOnIme(
-    // 🚀 We allow the parent to pass one, but default to our own if they don't!
-    scrollState: ScrollState = rememberScrollState()
+    scrollState: ScrollState = rememberScrollState(),
+    delayMs: Long = 100L
 ): Modifier {
     val isImeVisible = WindowInsets.isImeVisible
 
     LaunchedEffect(isImeVisible) {
         if (isImeVisible) {
-            delay(100)
+            delay(delayMs)
             scrollState.animateScrollTo(scrollState.maxValue)
         }
     }

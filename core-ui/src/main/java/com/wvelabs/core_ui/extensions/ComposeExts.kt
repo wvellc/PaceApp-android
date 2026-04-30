@@ -108,7 +108,7 @@ fun Modifier.bounceClick(
 fun <T> defaultAnimSpec(
     duration: Int = 800,
     delay: Int = 0,
-    easing: Easing = EaseInOutBack,
+    easing: Easing = EaseInOut,
 ): TweenSpec<T> =
     tween(easing = easing, durationMillis = duration, delayMillis = delay)
 

@@ -35,7 +35,7 @@ fun rememberImagePickerHandler(
         if (result.resultCode == Activity.RESULT_OK && result.data != null) {
             val resultUri = UCrop.getOutput(result.data!!)
             if (resultUri != null) {
-                onResult(ImagePickerAction.Cropped(resultUri))
+                onResult(ImagePickerAction.Selected(resultUri))
             } else {
                 onResult(ImagePickerAction.Cancelled)
             }

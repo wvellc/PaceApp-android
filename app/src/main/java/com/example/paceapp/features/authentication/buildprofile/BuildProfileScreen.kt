@@ -32,6 +32,9 @@ fun BuildProfileScreen(
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
+                is Effect.NavigateToProfileSuccess -> {
+                    //TODO:Add navigation
+                }
             }
         }
     }

@@ -47,5 +47,11 @@
     <string name="replace">Replace</string>
     <string name="remove">Remove</string>
     <string name="cancel">Cancel</string>
+    <string name="drag_handle">Drag Handle</string>
+    <string name="create_account_description">Set up your account to track your pace, performance, and progress in real time.</string>
+    <string name="add_photo">Add Photo</string>
+    <string name="update_photo">Update Photo</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last Name</string>
 
 </resources>

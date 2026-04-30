@@ -5,7 +5,7 @@ import com.example.paceapp.core.components.ValidatorType
 import com.example.paceapp.core.data.enums.LoginTypes
 import javax.inject.Inject
 
-class ValidateLoginInputUseCase @Inject constructor(){
+class ValidateLoginInputUseCase{
     operator fun invoke(
         type: LoginTypes,
         email: String,

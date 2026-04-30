@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppTextButton
 import com.example.paceapp.theme.AppColors
@@ -32,13 +33,14 @@ fun ImagePickerOption(
     onClick: () -> Unit
 ) {
     AppTextButton(
+        text = type.title.uppercase(),
         onClick = onClick,
-        text = type.name,
+        modifier = Modifier
+            .fillMaxWidth(),
         contentColor = type.tint,
         style = AppTheme.typography.size16.copy(
             fontWeight = FontWeight.Medium,
+            letterSpacing = 1.sp
         ),
-        modifier = Modifier
-            .fillMaxWidth()
     )
 }

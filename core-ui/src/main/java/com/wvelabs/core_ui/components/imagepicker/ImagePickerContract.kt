@@ -5,7 +5,6 @@ import android.net.Uri
 
 sealed interface ImagePickerAction {
     data class Selected(val uri: Uri) : ImagePickerAction
-    data class Cropped(val uri: Uri) : ImagePickerAction // New action for cropped results
     object Removed : ImagePickerAction
     object Cancelled : ImagePickerAction
 }

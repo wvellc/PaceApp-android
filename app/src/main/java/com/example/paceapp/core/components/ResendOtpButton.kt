@@ -39,14 +39,14 @@ fun ResendOtpButton(
     }
 
     AppTextButton(
-        modifier = modifier,
         text = buttonContent,
         onClick = onClick,
+        modifier = modifier,
         enabled = !isTimerRunning,
         disabledContentColor = AppColors.White,
-        contentColor = AppColors.NeonAquaBlue,
         style = AppTheme.typography.size14.copy(
             fontWeight = if (isTimerRunning) FontWeight.Medium else FontWeight.SemiBold
-        )
+        ),
+
     )
 }
