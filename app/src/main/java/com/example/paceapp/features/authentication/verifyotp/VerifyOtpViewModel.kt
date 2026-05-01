@@ -7,9 +7,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.core.data.models.UserData
+import com.example.paceapp.core.domain.models.UserData
 import com.example.paceapp.core.utils.AppConstants
-import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Effect
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Event
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.State

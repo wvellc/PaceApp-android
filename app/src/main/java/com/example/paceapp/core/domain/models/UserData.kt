@@ -1,6 +1,6 @@
-package com.example.paceapp.core.data.models
+package com.example.paceapp.core.domain.models
 
-import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.LoginTypes
 import kotlinx.serialization.Serializable
 import com.example.paceapp.session.AppSessionManager
 /**

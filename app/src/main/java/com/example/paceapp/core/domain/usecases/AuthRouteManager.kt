@@ -1,7 +1,7 @@
-package com.example.paceapp.core.data.usecases
+package com.example.paceapp.core.domain.usecases
 
-import com.example.paceapp.core.data.enums.AuthDestination
-import com.example.paceapp.core.data.models.isProfileComplete
+import com.example.paceapp.core.domain.enums.AuthDestination
+import com.example.paceapp.core.domain.models.isProfileComplete
 import com.example.paceapp.session.AppSessionManager
 import javax.inject.Inject
 

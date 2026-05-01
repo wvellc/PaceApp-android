@@ -42,8 +42,8 @@ import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.core.utils.CountryMapper
-import com.example.paceapp.core.data.enums.LoginTypes
-import com.example.paceapp.core.data.enums.title
+import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.title
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.LoginContract.State
 import com.example.paceapp.theme.AppColors

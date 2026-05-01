@@ -1,4 +1,4 @@
-package com.example.paceapp.core.data.enums
+package com.example.paceapp.core.domain.enums
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource

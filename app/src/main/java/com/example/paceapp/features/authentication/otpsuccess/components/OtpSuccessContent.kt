@@ -8,7 +8,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppSuccessView
-import com.example.paceapp.core.data.enums.title
+import com.example.paceapp.core.domain.enums.title
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Event
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.State
 

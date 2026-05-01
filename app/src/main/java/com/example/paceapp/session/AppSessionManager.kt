@@ -2,7 +2,7 @@ package com.example.paceapp.session
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.example.paceapp.core.data.models.UserData
+import com.example.paceapp.core.domain.models.UserData
 import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.session.SessionCache
 import com.wvelabs.core_network.session.SessionListener

@@ -8,7 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.LoginContract.Effect
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.components.LoginContent

@@ -1,6 +1,6 @@
 package com.example.paceapp.features.authentication.otpsuccess
 
-import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.LoginTypes
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState

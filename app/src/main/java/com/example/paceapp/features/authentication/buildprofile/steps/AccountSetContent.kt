@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
@@ -38,6 +39,7 @@ import com.example.paceapp.core.components.AppTextField
 import com.example.paceapp.core.components.ValidatorType
 import com.example.paceapp.core.components.imagepicker.AppImagePicker
 import com.example.paceapp.core.extensions.defaultClickable
+import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -66,8 +68,15 @@ fun AccountSetContent(
         )
     }
 
+    //Scroll inner content on Ime
+    val scrollState = rememberScrollState()
+
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScrollOnIme(
+                scrollState, delayMs = 200 //delay to sync with outer scroll
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(

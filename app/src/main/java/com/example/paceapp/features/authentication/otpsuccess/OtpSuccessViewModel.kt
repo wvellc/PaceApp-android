@@ -4,8 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.core.data.enums.AuthDestination
-import com.example.paceapp.core.data.usecases.AuthRouteManager
+import com.example.paceapp.core.domain.enums.AuthDestination
+import com.example.paceapp.core.domain.usecases.AuthRouteManager
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Effect
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Event
 import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.State

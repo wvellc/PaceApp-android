@@ -27,8 +27,8 @@ import com.example.paceapp.core.components.animation.FadeInUpWrapper
 import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.core.utils.AppConstants
-import com.example.paceapp.core.data.enums.LoginTypes
-import com.example.paceapp.core.data.enums.title
+import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.title
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Event
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.State
 import com.example.paceapp.theme.AppColors

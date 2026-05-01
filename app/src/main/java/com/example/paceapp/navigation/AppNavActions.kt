@@ -2,7 +2,7 @@ package com.example.paceapp.navigation
 
 import androidx.navigation.NavHostController
 import com.example.paceapp.features.authentication.buildprofile.navigation.BuildProfileRoute
-import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.navigation.LoginRoute
 import com.example.paceapp.features.authentication.otpsuccess.navigation.OtpSuccessRoute
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute

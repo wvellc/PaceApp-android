@@ -53,5 +53,7 @@
     <string name="update_photo">Update Photo</string>
     <string name="first_name">First Name</string>
     <string name="last_name">Last Name</string>
+    <string name="pair_watch_title">Pair a new Garmin watch</string>
+    <string name="pair_watch_subtitle">Connect your watch to this phone to sync runs, pace goals.</string>
 
 </resources>

@@ -1,6 +1,7 @@
 package com.example.paceapp.core.garmin
 
 import android.content.Context
+import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.garmin.android.connectiq.ConnectIQ
 import com.garmin.android.connectiq.ConnectIQ.IQApplicationEventListener
 import com.garmin.android.connectiq.ConnectIQ.IQDeviceEventListener
@@ -17,49 +18,46 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
 
 @Singleton
 class GarminConnectHelper @Inject constructor(
-    @param:ApplicationContext private val context: Context, // Crucial for Singleton memory safety
+    @param:ApplicationContext private val context: Context,
     private val connectIQ: ConnectIQ
 ) {
-    // Global state reflecting the SDK's readiness across the entire app
-    private val _isSdkReady = MutableStateFlow(false)
-    val isSdkReady: StateFlow<Boolean> = _isSdkReady.asStateFlow()
+    private val sdkState = MutableStateFlow<GarminSdkState>(GarminSdkState.Uninitialized)
+    val isSdkReady: StateFlow<GarminSdkState> = sdkState.asStateFlow()
 
-    /**
-     * Initializes the Garmin SDK. Safe to call multiple times.
-     * @param autoUI If true, Garmin SDK will automatically prompt the user to install
-     * the Garmin Connect app if it is missing from their phone.
-     */
-    suspend fun initializeSdk(autoUI: Boolean = true): Boolean {
-        // Prevent re-initialization if already connected
-        if (_isSdkReady.value) return true
+    private val initMutex = Mutex()
+
+    suspend fun initializeSdk(autoUI: Boolean = true): Boolean = initMutex.withLock {
+        if (sdkState.value is GarminSdkState.Ready) return true
+
+        sdkState.value = GarminSdkState.Initializing
 
         return suspendCancellableCoroutine { cont ->
             connectIQ.initialize(context, autoUI, object : ConnectIQ.ConnectIQListener {
                 override fun onSdkReady() {
-                    _isSdkReady.value = true
+                    sdkState.value = GarminSdkState.Ready
                     if (cont.isActive) cont.resume(true)
                 }
 
                 override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus?) {
-                    _isSdkReady.value = false
+                    sdkState.value = GarminSdkState.Error(status?.name)
                     if (cont.isActive) cont.resume(false)
                 }
 
                 override fun onSdkShutDown() {
-                    // The Garmin service was killed or shut down. 
-                    // Updating this state will instantly update any UI observing it.
                     try {
                         connectIQ.shutdown(context)
-                        _isSdkReady.value = false // Reset the state
                     } catch (e: Exception) {
-                        // Catch any lingering Garmin SDK errors during shutdown
-                        e.printStackTrace()
+                        AppLogger.e("Garmin Shutdown Error", e)
+                    } finally {
+                        sdkState.value = GarminSdkState.Uninitialized
                     }
                 }
             })

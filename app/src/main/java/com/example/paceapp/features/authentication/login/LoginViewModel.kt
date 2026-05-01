@@ -11,7 +11,7 @@ import com.example.paceapp.R
 import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.core.providers.AppResourceProvider
-import com.example.paceapp.core.data.enums.LoginTypes
+import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.LoginContract.Effect
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.LoginContract.State

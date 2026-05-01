@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,6 +31,7 @@ import com.example.paceapp.features.authentication.buildprofile.BuildProfileCont
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
 import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.steps.AccountSetContent
+import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchContent
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 
@@ -75,14 +75,12 @@ internal fun BuildProfileContent(
         },
     ) { innerPaddings ->
 
-        val outerScroll = rememberScrollState()
-        //Scroll inner content on Ime
-        val innerScroll = rememberScrollState()
+
         //Column
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScrollOnIme(outerScroll)
+                .verticalScrollOnIme()
                 .padding(innerPaddings)
                 .padding(horizontal = 16.dp)
 
@@ -92,33 +90,30 @@ internal fun BuildProfileContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .verticalScrollOnIme(
-                        innerScroll, delayMs = 200 //delay to sync with outer scroll
-                    )
+
                     .padding(top = 16.dp)
             ) {
 
                 //Step content with animation
                 AnimatedContent(
-                    modifier = Modifier,
+                    modifier = Modifier.fillMaxSize(),
                     targetState = state.currentStep,
-//                    transitionSpec = {
-//                        fadeIn(animationSpec = tween(500)) togetherWith
-//                                fadeOut(animationSpec = snap()) using SizeTransform(clip = false)
-//
-//                        val isForward = targetState.ordinal > initialState.ordinal
-//
-//                        if (isForward) {
-//                            slideInHorizontally { it } + fadeIn() togetherWith
-//                                    slideOutHorizontally { -it } + fadeOut()
-//                        } else {
-//                            slideInHorizontally { -it } + fadeIn() togetherWith
-//                                    slideOutHorizontally { it } + fadeOut()
-//                        }.using(SizeTransform(clip = false))
-//                    },
+                    transitionSpec = {
+                        val isMovingForward = targetState.stepOrder > initialState.stepOrder
+
+                        if (isMovingForward) {
+                            (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
+                                slideOutHorizontally { width -> -width } + fadeOut()
+                            )
+                        } else {
+                            (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
+                                slideOutHorizontally { width -> width } + fadeOut()
+                            )
+                        }.using(SizeTransform(clip = false))
+                    },
                     label = "StepTransition"
                 ) { step ->
-                    Box(modifier = Modifier) {
+                    Box(modifier = Modifier.fillMaxSize()) {
                         when (step) {
                             ProfileStep.AccountSetup -> AccountSetContent(
                                 profileImage = state.profileImage,
@@ -127,9 +122,9 @@ internal fun BuildProfileContent(
                                 onEvent = onEvent,
                             )
 
-                            ProfileStep.PairWatchInit -> DefaultContent(step)
+                            ProfileStep.PairWatchInit -> PairWatchContent(step)
                             ProfileStep.SelectModel -> DefaultContent(step)
-                            ProfileStep.PairSelectedWatch -> DefaultContent(step)
+                            ProfileStep.PairWatchSuccess -> DefaultContent(step)
                             ProfileStep.SetGait -> DefaultContent(step)
                             ProfileStep.ConnectStrava -> DefaultContent(step)
                         }

@@ -34,6 +34,7 @@ fun AppSuccessView(
     title: String = "",
     @DrawableRes logoRes: Int? = null,
     logoSize: Dp = 198.dp,
+    textHorizontalPaddings:Dp =36.dp,
     subtitle: String? = null,
     buttonLabel: String? = null,
     onButtonClick: () -> Unit = {},
@@ -64,7 +65,7 @@ fun AppSuccessView(
                 text = title,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 36.dp)
+                    .padding(horizontal = textHorizontalPaddings)
                     .animateEnterExit(
                         enter = fadeInUpTransition()
                     ),
@@ -84,7 +85,7 @@ fun AppSuccessView(
                     text = subtitle,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 36.dp)
+                        .padding(horizontal = textHorizontalPaddings)
                         .animateEnterExit(
                             enter = fadeInUpTransition(delay = 50)
                         ),
