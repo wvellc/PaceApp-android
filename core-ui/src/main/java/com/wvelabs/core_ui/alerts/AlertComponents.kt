@@ -85,7 +85,7 @@ fun DefaultSnackbar(snackbarData: SnackbarData) {
 }
 
 @Composable
-fun DefaultDialog(alert: AlertType.Dialog, closeDialog: () -> Unit) {
+fun DefaultDialog(alert: AlertType.Dialog, closeDialog: () -> Unit = {}) {
     AlertDialog(
         onDismissRequest = closeDialog,
         title = { Text(alert.title, color = alert.type.defaultColor()) },

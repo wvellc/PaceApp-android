@@ -55,5 +55,10 @@
     <string name="last_name">Last Name</string>
     <string name="pair_watch_title">Pair a new Garmin watch</string>
     <string name="pair_watch_subtitle">Connect your watch to this phone to sync runs, pace goals.</string>
+    <string name="garmin_sdk_message">Please complete Garmin setup, or tap \'Skip\' to proceed without a watch.</string>
+    <string name="alert">Alert</string>
+    <string name="garmin_sdk_title">Complete Garmin setup</string>
+    <string name="try_again">Try Again</string>
+    <string name="skip">Skip</string>
 
 </resources>

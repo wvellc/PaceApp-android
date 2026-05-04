@@ -1,5 +1,6 @@
 package com.example.paceapp.features.authentication.buildprofile.components
 
+import android.content.Context
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.fadeIn
@@ -16,11 +17,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppTextButton
@@ -32,8 +35,13 @@ import com.example.paceapp.features.authentication.buildprofile.BuildProfileCont
 import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.steps.AccountSetContent
 import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchContent
+import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchSuccessContent
+import com.example.paceapp.features.authentication.buildprofile.steps.SelectModelContent
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
+import com.wvelabs.core_ui.alerts.AlertType
+import com.wvelabs.core_ui.alerts.DefaultDialog
+import com.wvelabs.core_ui.alerts.MessageType
 
 @Composable
 internal fun BuildProfileContent(
@@ -41,6 +49,25 @@ internal fun BuildProfileContent(
     onEvent: (Event) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val context: Context = LocalContext.current
+
+    //Display garmin sdk alert
+    if (state.showGarminSetupDialog) {
+        DefaultDialog(
+            alert = AlertType.Dialog(
+                title = stringResource(R.string.garmin_sdk_title),
+                text = stringResource(R.string.garmin_sdk_message),
+                confirmText = stringResource(R.string.try_again),
+                dismissText = stringResource(R.string.skip),
+                cancelable = false,
+                type = MessageType.Warning, // Or whatever type matches your design!
+                // Safe lambdas! No memory leaks here because we are in the Compose scope
+                onConfirm = { onEvent(Event.OnGarminDialogRetry(context)) },
+                onDismiss = { onEvent(Event.OnGarminDialogSkip) }
+            ),
+        )
+    }
+
     //Screen
     AppBaseScreen(
         modifier = Modifier
@@ -61,7 +88,7 @@ internal fun BuildProfileContent(
                     //Skip action
                     if (state.currentStep.isSkippable) {
                         AppTextButton(
-                            text = "Skip",
+                            text = stringResource(R.string.skip),
                             style = AppTheme.typography.size16.copy(
                                 fontWeight = FontWeight.Medium,
                                 color = AppColors.White,
@@ -122,9 +149,14 @@ internal fun BuildProfileContent(
                                 onEvent = onEvent,
                             )
 
-                            ProfileStep.PairWatchInit -> PairWatchContent(step)
-                            ProfileStep.SelectModel -> DefaultContent(step)
-                            ProfileStep.PairWatchSuccess -> DefaultContent(step)
+                            ProfileStep.PairWatchInit -> PairWatchContent()
+                            ProfileStep.SelectModel -> SelectModelContent(
+                                watchList = state.watchList,
+                                selectedWatch = state.selectedWatch,
+                                onModelTap = { onEvent(Event.SelectWatchModel(device = it)) }
+                            )
+
+                            ProfileStep.PairWatchSuccess -> PairWatchSuccessContent(state.selectedWatch)
                             ProfileStep.SetGait -> DefaultContent(step)
                             ProfileStep.ConnectStrava -> DefaultContent(step)
                         }
@@ -136,9 +168,10 @@ internal fun BuildProfileContent(
                 enabled = state.isNextButtonEnabled,
                 title = stringResource(state.currentStep.buttonLabelRes),
                 modifier = Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
                 onClick = {
-                    onEvent(Event.OnNextClick)
+                    onEvent(Event.OnNextClick(context = context))
                 }
             )
         }

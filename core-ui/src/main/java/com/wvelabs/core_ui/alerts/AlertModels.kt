@@ -57,6 +57,7 @@ sealed class AlertType {
         val title: String,
         val text: String,
         val type: MessageType = MessageType.Info,
+        val cancelable: Boolean = true,
         val confirmText: String = "OK",
         val dismissText: String? = null,
         val onConfirm: (() -> Unit)? = null,

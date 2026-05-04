@@ -1,11 +1,16 @@
 package com.example.paceapp.core.garmin
 
+import android.content.Context
+import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.garmin.android.connectiq.IQDevice
 import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -13,42 +18,64 @@ import javax.inject.Singleton
 @Singleton
 class GarminDeviceManager @Inject constructor(
     private val garminHelper: GarminConnectHelper,
-    @param:ApplicationScope private val appScope: CoroutineScope // Provide this in your DI module!
+    @param:ApplicationScope private val appScope: CoroutineScope
 ) {
-    val sdkState = garminHelper.isSdkReady
+    val sdkStateFlow = garminHelper.sdkStateFlow
 
-    // Global State of the currently active watch
-    private val _activeDevice = MutableStateFlow<IQDevice?>(null)
-    val activeDevice: StateFlow<IQDevice?> = _activeDevice.asStateFlow()
+    //Fully clean StateFlows (No IQDevice!)
+    private val _activeDevice = MutableStateFlow<WatchModel?>(null)
+    val activeDevice: StateFlow<WatchModel?> = _activeDevice.asStateFlow()
 
-    private val _deviceStatus = MutableStateFlow(IQDevice.IQDeviceStatus.UNKNOWN)
-    val deviceStatus: StateFlow<IQDevice.IQDeviceStatus> = _deviceStatus.asStateFlow()
+    private val _deviceStatus = MutableStateFlow(WatchConnectionState.UNKNOWN)
+    val deviceStatus: StateFlow<WatchConnectionState> = _deviceStatus.asStateFlow()
 
     private var statusJob: Job? = null
 
-    suspend fun initializeGarminService(): Boolean {
-        return garminHelper.initializeSdk(autoUI = true)
+    suspend fun initializeGarminService(activityContext: Context): GarminSdkState {
+        return garminHelper.initializeSdk(activityContext, autoUI = true)
     }
 
-    fun getKnownDevices(): List<IQDevice> = garminHelper.getKnownDevices()
+    fun getKnownDevices(): List<WatchModel> =
+        garminHelper.getKnownDevices().map { it.toWatchModel() }
 
     /**
-     * Call this when the user clicks a watch in the list.
-     * It sets it as the active device and globally tracks its connection status.
+     * The UI now passes the clean WatchModel.
+     * We look up the raw IQDevice internally to connect!
      */
-    fun connectToDevice(device: IQDevice) {
-        _activeDevice.value = device
+    fun connectToDevice(watch: WatchModel) {
+        _activeDevice.value = watch
 
         // Cancel any previous listening job
         statusJob?.cancel()
 
-        // Start listening globally, tied to the app's lifecycle, not the screen's!
+        // 2. Find the actual IQDevice from the helper using the ID
+        val rawDevice = garminHelper.getKnownDevices().find {
+            it.deviceIdentifier.toString() == watch.id
+        }
+
+        if (rawDevice == null) {
+            AppLogger.e("Could not find raw IQDevice for ID: ${watch.id}")
+            return
+        }
+
+        // Start listening globally
         statusJob = appScope.launch {
-            garminHelper.getDeviceStatusFlow(device)
+            garminHelper.getDeviceStatusFlow(rawDevice)
                 .catch { AppLogger.e("Device Status Error", it) }
                 .collect { status ->
-                    _deviceStatus.value = status
-                    if (status == IQDevice.IQDeviceStatus.NOT_CONNECTED) {
+                    // 3. Map the SDK status to your Domain status
+                    val domainStatus = when (status) {
+                        IQDevice.IQDeviceStatus.CONNECTED -> WatchConnectionState.CONNECTED
+                        IQDevice.IQDeviceStatus.NOT_CONNECTED -> WatchConnectionState.NOT_CONNECTED
+                        else -> WatchConnectionState.UNKNOWN
+                    }
+
+                    _deviceStatus.value = domainStatus
+
+                    // Keep the active device model's internal status perfectly in sync
+                    _activeDevice.value = _activeDevice.value?.copy(status = domainStatus)
+
+                    if (domainStatus == WatchConnectionState.NOT_CONNECTED) {
                         // Handle global disconnection logic here
                         AppLogger.e("Watch Disconnected globally!")
                     }
@@ -59,6 +86,6 @@ class GarminDeviceManager @Inject constructor(
     fun disconnectDevice() {
         statusJob?.cancel()
         _activeDevice.value = null
-        _deviceStatus.value = IQDevice.IQDeviceStatus.UNKNOWN
+        _deviceStatus.value = WatchConnectionState.UNKNOWN
     }
 }

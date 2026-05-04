@@ -18,6 +18,6 @@ object GarminModule {
     fun provideConnectIQ(@ApplicationContext context: Context): ConnectIQ {
         // Using the constructor: getInstance(Context context, IQConnectType connectType)
         // We pass the ApplicationContext to prevent memory leaks since this is a Singleton
-        return ConnectIQ.getInstance(context, ConnectIQ.IQConnectType.TETHERED)
+        return ConnectIQ.getInstance(context, ConnectIQ.IQConnectType.WIRELESS)
     }
 }

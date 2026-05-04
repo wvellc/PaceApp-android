@@ -2,6 +2,7 @@ package com.example.paceapp.features.authentication.buildprofile.domain
 
 import com.example.paceapp.core.components.Validator
 import com.example.paceapp.core.components.ValidatorType
+import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
 import javax.inject.Inject
 
@@ -30,6 +31,10 @@ class ValidateBuildProfileUseCase @Inject constructor() {
                 validFirstName && validLastName
             }
 
+            ProfileStep.PairWatchInit -> {
+                state.garminState == GarminSdkState.Ready
+            }
+
             ProfileStep.SelectModel -> {
                 // User must have tapped a watch model from the list
                 state.selectedWatch != null
@@ -47,10 +52,10 @@ class ValidateBuildProfileUseCase @Inject constructor() {
 
             // These steps are purely informational or transitional
             // and require no user input validation to proceed.
-            ProfileStep.PairWatchSuccess,
-            ProfileStep.PairWatchInit -> {
+            ProfileStep.PairWatchSuccess -> {
                 true
             }
+
         }
     }
 }

@@ -30,39 +30,41 @@ class GarminConnectHelper @Inject constructor(
     private val connectIQ: ConnectIQ
 ) {
     private val sdkState = MutableStateFlow<GarminSdkState>(GarminSdkState.Uninitialized)
-    val isSdkReady: StateFlow<GarminSdkState> = sdkState.asStateFlow()
+    val sdkStateFlow: StateFlow<GarminSdkState> = sdkState.asStateFlow()
 
     private val initMutex = Mutex()
 
-    suspend fun initializeSdk(autoUI: Boolean = true): Boolean = initMutex.withLock {
-        if (sdkState.value is GarminSdkState.Ready) return true
+    suspend fun initializeSdk(activityContext: Context, autoUI: Boolean = true): GarminSdkState =
+        initMutex.withLock {
+            if (sdkState.value is GarminSdkState.Ready) return GarminSdkState.Ready
 
-        sdkState.value = GarminSdkState.Initializing
+            sdkState.value = GarminSdkState.Initializing
 
-        return suspendCancellableCoroutine { cont ->
-            connectIQ.initialize(context, autoUI, object : ConnectIQ.ConnectIQListener {
-                override fun onSdkReady() {
-                    sdkState.value = GarminSdkState.Ready
-                    if (cont.isActive) cont.resume(true)
-                }
-
-                override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus?) {
-                    sdkState.value = GarminSdkState.Error(status?.name)
-                    if (cont.isActive) cont.resume(false)
-                }
-
-                override fun onSdkShutDown() {
-                    try {
-                        connectIQ.shutdown(context)
-                    } catch (e: Exception) {
-                        AppLogger.e("Garmin Shutdown Error", e)
-                    } finally {
-                        sdkState.value = GarminSdkState.Uninitialized
+            return suspendCancellableCoroutine { cont ->
+                connectIQ.initialize(activityContext, autoUI, object : ConnectIQ.ConnectIQListener {
+                    override fun onSdkReady() {
+                        sdkState.value = GarminSdkState.Ready
+                        if (cont.isActive) cont.resume(GarminSdkState.Ready)
                     }
-                }
-            })
+
+                    override fun onInitializeError(status: ConnectIQ.IQSdkErrorStatus?) {
+                        val errorState = GarminSdkState.Error(status?.name)
+                        sdkState.value = errorState
+                        if (cont.isActive) cont.resume(errorState)
+                    }
+
+                    override fun onSdkShutDown() {
+                        try {
+                            connectIQ.shutdown(context)
+                        } catch (e: Exception) {
+                            AppLogger.e("Garmin Shutdown Error", e)
+                        } finally {
+                            sdkState.value = GarminSdkState.Uninitialized
+                        }
+                    }
+                })
+            }
         }
-    }
 
     // --- Device Management ---
 

@@ -47,7 +47,7 @@ fun AppNetworkImage(
             contentDescription = contentDescription,
             contentScale = contentScale,
             placeholder = placeholder,
-            error = error,
+            error = error ?: placeholder,
             modifier = Modifier.matchParentSize()
         )
     }

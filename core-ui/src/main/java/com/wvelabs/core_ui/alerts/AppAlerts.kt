@@ -83,6 +83,7 @@ object AppAlerts {
         text: String,
         type: MessageType = MessageType.Info,
         confirmText: String = "OK",
+         cancelable: Boolean = true,
         dismissText: String? = null,
         onConfirm: (() -> Unit)? = null,
         onDismiss: (() -> Unit)? = null
@@ -93,6 +94,7 @@ object AppAlerts {
             type = type,
             confirmText = confirmText,
             dismissText = dismissText,
+            cancelable = cancelable,
             onConfirm = onConfirm,
             onDismiss = onDismiss
         )
