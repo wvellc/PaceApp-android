@@ -5,8 +5,10 @@ import com.example.paceapp.features.authentication.buildprofile.navigation.Build
 import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.features.authentication.login.navigation.LoginRoute
 import com.example.paceapp.features.authentication.otpsuccess.navigation.OtpSuccessRoute
+import com.example.paceapp.features.authentication.profilecreated.navigation.ProfileCreatedRoute
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
+import com.example.paceapp.features.main.tabhost.navigation.TabHostRoute
 
 class AppNavActions(
     private val navController: NavHostController,
@@ -66,11 +68,17 @@ class AppNavActions(
         }
     }
 
+    fun toProfileCreated() {
+        navController.navigate(ProfileCreatedRoute) {
+            popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
 
     fun toTabHost() {
-//        navController.navigate(TabHostRoute) {
-//            popUpTo(navController.graph.id) { inclusive = true }
-//            launchSingleTop = true
-//        }
+        navController.navigate(TabHostRoute) {
+            popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
     }
 }

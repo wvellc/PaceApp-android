@@ -60,5 +60,11 @@
     <string name="garmin_sdk_title">Complete Garmin setup</string>
     <string name="try_again">Try Again</string>
     <string name="skip">Skip</string>
+    <string name="set_gait_step_description">Set your walking style to match your pace and mood.</string>
+    <string name="feet">Feet</string>
+    <string name="meters">Meters</string>
+    <string name="connect_strava_step_message">Sync your activities and compete with friends for the segment.</string>
+    <string name="profile_created_title">Race-Ready Profile</string>
+    <string name="profile_created_subtitle">Your setup is complete. Time to hit your target pace.</string>
 
 </resources>

@@ -16,8 +16,10 @@ import com.example.paceapp.R
 import com.example.paceapp.features.authentication.buildprofile.navigation.buildProfileScreen
 import com.example.paceapp.features.authentication.login.navigation.loginScreen
 import com.example.paceapp.features.authentication.otpsuccess.navigation.otpSuccessScreen
+import com.example.paceapp.features.authentication.profilecreated.navigation.profileCreatedScreen
 import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
+import com.example.paceapp.features.main.tabhost.navigation.tabHostScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
 import com.example.paceapp.features.splash.navigation.splashScreen
 import com.example.paceapp.session.AppSessionManager
@@ -119,8 +121,18 @@ fun AppNavHost(
 
         //Build profile
         buildProfileScreen(
-            onBack = navActions::goBack
+            onBack = navActions::goBack,
+            onNavigateToProfileCreated = navActions::toProfileCreated
         )
-
+        //Profile creation success
+        profileCreatedScreen(
+            onBack = navActions::goBack,
+            onNavigateToTabHost = navActions::toTabHost
+        )
+        // The Tab Host (Post-Login Dashboard)
+        tabHostScreen(
+            // Pass global actions down to the TabHost
+            onBack = navActions::goBack,
+        )
     }
 }

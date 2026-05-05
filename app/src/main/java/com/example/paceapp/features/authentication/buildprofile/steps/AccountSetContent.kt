@@ -1,9 +1,5 @@
 package com.example.paceapp.features.authentication.buildprofile.steps
 
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,9 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -24,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -36,15 +29,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppTextField
+import com.example.paceapp.core.components.CustomProfileImage
 import com.example.paceapp.core.components.ValidatorType
 import com.example.paceapp.core.components.imagepicker.AppImagePicker
-import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.example.paceapp.theme.PaceAppTheme
-import com.wvelabs.core_ui.components.AppNetworkImage
 
 @Composable
 fun AccountSetContent(
@@ -79,6 +71,8 @@ fun AccountSetContent(
             ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(Modifier.height(16.dp))
+
         Text(
             text = stringResource(R.string.create_account_description),
             style = AppTheme.typography.size20.copy(
@@ -91,66 +85,11 @@ fun AccountSetContent(
         Spacer(Modifier.height(32.dp))
 
         //Profile Image
-        Box(
-            modifier = Modifier
-                .size(width = 100.dp, height = 108.dp)
-                .clip(
-                    shape = RoundedCornerShape(
-                        topStart = 72.dp,
-                        topEnd = 72.dp,
-                        bottomEnd = 10.dp,
-                        bottomStart = 10.dp
-                    )
-                )
-                .background(color = AppColors.White)
-                .defaultClickable { showPicker = true },
-            contentAlignment = Alignment.Center,
-        ) {
+        CustomProfileImage(
+            imageUrl = profileImage,
+            onClick = { showPicker = true }
+        )
 
-
-            //Profile image
-            AppNetworkImage(
-                imageUrl = profileImage,
-                modifier = Modifier.fillMaxSize(),
-            )
-
-            //Camera icon
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        color = when {
-                            hasProfileImage -> AppColors.Black.copy(alpha = 0.7f)
-                            else -> AppColors.Transparent
-                        }
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.ic_camera),
-                    modifier = Modifier,
-                    contentDescription = null,
-                )
-            }
-        }
-
-        //Photo label
-        Crossfade(
-            targetState = hasProfileImage,
-            animationSpec = tween(300),
-            modifier = Modifier.padding(top = 16.dp),
-        ) { hasImage ->
-            Text(
-                when {
-                    hasImage -> stringResource(R.string.update_photo)
-                    else -> stringResource(R.string.add_photo)
-                },
-                style = AppTheme.typography.size16.copy(
-                    fontWeight = FontWeight.Medium,
-                    color = AppColors.White
-                )
-            )
-        }
         Spacer(modifier = Modifier.height(16.dp))
         //First name
         AppTextField(
@@ -186,7 +125,7 @@ fun AccountSetContent(
             capitalization = KeyboardCapitalization.Words,
             focusRequester = lastNameFocus,
         )
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         //Image picker
         AppImagePicker(

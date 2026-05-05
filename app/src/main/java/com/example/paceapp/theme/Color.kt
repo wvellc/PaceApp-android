@@ -25,7 +25,7 @@ object AppColors {
         Color(0xFF091E5B),
     )
     val borderGradient = listOf(
-        Color(0xFF2FF99C),
+        FluorescentMint,
         Color(0xFF020302),
     )
     val segmentButtonGradient = listOf(
@@ -35,5 +35,10 @@ object AppColors {
     val buttonGradient = listOf(
         NeonAquaBlue,
         RadiantBlue,
+    )
+
+    val bottomTabBorderGradient = listOf(
+        White.copy(alpha = 0.0f),
+        FluorescentMint.copy(alpha = 0.4f),
     )
 }

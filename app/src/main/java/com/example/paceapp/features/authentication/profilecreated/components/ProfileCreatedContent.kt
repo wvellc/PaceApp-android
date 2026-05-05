@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.otpsuccess.components
+package com.example.paceapp.features.authentication.profilecreated.components
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,16 +8,14 @@ import androidx.compose.ui.res.stringResource
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppSuccessView
-import com.example.paceapp.core.extensions.titleRes
-import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Event
-import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.State
+import com.example.paceapp.features.authentication.profilecreated.ProfileCreatedContract.Event
+import com.example.paceapp.features.authentication.profilecreated.ProfileCreatedContract.State
 
 @Composable
-internal fun OtpSuccessContent(
+internal fun ProfileCreatedContent(
     state: State,
     onEvent: (Event) -> Unit
 ) {
-    val loginTypeTitle = stringResource(state.loginType.titleRes).lowercase()
     AppBaseScreen(
         modifier = Modifier.fillMaxSize(),
         isLoading = state.isLoading,
@@ -27,12 +25,12 @@ internal fun OtpSuccessContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPaddings),
-            title = stringResource(R.string.otp_success_title, loginTypeTitle),
-            subtitle = stringResource(R.string.otp_success_subtitle),
-            logoRes = R.drawable.ic_otp_success,
+            title = stringResource(R.string.profile_created_title),
+            subtitle = stringResource(R.string.profile_created_subtitle),
+            logoRes = R.drawable.ic_profile_created,
             buttonLabel = stringResource(R.string.get_started),
             onButtonClick = {
-                onEvent(Event.OnContinueClicked)
+                onEvent(Event.OnGetStartedClicked)
             }
         )
     }

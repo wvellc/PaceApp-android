@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PaceApp">
         <activity
-            android:name=".main.MainActivity"
+            android:name=".MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="true"
             android:screenOrientation="portrait"

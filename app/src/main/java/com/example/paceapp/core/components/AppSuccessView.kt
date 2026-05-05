@@ -91,7 +91,7 @@ fun AppSuccessView(
                         ),
                     textAlign = TextAlign.Center,
                     style = AppTheme.typography.size16.copy(
-                        color = AppColors.White,
+                        color = AppColors.HintGray,
                         fontWeight = FontWeight.Medium,
                     )
                 )

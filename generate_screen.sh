@@ -98,6 +98,7 @@ class ${SCREEN_PASCAL}Contract {
 
     sealed class Event : ViewEvent {
         data object Init : Event()
+        data object OnBackClick : Event()
     }
 
     sealed class Effect : ViewSideEffect {

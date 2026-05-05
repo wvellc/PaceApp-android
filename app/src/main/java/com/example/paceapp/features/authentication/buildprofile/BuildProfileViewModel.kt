@@ -16,6 +16,7 @@ import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
 import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
 import com.example.paceapp.session.AppSessionManager
+import com.wvelabs.core_network.utils.AppLogger
 import com.wvelabs.core_ui.components.imagepicker.ImagePickerAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
@@ -232,12 +233,32 @@ class BuildProfileViewModel @Inject constructor(
     }
 
     private fun saveUserDetails() {
-        // TODO: Call API
-        navigateToProfileSuccess()
+        safeLaunch({
+            val userData = sessionManager.getUserDetails()
+
+            // TODO: Replace dummy data with API call
+            if (userData == null) {
+                throw Exception("User data not found")
+            }
+            sessionManager.setUserDetails(
+                userData.copy(
+                    firstName = currentState.firstNameState.text.trim().toString(),
+                    lastName = currentState.lastNameState.text.trim().toString(),
+                    profilePic = currentState.profileImage,
+                    id = UUID.randomUUID().toString()
+                )
+            )
+        }, onLoading = { loading ->
+            setState { copy(isLoading = loading) }
+        }, onSuccess = {
+            navigateToProfileSuccess()
+        }, onError = { e ->
+            AppLogger.e("UpdateProfileError: $e")
+        })
     }
 
     private fun navigateToProfileSuccess() {
-        setEffect { Effect.NavigateToProfileSuccess }
+        setEffect { Effect.NavigateToProfileCreated }
     }
 }
 

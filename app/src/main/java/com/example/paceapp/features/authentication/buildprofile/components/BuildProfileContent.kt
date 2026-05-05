@@ -8,13 +8,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -34,9 +33,11 @@ import com.example.paceapp.features.authentication.buildprofile.BuildProfileCont
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
 import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.steps.AccountSetContent
+import com.example.paceapp.features.authentication.buildprofile.steps.ConnectStravaContent
 import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchContent
 import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchSuccessContent
 import com.example.paceapp.features.authentication.buildprofile.steps.SelectModelContent
+import com.example.paceapp.features.authentication.buildprofile.steps.SetGaitContent
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.alerts.AlertType
@@ -108,20 +109,19 @@ internal fun BuildProfileContent(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScrollOnIme()
-                .padding(innerPaddings)
+                .padding(top = innerPaddings.calculateTopPadding())
                 .padding(horizontal = 16.dp)
 
         ) {
-            //Scrollable Content
+            //Step content
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-
                     .padding(top = 16.dp)
-            ) {
-
-                //Step content with animation
+            )
+            {
+                //Step content animation
                 AnimatedContent(
                     modifier = Modifier.fillMaxSize(),
                     targetState = state.currentStep,
@@ -142,6 +142,7 @@ internal fun BuildProfileContent(
                 ) { step ->
                     Box(modifier = Modifier.fillMaxSize()) {
                         when (step) {
+                            // Account Setup
                             ProfileStep.AccountSetup -> AccountSetContent(
                                 profileImage = state.profileImage,
                                 firstNameState = state.firstNameState,
@@ -149,16 +150,31 @@ internal fun BuildProfileContent(
                                 onEvent = onEvent,
                             )
 
+                            // Pair Watch Initialization
                             ProfileStep.PairWatchInit -> PairWatchContent()
+
+                            // Select Watch Model
                             ProfileStep.SelectModel -> SelectModelContent(
                                 watchList = state.watchList,
                                 selectedWatch = state.selectedWatch,
                                 onModelTap = { onEvent(Event.SelectWatchModel(device = it)) }
                             )
 
+                            // Pairing Success
                             ProfileStep.PairWatchSuccess -> PairWatchSuccessContent(state.selectedWatch)
-                            ProfileStep.SetGait -> DefaultContent(step)
-                            ProfileStep.ConnectStrava -> DefaultContent(step)
+
+                            // Set Gait (Running/Walking)
+                            ProfileStep.SetGait -> SetGaitContent(
+                                runningGait = state.runningGait,
+                                walkingGait = state.walkingGait,
+                                onWalkingChange = { onEvent(Event.OnWalkingGaitChanged(it)) },
+                                onRunningChange = { onEvent(Event.OnRunningGaitChanged(it)) }
+                            )
+
+                            // Connect Strava
+                            ProfileStep.ConnectStrava -> ConnectStravaContent(
+                                stravaFieldState = state.stravaLinkState
+                            )
                         }
                     }
                 }
@@ -169,6 +185,7 @@ internal fun BuildProfileContent(
                 title = stringResource(state.currentStep.buttonLabelRes),
                 modifier = Modifier
                     .fillMaxWidth()
+                    .safeContentPadding()
                     .padding(bottom = 16.dp),
                 onClick = {
                     onEvent(Event.OnNextClick(context = context))
@@ -176,19 +193,4 @@ internal fun BuildProfileContent(
             )
         }
     }
-}
-
-@Composable
-private fun DefaultContent(step: ProfileStep) {
-    Text(
-        text = stringResource(step.titleRes),
-        style = AppTheme.typography.size26.copy(
-            color = AppColors.White,
-            fontWeight = FontWeight.SemiBold
-        ),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 16.dp)
-            .background(AppColors.NeonAquaBlue)
-    )
 }

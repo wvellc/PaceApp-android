@@ -38,12 +38,12 @@ import com.example.paceapp.core.components.AppTextField
 import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.ValidatorType
 import com.example.paceapp.core.components.animation.AnimationWrapper
+import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.g2Continuity
+import com.example.paceapp.core.extensions.titleRes
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.core.utils.CountryMapper
-import com.example.paceapp.core.domain.enums.LoginTypes
-import com.example.paceapp.core.domain.enums.title
 import com.example.paceapp.features.authentication.login.LoginContract.Event
 import com.example.paceapp.features.authentication.login.LoginContract.State
 import com.example.paceapp.theme.AppColors
@@ -107,10 +107,9 @@ internal fun LoginContent(
                         .clip(ContinuousRoundedRectangle(12.dp, continuity = g2Continuity))
                         .background(AppColors.White.copy(alpha = 0.1f))
                         .padding(4.dp),
-                    segmentShape = ContinuousRoundedRectangle(8.dp),
                     segments = LoginTypes.entries,
                     selectedSegment = state.selectedLoginType,
-                    itemTitle = { it.title },
+                    itemTitle = { stringResource(it.titleRes) },
                     onSegmentSelected = { onEvent(Event.OnLoginTypeSelected(it)) },
                 )
 

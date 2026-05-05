@@ -1,10 +1,8 @@
-package com.wvelabs.core_ui.components
-
 import android.media.AudioAttributes
 import android.media.SoundPool
-import androidx.annotation.RawRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +17,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,8 +40,10 @@ fun <T> GenericWheelPicker(
     initialIndex: Int,
     onItemSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
-    visibleItemsCount: Int = 5, // 5 provides better context for dynamic scaling
+    visibleItemsCount: Int = 5,
     itemHeight: Dp = 48.dp,
+    spacing: Dp = 0.dp,
+    itemLabel: (T) -> String = { it.toString() },
     unselectedStyle: TextStyle = TextStyle(
         fontSize = 16.sp,
         color = Color.Gray,
@@ -48,13 +51,26 @@ fun <T> GenericWheelPicker(
     ),
     selectedStyle: TextStyle = TextStyle(
         fontSize = 22.sp,
-        color = Color(0xFF007AFF),
+        color = Color.White,
         fontWeight = FontWeight.Bold
     ),
-    selectionBackgroundColor: Color = Color(0xFF007AFF).copy(alpha = 0.1f),
-    selectionBackgroundCornerRadius: Dp = 8.dp,
-
+    selectorBackground: @Composable () -> Unit = {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(itemHeight)
+                .padding(horizontal = 8.dp)
+                .background(
+                    color = Color(0xFF007AFF).copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(8.dp)
+                )
+        )
+    }
 ) {
+    val safeVisibleItems = visibleItemsCount
+        .coerceIn(3, 9)
+        .let { if (it % 2 == 0) it - 1 else it }
+
     val context = LocalContext.current
     val listState = rememberLazyListState(initialFirstVisibleItemIndex = initialIndex)
     val snapFlingBehavior = rememberSnapFlingBehavior(lazyListState = listState)
@@ -70,58 +86,73 @@ fun <T> GenericWheelPicker(
     }
     val tickSoundId = remember { soundPool.load(context, R.raw.wheel_tick, 1) }
 
-    val currentCenteredIndex = remember {
-        derivedStateOf {
-            val layoutInfo = listState.layoutInfo
-            val visibleItems = layoutInfo.visibleItemsInfo
-            if (visibleItems.isEmpty()) return@derivedStateOf initialIndex
+    var hasUserInteracted by remember { mutableStateOf(false) }
 
-            val centerOffset = layoutInfo.viewportEndOffset / 2
-            visibleItems.minByOrNull {
-                kotlin.math.abs(it.offset + (it.size / 2) - centerOffset)
-            }?.index ?: 0
+    LaunchedEffect(listState.isScrollInProgress) {
+        if (listState.isScrollInProgress) {
+            hasUserInteracted = true
         }
     }
 
-    LaunchedEffect(currentCenteredIndex.value) {
-        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        soundPool.play(tickSoundId, 0.3f, 0.3f, 1, 0, 1.0f)
-        onItemSelected(items[currentCenteredIndex.value])
+    val currentCenteredIndex by remember {
+        derivedStateOf {
+            val layoutInfo = listState.layoutInfo
+            val visibleItemsInfo = layoutInfo.visibleItemsInfo
+            if (visibleItemsInfo.isEmpty()) return@derivedStateOf initialIndex
+
+            val centerOffset =
+                layoutInfo.viewportStartOffset + (layoutInfo.viewportEndOffset - layoutInfo.viewportStartOffset) / 2
+
+            var closestIndex = initialIndex
+            var minDistance = Int.MAX_VALUE
+
+            for (itemInfo in visibleItemsInfo) {
+                val itemCenter = itemInfo.offset + (itemInfo.size / 2)
+                val distance = kotlin.math.abs(itemCenter - centerOffset)
+                if (distance < minDistance) {
+                    minDistance = distance
+                    closestIndex = itemInfo.index
+                }
+            }
+            closestIndex
+        }
+    }
+
+    LaunchedEffect(currentCenteredIndex) {
+        if (hasUserInteracted) {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            soundPool.play(tickSoundId, 0.3f, 0.3f, 1, 0, 1.0f)
+            onItemSelected(items[currentCenteredIndex])
+        }
     }
 
     DisposableEffect(Unit) {
         onDispose { soundPool.release() }
     }
 
+    // --- NEW: Bulletproof Layout Math ---
+    val containerHeight = (itemHeight * safeVisibleItems) + (spacing * (safeVisibleItems - 1))
+    val halfVisible = safeVisibleItems / 2
+    val verticalPadding = (itemHeight * halfVisible) + (spacing * halfVisible)
+
     Box(
         modifier = modifier
-            .height(itemHeight * visibleItemsCount)
+            .height(containerHeight) // Uses precise mathematical height
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        // --- STATIC BACKGROUND ---
-        // This box does not move. It acts as the "selector" window.
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(itemHeight)
-                .padding(horizontal = 8.dp)
-                .background(
-                    color = selectionBackgroundColor,
-                    shape = RoundedCornerShape(selectionBackgroundCornerRadius)
-                )
-        )
+        selectorBackground()
 
-        // --- SCROLLING WHEEL ---
         LazyColumn(
             state = listState,
             flingBehavior = snapFlingBehavior,
+            verticalArrangement = Arrangement.spacedBy(spacing), // Applies the gap!
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(vertical = itemHeight * (visibleItemsCount / 2))
+            contentPadding = PaddingValues(vertical = verticalPadding) // Perfectly centers item 0
         ) {
             itemsIndexed(items) { index, item ->
-                val isSelected = index == currentCenteredIndex.value
+                val isSelected = index == currentCenteredIndex
 
                 Box(
                     modifier = Modifier
@@ -130,8 +161,7 @@ fun <T> GenericWheelPicker(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = item.toString(),
-                        // Dynamic styling based on center position
+                        text = itemLabel(item),
                         style = if (isSelected) selectedStyle else unselectedStyle
                     )
                 }

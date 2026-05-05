@@ -1,4 +1,4 @@
-package com.example.paceapp.main
+package com.example.paceapp
 
 import android.graphics.Color
 import android.os.Bundle

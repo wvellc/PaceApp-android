@@ -52,6 +52,6 @@ class BuildProfileContract {
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
-        data object NavigateToProfileSuccess : Effect()
+        data object NavigateToProfileCreated : Effect()
     }
 }
