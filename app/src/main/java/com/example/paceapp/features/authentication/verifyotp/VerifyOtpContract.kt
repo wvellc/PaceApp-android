@@ -2,6 +2,7 @@ package com.example.paceapp.features.authentication.verifyotp
 
 // Importing interfaces from your untouchable core library!
 import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract.Effect
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
@@ -28,7 +29,8 @@ class VerifyOtpContract {
     }
 
     sealed class Effect : ViewSideEffect {
-        data class NavigateToOtpSuccess(val loginTypes: LoginTypes) : Effect()
          data object NavigateBack : Effect()
+        data object NavigateToTabHost : Effect()
+        data object NavigateToBuildProfile : Effect()
     }
 }

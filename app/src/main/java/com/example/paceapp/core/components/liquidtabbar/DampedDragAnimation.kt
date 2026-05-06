@@ -1,4 +1,4 @@
-package com.example.paceapp.core.components.liquidbottomtabs
+package com.example.paceapp.core.components.liquidtabbar
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring

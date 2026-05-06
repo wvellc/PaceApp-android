@@ -7,11 +7,6 @@ import com.example.paceapp.features.main.tabhost.TabHostScreen
 
 @Serializable
 data object TabHostRoute
-// The routes for the inner tabs
-@Serializable data object HistoryRoute
-@Serializable data object AnalyticsRoute
-@Serializable data object ProfileRoute
-
 fun NavGraphBuilder.tabHostScreen(
     onBack: () -> Unit
 ) {

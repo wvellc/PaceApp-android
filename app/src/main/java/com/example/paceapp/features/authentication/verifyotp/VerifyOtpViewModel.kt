@@ -7,15 +7,18 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.core.domain.models.UserData
-import com.example.paceapp.core.utils.AppConstants
+import com.example.paceapp.core.domain.enums.AuthDestination
 import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.core.domain.models.UserData
+import com.example.paceapp.core.domain.usecases.AuthRouteManager
+import com.example.paceapp.core.utils.AppConstants
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Effect
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Event
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.State
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_network.timer.TimerFactory
+import com.wvelabs.core_network.utils.AppLogger
 import com.wvelabs.core_ui.alerts.AppAlerts
 import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,6 +32,7 @@ import kotlin.time.Duration.Companion.minutes
 class VerifyOtpViewModel @Inject constructor(
     private val sessionManager: AppSessionManager,
     val savedStateHandle: SavedStateHandle,
+    private val authRouteManager: AuthRouteManager,
     timerFactory: TimerFactory,
 ) : BaseViewModel<State, Event, Effect>() {
     private val otpTimer = timerFactory.create(viewModelScope)
@@ -108,16 +112,28 @@ class VerifyOtpViewModel @Inject constructor(
             },
         )
 
-        safeLaunch({
-            sessionManager.saveToken(AppConstants.DUMMY_TOKEN)
-            sessionManager.setUserDetails(userData)
-        }, onLoading = { loading ->
-            setState { copy(isLoading = loading) }
-        }, onSuccess = {
-            //Navigate to OTP success
-            setEffect { Effect.NavigateToOtpSuccess(loginTypes = currentState.loginType) }
-        })
+        safeLaunch(
+            block = {
+                sessionManager.saveToken(AppConstants.DUMMY_TOKEN)
+                sessionManager.setUserDetails(userData)
+                authRouteManager.getNextDestination()
+            },
+            onLoading = { loading -> setState { copy(isLoading = loading) } },
+            onSuccess = { destination -> navigateToNextScreen(destination) },
+            onError = { AppLogger.e("VerifyOTPError: ${it.message}") },
+        )
+    }
 
+    //Navigate to next destinations
+    private fun navigateToNextScreen(destination: AuthDestination) {
+        when (destination) {
+            AuthDestination.TAB_HOST -> setEffect { Effect.NavigateToTabHost }
+            AuthDestination.BUILD_PROFILE -> setEffect { Effect.NavigateToBuildProfile }
+            AuthDestination.LOGIN -> {
+                AppLogger.e("Error: Auth token expired")
+                sessionManager.onSessionExpired()
+            }
+        }
     }
 
 }

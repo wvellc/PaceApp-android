@@ -66,5 +66,9 @@
     <string name="connect_strava_step_message">Sync your activities and compete with friends for the segment.</string>
     <string name="profile_created_title">Race-Ready Profile</string>
     <string name="profile_created_subtitle">Your setup is complete. Time to hit your target pace.</string>
+    <string name="home">Home</string>
+    <string name="history">History</string>
+    <string name="analytics">Analytics</string>
+    <string name="tab_profile">Profile</string>
 
 </resources>

@@ -54,12 +54,13 @@ class AppNavActions(
         }
     }
 
-    fun toOtpSuccess(loginType: LoginTypes) {
-        navController.navigate(OtpSuccessRoute(loginType = loginType)) {
-            popUpTo(navController.graph.id) { inclusive = true }
-            launchSingleTop = true
-        }
-    }
+    /** Feature removed */
+//     fun toOtpSuccess(loginType: LoginTypes) {
+//        navController.navigate(OtpSuccessRoute(loginType = loginType)) {
+//            popUpTo(navController.graph.id) { inclusive = true }
+//            launchSingleTop = true
+//        }
+//    }
 
     fun toBuildProfile() {
         navController.navigate(BuildProfileRoute) {

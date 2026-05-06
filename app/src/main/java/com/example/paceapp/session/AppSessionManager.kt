@@ -38,15 +38,6 @@ class AppSessionManager @Inject constructor(
     }
 
 
-    // --- PRIMITIVES (Booleans, Strings) ---
-//    suspend fun setOnboardingStatus(isComplete: Boolean) {
-//        write(AppSessionKeys.ONBOARDING_STATUS, isComplete)
-//    }
-
-    suspend fun getOnboardingStatus(): Boolean {
-        return readOnce(AppSessionKeys.ONBOARDING_STATUS) ?: false
-    }
-
     suspend fun saveToken(token: String) {
         write(AppSessionKeys.ACCESS_TOKEN, token)
     }

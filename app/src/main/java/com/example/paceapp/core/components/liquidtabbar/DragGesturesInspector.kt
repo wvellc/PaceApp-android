@@ -1,4 +1,4 @@
-package com.example.paceapp.core.components.liquidbottomtabs
+package com.example.paceapp.core.components.liquidtabbar
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.ui.geometry.Offset

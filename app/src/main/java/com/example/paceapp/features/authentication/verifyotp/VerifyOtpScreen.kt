@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.features.authentication.otpsuccess.OtpSuccessContract
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Effect
 import com.example.paceapp.features.authentication.verifyotp.VerifyOtpContract.Event
 import com.example.paceapp.features.authentication.verifyotp.components.VerifyOtpContent
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.collectLatest
 fun VerifyOtpScreen(
     viewModel: VerifyOtpViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToOtpSuccess: (LoginTypes) -> Unit,
+    onNavigateToTabHost: () -> Unit,
+    onNavigateToBuildProfile: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val countdown by viewModel.countDown.collectAsStateWithLifecycle()
@@ -33,7 +35,8 @@ fun VerifyOtpScreen(
         viewModel.effect.collectLatest { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
-                is Effect.NavigateToOtpSuccess -> onNavigateToOtpSuccess(effect.loginTypes)
+                is Effect.NavigateToTabHost -> onNavigateToTabHost()
+                is Effect.NavigateToBuildProfile -> onNavigateToBuildProfile()
             }
         }
     }

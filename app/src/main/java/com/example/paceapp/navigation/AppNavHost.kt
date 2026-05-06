@@ -47,6 +47,7 @@ fun AppNavHost(
             navActions.toLogin()
         }
     }
+    
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -108,16 +109,17 @@ fun AppNavHost(
 
         //Verify Otp
         verifyOtpScreen(
-            onNavigateToOtpSuccess = navActions::toOtpSuccess,
-            onBack = navActions::goBack,
-        )
-
-        //Otp success
-        otpSuccessScreen(
             onBack = navActions::goBack,
             onNavigateToBuildProfile = navActions::toBuildProfile,
             onNavigateToTabHost = navActions::toTabHost,
         )
+
+        //Otp success
+        /*otpSuccessScreen(
+            onBack = navActions::goBack,
+            onNavigateToBuildProfile = navActions::toBuildProfile,
+            onNavigateToTabHost = navActions::toTabHost,
+        )*/
 
         //Build profile
         buildProfileScreen(

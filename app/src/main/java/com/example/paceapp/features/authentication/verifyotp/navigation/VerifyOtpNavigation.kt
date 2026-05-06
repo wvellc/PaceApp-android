@@ -14,13 +14,15 @@ data class VerifyOtpRoute(
 )
 
 fun NavGraphBuilder.verifyOtpScreen(
-    onNavigateToOtpSuccess: (LoginTypes) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToTabHost: () -> Unit,
+    onNavigateToBuildProfile: () -> Unit
 ) {
     composable<VerifyOtpRoute> {
         VerifyOtpScreen(
             onBack = onBack,
-            onNavigateToOtpSuccess = onNavigateToOtpSuccess,
+            onNavigateToTabHost = onNavigateToTabHost,
+            onNavigateToBuildProfile = onNavigateToBuildProfile,
         )
     }
 }
