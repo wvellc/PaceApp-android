@@ -65,6 +65,12 @@ dependencies {
     //Image cropper
     implementation(libs.ucrop)
 
+    // GLASS BACKDROP UI
+    implementation(libs.backdrop)
+
+    // CAPSULE - For smooth rounded corner
+    implementation(libs.capsule)
+    
     //Kotlin Date time extension
     implementation(libs.kotlinx.datetime)
 

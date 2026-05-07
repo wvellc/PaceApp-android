@@ -41,7 +41,7 @@ fun AppSuccessView(
 ) {
     AnimationWrapper {
         Column(
-            modifier = modifier.padding(16.dp),
+            modifier = modifier.padding(AppTheme.screenPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {

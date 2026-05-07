@@ -19,6 +19,7 @@ object AppColors {
     val FashionGray = Color(0xFF8C8C8C)
     val DarkCharcoal = Color(0xFF323334)
     val Orange = Color(0xFFFF9500)
+    val ShipGray30 = Color(0x4D3C3C43)
 
     val backgroundGradient = listOf(
         Color(0xFF0C2D8C),
@@ -41,4 +42,5 @@ object AppColors {
         White.copy(alpha = 0.0f),
         FluorescentMint.copy(alpha = 0.4f),
     )
+
 }

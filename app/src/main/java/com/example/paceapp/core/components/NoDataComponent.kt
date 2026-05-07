@@ -34,7 +34,7 @@ fun NoDataView(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(AppTheme.screenPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Top padding

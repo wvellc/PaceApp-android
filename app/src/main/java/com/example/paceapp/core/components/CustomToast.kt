@@ -37,11 +37,6 @@ import com.example.paceapp.core.extensions.tintColor
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.example.paceapp.theme.PaceAppTheme
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
-import com.kyant.backdrop.drawBackdrop
-import com.kyant.backdrop.effects.blur
-import com.kyant.backdrop.effects.vibrancy
 import com.wvelabs.core_ui.alerts.AlertType
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.alerts.ToastButton
@@ -171,7 +166,7 @@ fun PreviewCustomToasts() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(AppTheme.screenPadding),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 

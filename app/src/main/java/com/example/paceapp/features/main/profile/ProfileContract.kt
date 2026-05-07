@@ -1,5 +1,6 @@
 package com.example.paceapp.features.main.profile
 
+import com.example.paceapp.core.domain.models.UserUiModel
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
@@ -7,13 +8,15 @@ import com.wvelabs.core_ui.base.ViewState
 class ProfileContract {
     data class State(
         val isInitialized: Boolean = false,
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val userUiModel: UserUiModel? = null
     ) : ViewState
 
     sealed class Event : ViewEvent {
         data object Init : Event()
         data object OnBackClick : Event()
         data object OnSettingClick : Event()
+        data object OnEditProfileClick : Event()
     }
 
     sealed class Effect : ViewSideEffect {

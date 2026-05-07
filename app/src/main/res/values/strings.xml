@@ -70,5 +70,12 @@
     <string name="history">History</string>
     <string name="analytics">Analytics</string>
     <string name="tab_profile">Profile</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="manage_your_watch">Manage your watch!</string>
+    <string name="interval_vibrate">Interval Vibrate</string>
+    <string name="interval_beep">Interval Beep</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="other">Other</string>
 
 </resources>

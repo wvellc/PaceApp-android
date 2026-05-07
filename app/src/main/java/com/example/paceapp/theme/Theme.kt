@@ -1,11 +1,16 @@
 package com.example.paceapp.theme
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 private val DarkColorScheme = darkColorScheme(
 
@@ -44,4 +49,12 @@ object AppTheme {
     val typography: PaceAppTypography
         @Composable
         get() = LocalAppTypography.current
+
+    val bottomNavBarPadding: Dp
+        @Composable
+        get() = 80.dp + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+
+
+    val screenPadding: Dp = 16.dp
+
 }

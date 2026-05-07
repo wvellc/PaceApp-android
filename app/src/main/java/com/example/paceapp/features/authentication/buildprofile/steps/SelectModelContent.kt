@@ -124,7 +124,6 @@ fun SelectModelContent(
                         // The old icon scales down and fades out
                         val exit =
                             scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
-
                         enter togetherWith exit
                     },
                     label = "IconSwitchAnimation"

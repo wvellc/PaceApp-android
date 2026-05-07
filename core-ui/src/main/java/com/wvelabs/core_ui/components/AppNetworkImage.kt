@@ -1,6 +1,7 @@
 package com.wvelabs.core_ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -40,15 +41,27 @@ fun AppNetworkImage(
             .clip(shape)
             .background(backgroundColor)
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(imageUrl)
-                .build(),
-            contentDescription = contentDescription,
-            contentScale = contentScale,
-            placeholder = placeholder,
-            error = error ?: placeholder,
-            modifier = Modifier.matchParentSize()
-        )
+        if (imageUrl.isNullOrBlank()) {
+            if (placeholder != null) {
+                Image(
+                    painter = placeholder,
+                    contentDescription = contentDescription,
+                    contentScale = contentScale,
+                    modifier = Modifier.matchParentSize()
+                )
+            }
+        } else {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(imageUrl)
+                    .build(),
+                contentDescription = contentDescription,
+                contentScale = contentScale,
+                placeholder = placeholder,
+                error = error ?: placeholder,
+                fallback = placeholder,
+                modifier = Modifier.matchParentSize()
+            )
+        }
     }
 }

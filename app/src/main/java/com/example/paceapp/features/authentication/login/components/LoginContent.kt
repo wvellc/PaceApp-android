@@ -72,7 +72,7 @@ internal fun LoginContent(
                 .fillMaxSize()
                 .verticalScrollOnIme()
                 .padding(innerPaddings)
-                .padding(16.dp)
+                .padding(AppTheme.screenPadding)
         ) {
             //Logo
             AppLogo(

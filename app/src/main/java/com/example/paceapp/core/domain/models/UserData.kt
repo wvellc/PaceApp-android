@@ -1,8 +1,10 @@
 package com.example.paceapp.core.domain.models
 
+import com.example.paceapp.core.domain.enums.GenderTypes
 import com.example.paceapp.core.domain.enums.LoginTypes
-import kotlinx.serialization.Serializable
 import com.example.paceapp.session.AppSessionManager
+import kotlinx.serialization.Serializable
+
 /**
  * ⚠️ Architectural Note:
  * Do not pass [UserData] directly as a navigation route argument.
@@ -16,11 +18,13 @@ data class UserData(
     val firstName: String? = null,
     val lastName: String? = null,
     val loginType: LoginTypes = LoginTypes.EMAIL,
+    val gender: GenderTypes = GenderTypes.MALE,
     val email: String? = null,
     val countryCode: String? = null,
     val phoneNumber: String? = null,
     val profilePic: String? = null
 )
+
 
 val UserData.isProfileComplete: Boolean
     get() = !this.firstName.isNullOrBlank() && !this.lastName.isNullOrBlank()

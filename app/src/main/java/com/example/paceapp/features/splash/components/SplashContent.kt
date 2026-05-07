@@ -48,7 +48,7 @@ internal fun SplashContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(AppTheme.screenPadding),
             ) {
                 AppLogo(
                     modifier = Modifier

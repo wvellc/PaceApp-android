@@ -1,15 +1,20 @@
 package com.example.paceapp.features.main.profile
 
+import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
+import com.example.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import com.example.paceapp.features.main.profile.ProfileContract.Effect
 import com.example.paceapp.features.main.profile.ProfileContract.Event
 import com.example.paceapp.features.main.profile.ProfileContract.State
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
 
 @HiltViewModel
-class ProfileViewModel @Inject constructor() : BaseViewModel<State, Event, Effect>() {
-
+class ProfileViewModel @Inject constructor(
+    val observeUserUiModelUseCase: ObserveUserUiModelUseCase
+) : BaseViewModel<State, Event, Effect>() {
     override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
@@ -20,20 +25,29 @@ class ProfileViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
             }
 
             is Event.OnSettingClick -> handleOnSettingClick()
+            is Event.OnEditProfileClick -> handleOnEditProfileClick()
         }
     }
 
 
     private fun initData() {
         if (currentState.isInitialized) return
-
-        // TODO: Initialize Data
-
+        observeUserData()
         setState { copy(isInitialized = true) }
+    }
+
+    private fun observeUserData() {
+        observeUserUiModelUseCase()
+            .onEach {
+                setState { copy(userUiModel = it) }
+            }.launchIn(viewModelScope)
     }
 
 
     private fun handleOnSettingClick() {
 
+    }
+
+    private fun handleOnEditProfileClick() {
     }
 }

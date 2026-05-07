@@ -35,7 +35,7 @@ import com.kyant.capsule.ContinuousRoundedRectangle
 enum class AppButtonStyle {
     OUTLINED_GRADIENT, // Your original style
     FILLED_GRADIENT,   // The new gradient background style
-    FILLED_SOLID       // The new simple solid background style
+    NONE,// The new simple solid background style
 }
 
 @Composable
@@ -78,19 +78,21 @@ fun AppButton(
                 rippleColor = AppColors.White20
             )
 
-        // Solid color background
-        AppButtonStyle.FILLED_SOLID -> Modifier
-            .background(color = backgroundColor)
-            .defaultClickable(enable = enabled, onClick = onClick)
+
+        // Complete custom Button based on primary modifier
+        AppButtonStyle.NONE -> Modifier
+            .background(backgroundColor)
+            .defaultClickable(
+                enable = enabled,
+                onClick = onClick,
+                rippleColor = AppColors.FluorescentMint
+            )
     }
 
     Box(
         modifier = modifier
             .height(height)
             .clip(shape = cornerShape)
-            .background(
-                color = AppColors.Black.copy(alpha = 0.2f)
-            )
             .alpha(alpha = if (enabled) 1f else 0.5f)
             .then(styleModifier)
             .padding(15.dp),
@@ -103,9 +105,10 @@ fun AppButton(
                     start = if (trailingIconRes != null) 32.dp else 0.dp,
                     end = if (trailingIconRes != null) 32.dp else 0.dp
                 ),
-            style = AppTheme.typography.size16,
-            fontWeight = FontWeight.Medium,
-            color = contentColor,
+            style = AppTheme.typography.size16.copy(
+                fontWeight = FontWeight.Medium,
+                color = contentColor,
+            ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

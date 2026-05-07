@@ -69,7 +69,7 @@ internal fun VerifyOtpContent(
                 .fillMaxSize()
                 .verticalScrollOnIme()
                 .padding(innerPaddings)
-                .padding(16.dp),
+                .padding(AppTheme.screenPadding),
         ) {
             //Title
             Text(

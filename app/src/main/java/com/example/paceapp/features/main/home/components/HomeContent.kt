@@ -1,7 +1,12 @@
 package com.example.paceapp.features.main.home.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -17,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.features.main.home.HomeContract.Event
 import com.example.paceapp.features.main.home.HomeContract.State
+import com.example.paceapp.theme.AppTheme
 import kotlin.random.Random
 
 @Composable
@@ -39,18 +45,17 @@ internal fun HomeContent(
             .fillMaxSize(),
         isLoading = state.isLoading,
         hasPattern = true,
-    ) {innerPaddings->
+    ) { innerPaddings ->
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             // ⚠️ THE CRITICAL "GOTCHA" FIX:
             // Adds bottom padding so the last few items aren't trapped under the glass bar!
             contentPadding = PaddingValues(
-                top = innerPaddings.calculateTopPadding() + 16.dp,
-                start = 16.dp,
-                end = 16.dp,
+                top = innerPaddings.calculateTopPadding() + AppTheme.screenPadding,
+                start = AppTheme.screenPadding,
+                end = AppTheme.screenPadding,
                 // Roughly 80dp for the BottomBar + System Navigation Bar height
-                bottom = 80.dp + WindowInsets.navigationBars.asPaddingValues()
-                    .calculateBottomPadding()
+                bottom = AppTheme.bottomNavBarPadding
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

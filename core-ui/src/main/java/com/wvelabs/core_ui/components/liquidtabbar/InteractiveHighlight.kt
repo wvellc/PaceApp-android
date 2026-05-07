@@ -1,4 +1,4 @@
-package com.example.paceapp.core.components.liquidtabbar
+package com.wvelabs.core_ui.components.liquidtabbar
 
 
 import android.graphics.RuntimeShader

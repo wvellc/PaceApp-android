@@ -1,4 +1,4 @@
-package com.example.paceapp.core.components.liquidtabbar
+package com.wvelabs.core_ui.components.liquidtabbar
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.spring
@@ -27,7 +27,12 @@ class DampedDragAnimation(
     val onDragStopped: DampedDragAnimation.() -> Unit,
     val onDrag: DampedDragAnimation.(size: IntSize, dragAmount: Offset) -> Unit,
 ) {
-
+    private val slowValueAnimationSpec =
+        spring(
+            dampingRatio = 0.8f,
+            stiffness = 200f,
+            visibilityThreshold = visibilityThreshold
+        )
     private val valueAnimationSpec =
         spring(1f, 1000f, visibilityThreshold)
     private val velocityAnimationSpec =
@@ -123,6 +128,26 @@ class DampedDragAnimation(
                 press()
                 val targetValue = value.coerceIn(valueRange)
                 launch { valueAnimation.animateTo(targetValue, valueAnimationSpec) }
+                if (velocity != 0f) {
+                    launch { velocityAnimation.animateTo(0f, velocityAnimationSpec) }
+                }
+                release()
+            }
+        }
+    }
+
+    // Used for elegant tab clicks
+    fun animateToValueSlow(value: Float) {
+        animationScope.launch {
+            mutatorMutex.mutate {
+                press()
+                val targetValue = value.coerceIn(valueRange)
+                launch {
+                    valueAnimation.animateTo(
+                        targetValue,
+                        slowValueAnimationSpec // Uses the relaxed spring
+                    ) { updateVelocity() }
+                }
                 if (velocity != 0f) {
                     launch { velocityAnimation.animateTo(0f, velocityAnimationSpec) }
                 }

@@ -20,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
@@ -110,7 +109,7 @@ internal fun BuildProfileContent(
                 .fillMaxSize()
                 .verticalScrollOnIme()
                 .padding(top = innerPaddings.calculateTopPadding())
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = AppTheme.screenPadding)
 
         ) {
             //Step content
@@ -118,7 +117,7 @@ internal fun BuildProfileContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(top = 16.dp)
+                    .padding(top = AppTheme.screenPadding)
             )
             {
                 //Step content animation
@@ -186,7 +185,7 @@ internal fun BuildProfileContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .safeContentPadding()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = AppTheme.screenPadding),
                 onClick = {
                     onEvent(Event.OnNextClick(context = context))
                 }

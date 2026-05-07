@@ -26,7 +26,9 @@ data class PaceAppTypography(
     val size30: TextStyle = TextStyle(fontSize = 30.sp, fontFamily = fontFamily),
     val size32: TextStyle = TextStyle(fontSize = 32.sp, fontFamily = fontFamily),
     val size34: TextStyle = TextStyle(fontSize = 34.sp, fontFamily = fontFamily),
-    val size36: TextStyle = TextStyle(fontSize = 36.sp, fontFamily = fontFamily)
+    val size36: TextStyle = TextStyle(fontSize = 36.sp, fontFamily = fontFamily),
+    val size46: TextStyle = TextStyle(fontSize = 46.sp, fontFamily = fontFamily),
+    val size56: TextStyle = TextStyle(fontSize = 56.sp, fontFamily = fontFamily)
 )
 
 val LocalAppTypography = staticCompositionLocalOf { PaceAppTypography() }

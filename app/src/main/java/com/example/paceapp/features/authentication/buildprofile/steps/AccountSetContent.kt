@@ -12,10 +12,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -29,9 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppTextField
-import com.example.paceapp.core.components.CustomProfileImage
 import com.example.paceapp.core.components.ValidatorType
-import com.example.paceapp.core.components.imagepicker.AppImagePicker
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.theme.AppColors
@@ -46,10 +41,10 @@ fun AccountSetContent(
     onEvent: (Event) -> Unit,
 ) {
 
-    var showPicker by remember { mutableStateOf(false) }
+//    var showPicker by remember { mutableStateOf(false) }
     val firstNameFocus = remember { FocusRequester() }
     val lastNameFocus = remember { FocusRequester() }
-    val hasProfileImage = profileImage != null
+//    val hasProfileImage = profileImage != null
 
 
     val leadingIcon: @Composable () -> Unit = {
@@ -85,12 +80,12 @@ fun AccountSetContent(
         Spacer(Modifier.height(32.dp))
 
         //Profile Image
-        CustomProfileImage(
-            imageUrl = profileImage,
-            onClick = { showPicker = true }
-        )
+//        CustomProfileImage(
+//            imageUrl = profileImage,
+//            onClick = { showPicker = true }
+//        )
 
-        Spacer(modifier = Modifier.height(16.dp))
+//        Spacer(modifier = Modifier.height(16.dp))
         //First name
         AppTextField(
             state = firstNameState,
@@ -128,12 +123,12 @@ fun AccountSetContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         //Image picker
-        AppImagePicker(
-            isVisible = showPicker,
-            showReplaceSheet = hasProfileImage,
-            onDismiss = { showPicker = false },
-            onAction = { action -> onEvent(Event.OnImagePickerAction(action)) },
-        )
+//        AppImagePicker(
+//            isVisible = showPicker,
+//            showReplaceSheet = hasProfileImage,
+//            onDismiss = { showPicker = false },
+//            onAction = { action -> onEvent(Event.OnImagePickerAction(action)) },
+//        )
     }
 }
 
@@ -141,7 +136,7 @@ fun AccountSetContent(
 @Composable
 private fun AccountSetContentPreview() {
     PaceAppTheme {
-        Box(modifier = Modifier.padding(16.dp)) {
+        Box(modifier = Modifier.padding(AppTheme.screenPadding)) {
             AccountSetContent(
                 profileImage = null,
                 firstNameState = remember { TextFieldState() },

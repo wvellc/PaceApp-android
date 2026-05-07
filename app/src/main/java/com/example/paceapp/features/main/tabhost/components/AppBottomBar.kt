@@ -1,10 +1,19 @@
 package com.example.paceapp.features.main.tabhost.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
@@ -13,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -20,8 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.paceapp.core.components.liquidtabbar.LiquidBottomTabs
-import com.example.paceapp.core.components.liquidtabbar.LiquidTabItem
 import com.example.paceapp.features.main.tabhost.domain.BottomTab
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -30,7 +38,8 @@ import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.capsule.ContinuousCapsule
-import com.wvelabs.core_ui.extensions.defaultAnimSpec
+import com.wvelabs.core_ui.components.liquidtabbar.LiquidBottomTabs
+import com.wvelabs.core_ui.components.liquidtabbar.LiquidTabItem
 
 @Composable
 fun AppBottomBar(
@@ -73,15 +82,15 @@ fun AppBottomBar(
         // Disable backdrop effects if you want solid colors like the screenshot
         containerEffects = {
             vibrancy()
-            blur(4f.dp.toPx())
+            blur(6f.dp.toPx())
             lens(16f.dp.toPx(), 32f.dp.toPx())
         },
         tabsEffects = { progress ->
             vibrancy()
             blur(4f.dp.toPx())
             lens(
-                16f.dp.toPx() * progress,
-                32f.dp.toPx() * progress
+                10f.dp.toPx() * progress,
+                14f.dp.toPx() * progress
             )
         },
         indicatorEffects = { progress ->
@@ -91,111 +100,70 @@ fun AppBottomBar(
                 chromaticAberration = true
             )
         },
-        modifier = modifier
-    ) {
-        // 4. Render the Tab Items
-        tabs.forEachIndexed { index, tab ->
-            val isSelected = selectedIndex == index
-
-            // The LiquidBottomTabs handles the clicks/dragging automatically.
-            // We just define what the item looks like!
-            LiquidTabItem(
-                modifier = Modifier.width(0.dp),
-                shape = tabShape,
-                isSelected = isSelected,
-                selectedColor = AppColors.NeonAquaBlue,
-            ) {
-                Crossfade(
-                    targetState = isSelected,
-                    animationSpec = defaultAnimSpec(300),
-                ) { selected ->
-                    if (selected) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Image(
-                                painter = painterResource(tab.selectedIconResId),
-                                contentDescription = stringResource(id = tab.titleResId),
-                                modifier = Modifier.size(28.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = stringResource(id = tab.titleResId),
-                                style = AppTheme.typography.size12.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = AppColors.White
-                                )
-                            )
-                        }
-                    } else {
+        modifier = modifier,
+        borderStroke = BorderStroke(
+            1.dp,
+            Brush.verticalGradient(AppColors.bottomTabBorderGradient)
+        )
+    ) { index, measurementModifier ->
+//        tabs.forEachIndexed { index, tab ->
+        val tab = tabs[index]
+        val isSelected = selectedIndex == index
+        // The LiquidBottomTabs handles the clicks/dragging automatically.
+        // We just define what the item looks like!
+        LiquidTabItem(
+            modifier = measurementModifier,
+            shape = tabShape,
+            selectedColor = AppColors.NeonAquaBlue,
+            isSelected = isSelected,
+            content = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp)
+                        .animateContentSize()
+                ) {
+                    // Crossfade icon resource
+                    Crossfade(
+                        targetState = if (isSelected) tab.selectedIconResId else tab.iconResId,
+                        animationSpec = tween(300),
+                        label = "icon_fade"
+                    ) { iconRes ->
                         Image(
-                            painter = painterResource(tab.iconResId),
+                            painter = painterResource(id = iconRes),
                             contentDescription = stringResource(id = tab.titleResId),
                             modifier = Modifier.size(28.dp)
                         )
                     }
-                }
-            }
-        }
-    }
 
-    /*NavigationBar(
-        modifier = modifier,
-        containerColor = AppColors.White.copy(alpha = 0.1f),
-    ) {
-        tabs.forEachIndexed { index, tab ->
-            val isSelected = selectedIndex == index
-            LiquidTabItem(
-                modifier = Modifier.width(0.dp),
-                shape = tabShape,
-                isSelected = isSelected,
-                selectedColor = AppColors.NeonAquaBlue,
-                onClick = {
-                    val tab = tabs[index]
-                    tabNavController.navigate(tab.route) {
-                        popUpTo(tabNavController.graph.startDestinationId) { saveState = true }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
-                }
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-
-                    Image(
-                        painter = painterResource(
-                            id = when {
-                                isSelected -> tab.selectedIconResId
-                                else -> tab.iconResId
-                            }
-                        ),
-                        contentDescription = stringResource(id = tab.titleResId),
-                        modifier = Modifier.size(28.dp)
-                    )
-
-                    // Show text only when selected (matching your screenshot)
+                    // Smoothly expand and reveal the text
                     AnimatedVisibility(
                         visible = isSelected,
-                        enter = fadeIn(tween(300)) ,
-                        exit = fadeOut(tween(150))
+                        enter = fadeIn(tween(250)) + expandHorizontally(
+                            animationSpec = tween(300),
+                            expandFrom = Alignment.Start
+                        ),
+                        exit = fadeOut(tween(200)) + shrinkHorizontally(
+                            animationSpec = tween(300),
+                            shrinkTowards = Alignment.Start
+                        )
                     ) {
-                        Row {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(id = tab.titleResId),
                                 style = AppTheme.typography.size12.copy(
                                     fontWeight = FontWeight.SemiBold,
                                     color = AppColors.White
-                                )
+                                ),
+                                maxLines = 1,
+                                softWrap = false // Prevents text from jumping to a second line while shrinking!
                             )
                         }
                     }
                 }
-            }
-        }
-    }*/
-
+            },
+        )
+    }
 }
