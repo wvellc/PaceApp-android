@@ -15,10 +15,10 @@ import androidx.navigation.compose.NavHost
 import com.example.paceapp.R
 import com.example.paceapp.features.authentication.buildprofile.navigation.buildProfileScreen
 import com.example.paceapp.features.authentication.login.navigation.loginScreen
-import com.example.paceapp.features.authentication.otpsuccess.navigation.otpSuccessScreen
 import com.example.paceapp.features.authentication.profilecreated.navigation.profileCreatedScreen
 import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
+import com.example.paceapp.features.main.settings.navigation.settingsScreen
 import com.example.paceapp.features.main.tabhost.navigation.tabHostScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
 import com.example.paceapp.features.splash.navigation.splashScreen
@@ -47,7 +47,7 @@ fun AppNavHost(
             navActions.toLogin()
         }
     }
-    
+
     NavHost(
         navController = navController,
         startDestination = startDestination,
@@ -115,10 +115,11 @@ fun AppNavHost(
         )
 
         //Otp success
-        /*otpSuccessScreen(
-            onBack = navActions::goBack,
-            onNavigateToBuildProfile = navActions::toBuildProfile,
-            onNavigateToTabHost = navActions::toTabHost,
+        /** Feature removed
+        otpSuccessScreen(
+        onBack = navActions::goBack,
+        onNavigateToBuildProfile = navActions::toBuildProfile,
+        onNavigateToTabHost = navActions::toTabHost,
         )*/
 
         //Build profile
@@ -131,10 +132,19 @@ fun AppNavHost(
             onBack = navActions::goBack,
             onNavigateToTabHost = navActions::toTabHost
         )
+
         // The Tab Host (Post-Login Dashboard)
         tabHostScreen(
             // Pass global actions down to the TabHost
             onBack = navActions::goBack,
+            onNavigateToSettings = navActions::toSettings,
         )
+
+        //Settings
+        settingsScreen(
+            onBack = navActions::goBack,
+            onNavigateToWebview = navActions::toWebView
+        )
+
     }
 }

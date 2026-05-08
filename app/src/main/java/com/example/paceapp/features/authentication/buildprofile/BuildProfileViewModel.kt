@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
+import com.example.paceapp.core.domain.enums.GenderTypes
 import com.example.paceapp.core.garmin.GarminDeviceManager
 import com.example.paceapp.core.garmin.WatchConnectionState
 import com.example.paceapp.core.garmin.WatchModel
@@ -15,9 +16,9 @@ import com.example.paceapp.features.authentication.buildprofile.BuildProfileCont
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
 import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
+import com.example.paceapp.features.authentication.buildprofile.domain.getDefaultGaits
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_network.utils.AppLogger
-import com.wvelabs.core_ui.components.imagepicker.ImagePickerAction
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -35,7 +36,7 @@ class BuildProfileViewModel @Inject constructor(
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> initData()
-            is Event.OnImagePickerAction -> handleImagePickerAction(event.action)
+            is Event.OnGenderSelected -> handleGenderSelected(event.gender)
             is Event.OnWalkingGaitChanged -> setWalkingGaitPace(event.gaitPace)
             is Event.OnRunningGaitChanged -> setRunningGaitPace(event.gaitPace)
             is Event.SelectWatchModel -> handleSelectWatchModel(event.device)
@@ -44,14 +45,18 @@ class BuildProfileViewModel @Inject constructor(
             is Event.OnSkipClick -> handleOnSkipClicked()
             is Event.OnGarminDialogRetry -> handleGarminDialogRetry(event.context)
             is Event.OnGarminDialogSkip -> handleGarminDialogSkip()
+
         }
     }
+
 
     private fun initData() {
         if (currentState.isInitialized) return
         if (isDebugMode) {
             setDummyData()
         }
+        val (defaultWalk, defaultRun) = currentState.selectedGender.getDefaultGaits()
+        setState { copy(runningGait = defaultRun, walkingGait = defaultWalk) }
         observeFields()
         observeGarminState()
         setState { copy(isInitialized = true) }
@@ -117,13 +122,14 @@ class BuildProfileViewModel @Inject constructor(
         }
     }
 
-    private fun handleImagePickerAction(action: ImagePickerAction) {
-        when (action) {
-            ImagePickerAction.Cancelled -> { /* Do nothing */
-            }
-
-            ImagePickerAction.Removed -> setState { copy() }
-            is ImagePickerAction.Selected -> setState { copy(profileImage = action.uri.toString()) }
+    private fun handleGenderSelected(gender: GenderTypes) {
+        val (defaultWalk, defaultRun) = gender.getDefaultGaits()
+        setState {
+            copy(
+                selectedGender = gender,
+                walkingGait = defaultWalk,
+                runningGait = defaultRun
+            )
         }
     }
 
@@ -235,7 +241,6 @@ class BuildProfileViewModel @Inject constructor(
     private fun saveUserDetails() {
         safeLaunch({
             val userData = sessionManager.getUserDetails()
-
             // TODO: Replace dummy data with API call
             if (userData == null) {
                 throw Exception("User data not found")
@@ -244,7 +249,7 @@ class BuildProfileViewModel @Inject constructor(
                 userData.copy(
                     firstName = currentState.firstNameState.text.trim().toString(),
                     lastName = currentState.lastNameState.text.trim().toString(),
-                    profilePic = currentState.profileImage,
+                    gender = currentState.selectedGender,
                     id = UUID.randomUUID().toString()
                 )
             )

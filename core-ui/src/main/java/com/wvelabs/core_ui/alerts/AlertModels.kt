@@ -54,12 +54,14 @@ sealed class AlertType {
     ) : AlertType()
 
     data class Dialog(
-        val title: String,
-        val text: String,
+        val title: UiText,
+        val text: UiText,
+        val showIcon: Boolean = false,
+        @param:DrawableRes val iconRes: Int? = null,
         val type: MessageType = MessageType.Info,
         val cancelable: Boolean = true,
-        val confirmText: String = "OK",
-        val dismissText: String? = null,
+        val confirmText: UiText = UiText.DynamicString("OK"),
+        val dismissText: UiText? = null,
         val onConfirm: (() -> Unit)? = null,
         val onDismiss: (() -> Unit)? = null
     ) : AlertType()

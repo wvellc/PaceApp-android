@@ -159,7 +159,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Effect
 import ${PACKAGE_PATH}.${SCREEN_PASCAL}Contract.Event
@@ -179,7 +178,7 @@ fun ${SCREEN_PASCAL}Screen(
 
     // Handle one-time effects
     LaunchedEffect(key1 = Unit) {
-        viewModel.effect.collectLatest { effect ->
+        viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
             }

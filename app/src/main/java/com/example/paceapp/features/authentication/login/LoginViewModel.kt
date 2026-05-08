@@ -130,7 +130,7 @@ class LoginViewModel @Inject constructor(
 
     private fun handleWebviewNavigation(url: String) {
         val title = when (url) {
-            AppWebUrls.TERM_CONDITIONS -> resourceProvider.getString(R.string.terms_of_service)
+            AppWebUrls.TERM_OF_SERVICE -> resourceProvider.getString(R.string.terms_of_service)
             AppWebUrls.PRIVACY_POLICY -> resourceProvider.getString(R.string.privacy_policy)
             else -> null
         }

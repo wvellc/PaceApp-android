@@ -6,6 +6,7 @@ import com.example.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import com.example.paceapp.features.main.profile.ProfileContract.Effect
 import com.example.paceapp.features.main.profile.ProfileContract.Event
 import com.example.paceapp.features.main.profile.ProfileContract.State
+import com.example.paceapp.features.main.profile.domain.ProfileOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -26,6 +27,8 @@ class ProfileViewModel @Inject constructor(
 
             is Event.OnSettingClick -> handleOnSettingClick()
             is Event.OnEditProfileClick -> handleOnEditProfileClick()
+            is Event.OnToggleSwitch -> handleOnToggleSwitch(event.option, event.isEnabled)
+            is Event.OnProfileOptionClick -> handleOnProfileOptionClick(event.option)
         }
     }
 
@@ -45,9 +48,39 @@ class ProfileViewModel @Inject constructor(
 
 
     private fun handleOnSettingClick() {
-
+        setEffect { Effect.NavigateToSettings }
     }
 
     private fun handleOnEditProfileClick() {
+
     }
+
+    private fun handleOnProfileOptionClick(option: ProfileOptions) {
+        when (option) {
+            ProfileOptions.MANAGE_YOUR_WATCH -> setEffect { Effect.NavigateToManageWatch }
+            ProfileOptions.INTERVAL_VIBRATE -> setState {
+                copy(isIntervalVibrateEnabled = !isIntervalVibrateEnabled)
+            }
+
+            ProfileOptions.INTERVAL_BEEP -> setState {
+                copy(isIntervalBeepEnabled = !isIntervalBeepEnabled)
+            }
+
+            ProfileOptions.SET_GAIT -> setEffect { Effect.NavigateToSetGait }
+        }
+    }
+
+    private fun handleOnToggleSwitch(option: ProfileOptions, enabled: Boolean) {
+        if (option == ProfileOptions.INTERVAL_VIBRATE) {
+            setState {
+                copy(isIntervalVibrateEnabled = enabled)
+            }
+        } else if (option == ProfileOptions.INTERVAL_BEEP) {
+            setState {
+                copy(isIntervalBeepEnabled = enabled)
+            }
+        }
+    }
+
+
 }

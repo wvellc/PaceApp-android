@@ -1,6 +1,7 @@
 package com.example.paceapp.features.main.profile
 
 import com.example.paceapp.core.domain.models.UserUiModel
+import com.example.paceapp.features.main.profile.domain.ProfileOptions
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
@@ -9,7 +10,9 @@ class ProfileContract {
     data class State(
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
-        val userUiModel: UserUiModel? = null
+        val userUiModel: UserUiModel? = null,
+        val isIntervalVibrateEnabled: Boolean = false,
+        val isIntervalBeepEnabled: Boolean = false
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -17,9 +20,15 @@ class ProfileContract {
         data object OnBackClick : Event()
         data object OnSettingClick : Event()
         data object OnEditProfileClick : Event()
+        data class OnToggleSwitch(val option: ProfileOptions, val isEnabled: Boolean) : Event()
+        data class OnProfileOptionClick(val option: ProfileOptions) : Event()
     }
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
+        data object NavigateToSetGait : Effect()
+
+        data object NavigateToManageWatch : Effect()
+        object NavigateToSettings : Effect()
     }
 }

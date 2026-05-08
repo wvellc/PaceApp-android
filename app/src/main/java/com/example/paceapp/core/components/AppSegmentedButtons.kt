@@ -1,5 +1,6 @@
 package com.example.paceapp.core.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
@@ -32,7 +34,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
@@ -45,6 +46,8 @@ fun <T> AppSegmentedButtons(
     selectedSegment: T,
     onSegmentSelected: (T) -> Unit,
     modifier: Modifier = Modifier,
+    selectedTextColor: Color = AppColors.White,
+    unselectedTextColor: Color = AppColors.White,
     itemTitle: @Composable (T) -> String = { it.toString() }, // 3. Generic Title Extractor
     buttonHeight: Dp = 36.dp,
     segmentShape: Shape = ContinuousRoundedRectangle(8.dp)
@@ -74,6 +77,7 @@ fun <T> AppSegmentedButtons(
                         change.consume()
                         val newOffset = (offsetX.value + dragAmount.x)
                             .coerceIn(0f, segmentWidth * (segments.size - 1))
+
                         coroutineScope.launch { offsetX.snapTo(newOffset) }
                     },
                     onDragCancel = {
@@ -112,8 +116,14 @@ fun <T> AppSegmentedButtons(
 
         Row(modifier = Modifier.fillMaxWidth()) {
             segments.forEach { segment ->
+                val isSelected = segment == selectedSegment
+                val animatedTextColor by animateColorAsState(
+                    targetValue = if (isSelected) selectedTextColor else unselectedTextColor,
+                    label = "text_color_animation"
+                )
                 SegmentItem(
                     title = itemTitle(segment),
+                    textColor = animatedTextColor,
                     modifier = Modifier
                         .height(buttonHeight)
                         .weight(1f)
@@ -127,8 +137,9 @@ fun <T> AppSegmentedButtons(
 
 @Composable
 private fun SegmentItem(
-    title: String,
     modifier: Modifier = Modifier,
+    title: String,
+    textColor: Color = AppColors.White,
     onClick: () -> Unit = {},
 ) {
     Box(
@@ -142,7 +153,7 @@ private fun SegmentItem(
             style = AppTheme.typography.size14.copy(
                 fontWeight = FontWeight.Medium,
             ),
-            color = AppColors.White
+            color = textColor
         )
     }
 }

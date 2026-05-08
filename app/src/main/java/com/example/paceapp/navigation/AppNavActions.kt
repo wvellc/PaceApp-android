@@ -1,13 +1,13 @@
 package com.example.paceapp.navigation
 
 import androidx.navigation.NavHostController
-import com.example.paceapp.features.authentication.buildprofile.navigation.BuildProfileRoute
 import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.features.authentication.buildprofile.navigation.BuildProfileRoute
 import com.example.paceapp.features.authentication.login.navigation.LoginRoute
-import com.example.paceapp.features.authentication.otpsuccess.navigation.OtpSuccessRoute
 import com.example.paceapp.features.authentication.profilecreated.navigation.ProfileCreatedRoute
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
+import com.example.paceapp.features.main.settings.navigation.SettingsRoute
 import com.example.paceapp.features.main.tabhost.navigation.TabHostRoute
 
 class AppNavActions(
@@ -79,6 +79,12 @@ class AppNavActions(
     fun toTabHost() {
         navController.navigate(TabHostRoute) {
             popUpTo(navController.graph.id) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
+
+    fun toSettings() {
+        navController.navigate(SettingsRoute) {
             launchSingleTop = true
         }
     }

@@ -28,7 +28,9 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 @Composable
 internal fun TabHostContent(
     state: State,
-    onEvent: (Event) -> Unit
+    onEvent: (Event) -> Unit,
+    onBack: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -61,10 +63,13 @@ internal fun TabHostContent(
                 fadeOut(animationSpec = tween(durationMillis = 300))
             }
         ) {
-            homeScreen(onBack = { onEvent(Event.OnBackClick) })
-            historyScreen(onBack = { onEvent(Event.OnBackClick) })
-            analyticsScreen(onBack = { onEvent(Event.OnBackClick) })
-            profileScreen(onBack = { onEvent(Event.OnBackClick) })
+            homeScreen(onBack = onBack)
+            historyScreen(onBack = onBack)
+            analyticsScreen(onBack =onBack)
+            profileScreen(
+                onBack = onBack,
+                onNavigateToSettings = onNavigateToSettings
+            )
         }
         ///Bottom tab bar
         AppBottomBar(

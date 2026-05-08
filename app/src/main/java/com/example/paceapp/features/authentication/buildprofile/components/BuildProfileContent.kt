@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
+import com.example.paceapp.core.components.AppActionDialog
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppTextButton
@@ -40,8 +41,8 @@ import com.example.paceapp.features.authentication.buildprofile.steps.SetGaitCon
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.alerts.AlertType
-import com.wvelabs.core_ui.alerts.DefaultDialog
 import com.wvelabs.core_ui.alerts.MessageType
+import com.wvelabs.core_ui.alerts.UiText
 
 @Composable
 internal fun BuildProfileContent(
@@ -53,12 +54,12 @@ internal fun BuildProfileContent(
 
     //Display garmin sdk alert
     if (state.showGarminSetupDialog) {
-        DefaultDialog(
+        AppActionDialog(
             alert = AlertType.Dialog(
-                title = stringResource(R.string.garmin_sdk_title),
-                text = stringResource(R.string.garmin_sdk_message),
-                confirmText = stringResource(R.string.try_again),
-                dismissText = stringResource(R.string.skip),
+                title = UiText.StringResource(R.string.garmin_sdk_title),
+                text = UiText.StringResource(R.string.garmin_sdk_message),
+                confirmText = UiText.StringResource(R.string.try_again),
+                dismissText = UiText.StringResource(R.string.skip),
                 cancelable = false,
                 type = MessageType.Warning, // Or whatever type matches your design!
                 // Safe lambdas! No memory leaks here because we are in the Compose scope
@@ -143,9 +144,9 @@ internal fun BuildProfileContent(
                         when (step) {
                             // Account Setup
                             ProfileStep.AccountSetup -> AccountSetContent(
-                                profileImage = state.profileImage,
                                 firstNameState = state.firstNameState,
                                 lastNameState = state.lastNameState,
+                                gender = state.selectedGender,
                                 onEvent = onEvent,
                             )
 

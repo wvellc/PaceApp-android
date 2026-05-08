@@ -1,5 +1,6 @@
 package com.wvelabs.core_ui.alerts
 
+import android.graphics.drawable.Icon
 import androidx.annotation.DrawableRes
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -79,12 +80,14 @@ object AppAlerts {
      * Shows a blocking modal dialog.
      */
     fun showDialog(
-        title: String,
-        text: String,
+        title: UiText,
+        text: UiText,
+        showIcon: Boolean = false,
+        @DrawableRes iconRes: Int? = null,
         type: MessageType = MessageType.Info,
-        confirmText: String = "OK",
-         cancelable: Boolean = true,
-        dismissText: String? = null,
+        confirmText: UiText = UiText.DynamicString("OK"), // Or UiText.StringResource(R.string.ok)
+        cancelable: Boolean = true,
+        dismissText: UiText? = null,
         onConfirm: (() -> Unit)? = null,
         onDismiss: (() -> Unit)? = null
     ) = send(
@@ -92,6 +95,8 @@ object AppAlerts {
             title = title,
             text = text,
             type = type,
+            showIcon = showIcon,
+            iconRes = iconRes,
             confirmText = confirmText,
             dismissText = dismissText,
             cancelable = cancelable,

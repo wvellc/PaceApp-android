@@ -1,5 +1,6 @@
 package com.example.paceapp.features.authentication.buildprofile.steps
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,8 +14,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -22,29 +23,35 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
+import com.example.paceapp.core.components.AppLogo
+import com.example.paceapp.core.components.AppSegmentedButtons
 import com.example.paceapp.core.components.AppTextField
+import com.example.paceapp.core.components.LogoStyle
 import com.example.paceapp.core.components.ValidatorType
+import com.example.paceapp.core.domain.enums.GenderTypes
+import com.example.paceapp.core.extensions.g2Continuity
+import com.example.paceapp.core.extensions.titleRes
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.example.paceapp.theme.PaceAppTheme
+import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
 fun AccountSetContent(
-    profileImage: String?,
     firstNameState: TextFieldState,
     lastNameState: TextFieldState,
     onEvent: (Event) -> Unit,
+    gender: GenderTypes,
 ) {
 
-//    var showPicker by remember { mutableStateOf(false) }
     val firstNameFocus = remember { FocusRequester() }
     val lastNameFocus = remember { FocusRequester() }
-//    val hasProfileImage = profileImage != null
 
 
     val leadingIcon: @Composable () -> Unit = {
@@ -64,28 +71,18 @@ fun AccountSetContent(
             .verticalScrollOnIme(
                 scrollState, delayMs = 200 //delay to sync with outer scroll
             ),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(16.dp))
+        Spacer(Modifier.height(72.dp))
 
-        Text(
-            text = stringResource(R.string.create_account_description),
-            style = AppTheme.typography.size20.copy(
-                color = AppColors.White,
-                fontWeight = FontWeight.Medium,
-                lineHeight = 32.sp
-            )
+        AppLogo(
+            modifier = Modifier
+                .fillMaxWidth(),
+            imageSize = DpSize(136.dp, 91.dp),
+            showLabel = false,
+            logoStyle = LogoStyle.Vertical
         )
+        Spacer(Modifier.height(64.dp))
 
-        Spacer(Modifier.height(32.dp))
-
-        //Profile Image
-//        CustomProfileImage(
-//            imageUrl = profileImage,
-//            onClick = { showPicker = true }
-//        )
-
-//        Spacer(modifier = Modifier.height(16.dp))
         //First name
         AppTextField(
             state = firstNameState,
@@ -120,15 +117,28 @@ fun AccountSetContent(
             capitalization = KeyboardCapitalization.Words,
             focusRequester = lastNameFocus,
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(24.dp))
+        Text(
+            text = stringResource(R.string.gender),
+            style = AppTheme.typography.size16.copy(
+                color = AppColors.White,
+                fontWeight = FontWeight.SemiBold,
+                lineHeight = 20.sp
+            )
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        AppSegmentedButtons(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(ContinuousRoundedRectangle(12.dp, continuity = g2Continuity))
+                .background(AppColors.White.copy(alpha = 0.1f))
+                .padding(4.dp),
+            segments = GenderTypes.entries,
+            selectedSegment = gender,
+            itemTitle = { stringResource(it.titleRes) },
+            onSegmentSelected = { onEvent(Event.OnGenderSelected(it)) },
+        )
 
-        //Image picker
-//        AppImagePicker(
-//            isVisible = showPicker,
-//            showReplaceSheet = hasProfileImage,
-//            onDismiss = { showPicker = false },
-//            onAction = { action -> onEvent(Event.OnImagePickerAction(action)) },
-//        )
     }
 }
 
@@ -138,10 +148,10 @@ private fun AccountSetContentPreview() {
     PaceAppTheme {
         Box(modifier = Modifier.padding(AppTheme.screenPadding)) {
             AccountSetContent(
-                profileImage = null,
                 firstNameState = remember { TextFieldState() },
                 lastNameState = remember { TextFieldState() },
-                onEvent = {}
+                gender = GenderTypes.MALE,
+                onEvent = {},
             )
         }
     }

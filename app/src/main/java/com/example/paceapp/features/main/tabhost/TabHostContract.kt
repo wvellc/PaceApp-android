@@ -12,10 +12,8 @@ class TabHostContract {
 
     sealed class Event : ViewEvent {
         data object Init : Event()
-        data object OnBackClick : Event()
     }
 
     sealed class Effect : ViewSideEffect {
-        data object NavigateBack : Effect()
     }
 }

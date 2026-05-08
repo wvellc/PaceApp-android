@@ -40,7 +40,7 @@ import com.example.paceapp.theme.PaceAppTheme
 import com.wvelabs.core_ui.alerts.AlertType
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.alerts.ToastButton
-import com.wvelabs.core_ui.alerts.loadingIcon
+import com.wvelabs.core_ui.alerts.icon
 import com.wvelabs.core_ui.extensions.advancedShadow
 
 @Composable
@@ -66,7 +66,7 @@ fun CustomToast(
                 modifier = Modifier.size(22.dp)
             )
         } ?: Icon(
-            imageVector = toast.type.loadingIcon,
+            imageVector = toast.type.icon,
             contentDescription = null,
             tint = toast.type.tintColor,
             modifier = Modifier.size(22.dp)

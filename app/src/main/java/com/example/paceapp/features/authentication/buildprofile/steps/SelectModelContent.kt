@@ -65,7 +65,8 @@ fun SelectModelContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .advancedShadow(
-                        color = AppColors.Error,
+                        color = AppColors.Black,
+                        cornersRadius = 8.dp,
                         alpha = 0.25f,
                         shadowBlurRadius = 0.25f,
                         offsetY = 4f

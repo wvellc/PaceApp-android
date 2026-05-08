@@ -1,29 +1,30 @@
 package com.example.paceapp.features.main.profile.components
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -39,10 +40,7 @@ import com.example.paceapp.features.main.profile.ProfileContract.State
 import com.example.paceapp.features.main.profile.domain.ProfileOptions
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.wvelabs.core_ui.components.InitialAvatarView
-import com.wvelabs.core_ui.components.LiquidToggle
-import com.wvelabs.core_ui.extensions.advancedShadow
 
 @Composable
 internal fun ProfileContent(
@@ -50,12 +48,24 @@ internal fun ProfileContent(
     onEvent: (Event) -> Unit
 ) {
 
+    val infiniteTransition = rememberInfiniteTransition(label = "infinite rotation")
+
+    // Animate a float from 0 to 360 degrees
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 20 * 1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "rotation animation"
+    )
     AppBaseScreen(
-        modifier = Modifier
-            .fillMaxSize(),
+        modifier = Modifier.fillMaxSize(),
         isLoading = state.isLoading,
         hasPattern = true,
         appBar = {
+            //App bar
             CommonAppBar(
                 showBackButton = false,
                 showAppLogo = true,
@@ -64,14 +74,19 @@ internal fun ProfileContent(
                 },
 
                 actions = {
+                    //Settings
                     Image(
                         painter = painterResource(R.drawable.ic_settings),
                         contentDescription = stringResource(R.string.back),
                         modifier = Modifier
                             .clip(CircleShape)
-                            .defaultClickable(onClick = {
+                            .graphicsLayer {
+                                rotationZ = rotation
+                            }
+                            .defaultClickable {
                                 onEvent(Event.OnSettingClick)
-                            })
+                            }
+
                     )
                 }
             )
@@ -129,63 +144,25 @@ internal fun ProfileContent(
             //Edit profile
             EditProfileButton(onClick = { onEvent(Event.OnEditProfileClick) })
 
-            val profileOptionState = rememberLazyListState()
             ProfileOptions.entries.forEachIndexed { index, option ->
-                key("${option.name}_$index") { }
-                ProfileOptionItem(option) {
 
+                key("${option.name}_$index") {
+                    val isSwitchChecked = when (option) {
+                        ProfileOptions.INTERVAL_VIBRATE -> state.isIntervalVibrateEnabled
+                        ProfileOptions.INTERVAL_BEEP -> state.isIntervalBeepEnabled
+                        else -> false
+                    }
+                    ProfileOptionItem(
+                        option = option,
+                        isChecked = isSwitchChecked,
+                        onToggle = { isEnabled ->
+                            onEvent(Event.OnToggleSwitch(option, isEnabled))
+                        },
+                    ) {
+                        onEvent(Event.OnProfileOptionClick(option))
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ProfileOptionItem(
-    option: ProfileOptions,
-    shape: RoundedCornerShape = RoundedCornerShape(8.dp),
-    onClick: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .advancedShadow(
-                color = AppColors.Error,
-                alpha = 0.25f,
-                shadowBlurRadius = 0.25f,
-                offsetY = 4f
-            )
-            .clip(shape)
-            .background(color = AppColors.White)
-            .defaultClickable(onClick = onClick)
-            .padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Image(
-            modifier = Modifier.size(48.dp),
-            contentDescription = null,
-            painter = painterResource(option.iconRes),
-        )
-
-        Text(
-            modifier = Modifier.weight(1f),
-            text = stringResource(option.titleRes),
-            style = AppTheme.typography.size16.copy(
-                color = AppColors.DarkCharcoal,
-                fontWeight = FontWeight.SemiBold,
-            )
-        )
-        if (option.showSwitch) {
-            val (selected, onSelect) = remember { mutableStateOf(false) }
-            LiquidToggle(
-                selected = { selected },
-                switchColor = AppColors.NeonAquaBlue,
-                trackColor = AppColors.ShipGray30,
-                onSelect = onSelect,
-                backdrop = rememberLayerBackdrop(),
-            )
-        }
-
     }
 }

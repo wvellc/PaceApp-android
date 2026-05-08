@@ -29,8 +29,8 @@ class DampedDragAnimation(
 ) {
     private val slowValueAnimationSpec =
         spring(
-            dampingRatio = 0.8f,
-            stiffness = 200f,
+            dampingRatio = 0.6f,
+            stiffness = 50f,
             visibilityThreshold = visibilityThreshold
         )
     private val valueAnimationSpec =

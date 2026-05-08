@@ -32,7 +32,7 @@ fun VerifyOtpScreen(
 
     // Handle one-time effects
     LaunchedEffect(key1 = Unit) {
-        viewModel.effect.collectLatest { effect ->
+        viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
                 is Effect.NavigateToTabHost -> onNavigateToTabHost()

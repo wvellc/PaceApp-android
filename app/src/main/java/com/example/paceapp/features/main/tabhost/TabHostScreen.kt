@@ -14,7 +14,8 @@ import com.example.paceapp.features.main.tabhost.components.TabHostContent
 @Composable
 fun TabHostScreen(
     viewModel: TabHostViewModel = hiltViewModel(),
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToSettings: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -25,16 +26,19 @@ fun TabHostScreen(
 
     // Handle one-time effects
     LaunchedEffect(key1 = Unit) {
-        viewModel.effect.collectLatest { effect ->
-            when (effect) {
-                is Effect.NavigateBack -> onBack()
-            }
+        viewModel.effect.collect { effect ->
+            /*when (effect) {
+                TODO: Handle Effects
+
+            }*/
         }
     }
 
     // Render content
     TabHostContent(
         state = state,
-        onEvent = viewModel::setEvent
+        onEvent = viewModel::setEvent,
+        onBack = onBack,
+        onNavigateToSettings = onNavigateToSettings,
     )
 }

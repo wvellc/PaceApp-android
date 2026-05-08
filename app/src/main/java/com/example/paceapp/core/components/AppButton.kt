@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,11 +27,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
+import kotlinx.datetime.format.Padding
 
 enum class AppButtonStyle {
     OUTLINED_GRADIENT, // Your original style
@@ -50,6 +53,7 @@ fun AppButton(
     backgroundColor: Color = AppColors.HintGray,
     contentColor: Color = AppColors.White,
     enabled: Boolean = true,
+    padding: PaddingValues = PaddingValues(15.dp),
     onClick: () -> Unit = {},
 ) {
 
@@ -64,7 +68,7 @@ fun AppButton(
                 shape = cornerShape
             )
             .defaultClickable(
-                enable = enabled,
+                enabled = enabled,
                 rippleColor = AppColors.FluorescentMint,
                 onClick = onClick
             )
@@ -73,7 +77,7 @@ fun AppButton(
         AppButtonStyle.FILLED_GRADIENT -> Modifier
             .background(brush = Brush.verticalGradient(AppColors.buttonGradient))
             .defaultClickable(
-                enable = enabled,
+                enabled = enabled,
                 onClick = onClick,
                 rippleColor = AppColors.White20
             )
@@ -83,7 +87,7 @@ fun AppButton(
         AppButtonStyle.NONE -> Modifier
             .background(backgroundColor)
             .defaultClickable(
-                enable = enabled,
+                enabled = enabled,
                 onClick = onClick,
                 rippleColor = AppColors.FluorescentMint
             )
@@ -95,7 +99,7 @@ fun AppButton(
             .clip(shape = cornerShape)
             .alpha(alpha = if (enabled) 1f else 0.5f)
             .then(styleModifier)
-            .padding(15.dp),
+            .padding(padding),
     ) {
         Text(
             title,
@@ -108,6 +112,7 @@ fun AppButton(
             style = AppTheme.typography.size16.copy(
                 fontWeight = FontWeight.Medium,
                 color = contentColor,
+                lineHeight = 24.sp
             ),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis

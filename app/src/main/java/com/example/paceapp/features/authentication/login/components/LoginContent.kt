@@ -184,7 +184,7 @@ internal fun LoginContent(
                             tag = "terms",
                             styles = TextLinkStyles(style = spanStyle),
                             linkInteractionListener = {
-                                onEvent(Event.ToWebview(AppWebUrls.TERM_CONDITIONS))
+                                onEvent(Event.ToWebview(AppWebUrls.TERM_OF_SERVICE))
                             }
                         )
                     )

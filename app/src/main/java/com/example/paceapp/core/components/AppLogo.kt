@@ -27,6 +27,7 @@ enum class LogoStyle {
 @Composable
 fun AppLogo(
     modifier: Modifier,
+    showLabel: Boolean = true,
     logoStyle: LogoStyle = LogoStyle.Horizontal,
     imageSize: DpSize = DpSize(154.dp, 104.dp),
     titleTextStyle: TextStyle = AppTheme.typography.size34,
@@ -42,16 +43,17 @@ fun AppLogo(
                 contentDescription = null,
                 modifier = Modifier.size(36.dp, 24.dp)
             )
-
-            Text(
-                text = stringResource(R.string.app_name_capitalize),
-                color = AppColors.White,
-                style = titleTextStyle.copy(
-                    fontSize = 19.sp,
-                    letterSpacing = 2.sp,
-                    fontWeight = FontWeight.ExtraBold
-                ),
-            )
+            if (showLabel) {
+                Text(
+                    text = stringResource(R.string.app_name_capitalize),
+                    color = AppColors.White,
+                    style = titleTextStyle.copy(
+                        fontSize = 19.sp,
+                        letterSpacing = 2.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                )
+            }
         }
 
         LogoStyle.Vertical -> Column(
@@ -64,14 +66,15 @@ fun AppLogo(
                 contentDescription = null,
                 modifier = Modifier.size(imageSize)
             )
-
-            Text(
-                text = stringResource(R.string.app_name_capitalize),
-                color = AppColors.White,
-                style = titleTextStyle.copy(
-                    fontWeight = FontWeight.ExtraBold
-                ),
-            )
+            if (showLabel) {
+                Text(
+                    text = stringResource(R.string.app_name_capitalize),
+                    color = AppColors.White,
+                    style = titleTextStyle.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                )
+            }
         }
     }
 

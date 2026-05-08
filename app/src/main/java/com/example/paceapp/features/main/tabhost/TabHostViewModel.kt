@@ -1,12 +1,11 @@
 package com.example.paceapp.features.main.tabhost
 
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import com.example.paceapp.core.base.BaseViewModel
-
 import com.example.paceapp.features.main.tabhost.TabHostContract.Effect
 import com.example.paceapp.features.main.tabhost.TabHostContract.Event
 import com.example.paceapp.features.main.tabhost.TabHostContract.State
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
 @HiltViewModel
 class TabHostViewModel @Inject constructor() : BaseViewModel<State, Event, Effect>() {
@@ -16,9 +15,6 @@ class TabHostViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
     override fun handleEvents(event: Event) {
         when (event) {
             is Event.Init -> initData()
-            is Event.OnBackClick -> {
-                 setEffect { Effect.NavigateBack }
-            }
         }
     }
 

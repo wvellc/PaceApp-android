@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
+import com.example.paceapp.core.components.AppActionDialog
 import com.example.paceapp.core.components.CustomToast
 import com.example.paceapp.navigation.AppNavHost
 import com.example.paceapp.session.AppSessionManager
@@ -39,8 +40,11 @@ class MainActivity : ComponentActivity() {
                     toastContent = { toast, dismissAction ->
                         CustomToast(
                             toast = toast,
-                            onDismiss = dismissAction // Pass it down!
+                            onDismiss = dismissAction
                         )
+                    },
+                    dialogContent = { dialog, dismissAction ->
+                        AppActionDialog(alert = dialog, closeDialog = dismissAction)
                     }
                 ) {
                     // The Navigation Flow

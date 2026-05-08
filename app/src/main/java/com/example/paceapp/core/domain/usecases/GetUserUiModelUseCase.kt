@@ -47,7 +47,6 @@ class ObserveUserUiModelUseCase @Inject constructor(
                 fullName = fullName,
                 fullNameAndGender = fullNameAndGender,
                 contactInfo = contactInfo,
-                profilePic = sessionUser.profilePic,
                 loginType = sessionUser.loginType
             )
         }

@@ -3,7 +3,6 @@ package com.wvelabs.core_ui.components.liquidtabbar
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseOut
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.border
@@ -18,15 +17,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -56,7 +58,6 @@ import com.kyant.backdrop.highlight.Highlight
 import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.capsule.ContinuousCapsule
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
@@ -72,6 +73,7 @@ fun LiquidBottomTabs(
     containerHeight: Dp = 64.dp,
     containerShape: Shape = ContinuousCapsule,
     containerColor: Color = Color.White.copy(alpha = 0.4f),
+    accentColor: Color = Color.Black,
     containerEffects: BackdropEffectScope.() -> Unit = {},
     tabsEffects: BackdropEffectScope.(progress: Float) -> Unit = {},
     indicatorEffects: BackdropEffectScope.(progress: Float) -> Unit = {},
@@ -79,7 +81,7 @@ fun LiquidBottomTabs(
     borderStroke: BorderStroke = BorderStroke(
         1.dp, Brush.verticalGradient(listOf(Color.White, Color.Black))
     ),
-    tabItem: @Composable RowScope.(index: Int, measurementModifier: Modifier) -> Unit
+    tabItem: @Composable RowScope.(index: Int, measurementModifier: Modifier, tintColor: Color?) -> Unit
 ) {
     val tabsBackdrop = rememberLayerBackdrop()
     val tabHeight = containerHeight - (padding * 2)
@@ -106,7 +108,7 @@ fun LiquidBottomTabs(
         }
 
         val animationScope = rememberCoroutineScope()
-
+        var lastHandledIndex by remember { mutableIntStateOf(actualIndex) }
         val dampedDragAnimation = remember(animationScope) {
             DampedDragAnimation(
                 animationScope = animationScope,
@@ -138,8 +140,9 @@ fun LiquidBottomTabs(
 
         // 🟢 Auto-Sync with Back Button / External Navigation
         LaunchedEffect(actualIndex) {
-            if (dampedDragAnimation.targetValue.fastRoundToInt() != actualIndex) {
-                dampedDragAnimation.animateToValueSlow(actualIndex.toFloat())
+            if (actualIndex != lastHandledIndex) {
+                dampedDragAnimation.updateValue(actualIndex.toFloat())
+                lastHandledIndex = actualIndex
             }
         }
 
@@ -162,17 +165,14 @@ fun LiquidBottomTabs(
                     indication = indication,
                     onClick = {
                         if (actualIndex != index) {
+                            lastHandledIndex = index
+
                             animationScope.launch {
-                                // Squish down
-                                syntheticPress.animateTo(1f, tween(150, easing = EaseOut))
-                                // Navigate
+                                // Notify the ViewModel of the tab change
                                 onTabSelected(index)
-                                // Start sliding (SLOWLY!)
+
+                                // Smoothly glide the indicator to the new tab!
                                 dampedDragAnimation.animateToValueSlow(index.toFloat())
-                                // Wait a bit longer since the animation is slower
-                                delay(400)
-                                // Un-squish
-                                syntheticPress.animateTo(0f, spring(dampingRatio = 0.6f, stiffness = 400f))
                             }
                         }
                     }
@@ -221,7 +221,7 @@ fun LiquidBottomTabs(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             for (i in 0 until tabsCount) {
-                tabItem(i, createMeasurementModifier(i))
+                tabItem(i, createMeasurementModifier(i), null)
             }
         }
 
@@ -241,7 +241,7 @@ fun LiquidBottomTabs(
                         shape = { containerShape },
                         effects = { tabsEffects(activePressProgress) },
                         highlight = { Highlight.Default.copy(alpha = activePressProgress) },
-                        onDrawSurface = { drawRect(Color.Transparent) })
+                        onDrawSurface = { drawRect(accentColor, alpha = 0.1f) })
                     .then(interactiveHighlight.modifier)
                     .height(tabHeight + (padding / 2))
                     .fillMaxWidth()
@@ -250,7 +250,7 @@ fun LiquidBottomTabs(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 for (i in 0 until tabsCount) {
-                    tabItem(i, createMeasurementModifier(i))
+                    tabItem(i, createMeasurementModifier(i), accentColor)
                 }
             }
         }
@@ -294,7 +294,7 @@ fun LiquidBottomTabs(
                         onDrawSurface = {
                             val pressProg = activePressProgress
                             drawRoundRect(
-                                color = containerColor,
+                                color = containerColor.copy(alpha = 1f),
                                 alpha = 0.05f * (1f - pressProg),
                                 cornerRadius = CornerRadius(size.height / 2f)
                             )

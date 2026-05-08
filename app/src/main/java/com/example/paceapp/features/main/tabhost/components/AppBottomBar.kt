@@ -3,6 +3,7 @@ package com.example.paceapp.features.main.tabhost.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -13,6 +14,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -20,14 +22,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination.Companion.hasRoute
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.paceapp.features.main.tabhost.domain.BottomTab
@@ -47,12 +51,23 @@ fun AppBottomBar(
     tabNavController: NavHostController,
     backdrop: Backdrop,
 ) {
-    val tabs = listOf(BottomTab.Home, BottomTab.History, BottomTab.Analytics, BottomTab.Profile)
+    
+    val tabs = remember {
+        listOf(
+            BottomTab.Home,
+            BottomTab.History,
+            BottomTab.Analytics,
+            BottomTab.Profile
+        )
+    }
     val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val selectedIndex = remember(currentDestination) {
-        tabs.indexOfFirst { currentDestination?.hasRoute(it.routeClass) == true }.coerceAtLeast(0)
-    }
+
+    val selectedIndex = tabs.indexOfFirst { tab ->
+        currentDestination?.hierarchy?.any { dest ->
+            dest.route?.contains(tab.routeClass.simpleName ?: "") == true
+        } == true
+    }.let { if (it != -1) it else 0 }
 
 
     val tabShape = ContinuousCapsule
@@ -79,18 +94,19 @@ fun AppBottomBar(
         padding = 8.dp,
         // Colors from screenshot
         containerColor = AppColors.White.copy(alpha = 0.3f),
+        accentColor = AppColors.NeonAquaBlue,
         // Disable backdrop effects if you want solid colors like the screenshot
         containerEffects = {
             vibrancy()
-            blur(6f.dp.toPx())
-            lens(16f.dp.toPx(), 32f.dp.toPx())
+            blur(4f.dp.toPx())
+            lens(16f.dp.toPx(), 32.dp.toPx())
         },
         tabsEffects = { progress ->
             vibrancy()
             blur(4f.dp.toPx())
             lens(
-                10f.dp.toPx() * progress,
-                14f.dp.toPx() * progress
+                16f.dp.toPx() * progress,
+                32.dp.toPx() * progress
             )
         },
         indicatorEffects = { progress ->
@@ -105,8 +121,7 @@ fun AppBottomBar(
             1.dp,
             Brush.verticalGradient(AppColors.bottomTabBorderGradient)
         )
-    ) { index, measurementModifier ->
-//        tabs.forEachIndexed { index, tab ->
+    ) { index, measurementModifier, tintColor ->
         val tab = tabs[index]
         val isSelected = selectedIndex == index
         // The LiquidBottomTabs handles the clicks/dragging automatically.
@@ -114,13 +129,14 @@ fun AppBottomBar(
         LiquidTabItem(
             modifier = measurementModifier,
             shape = tabShape,
-            selectedColor = AppColors.NeonAquaBlue,
+            selectedColor = tintColor?.let { AppColors.Transparent } ?: AppColors.NeonAquaBlue,
             isSelected = isSelected,
             content = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                     modifier = Modifier
+                        .defaultMinSize(minWidth = 64.dp)
                         .padding(horizontal = 12.dp)
                         .animateContentSize()
                 ) {
@@ -133,7 +149,8 @@ fun AppBottomBar(
                         Image(
                             painter = painterResource(id = iconRes),
                             contentDescription = stringResource(id = tab.titleResId),
-                            modifier = Modifier.size(28.dp)
+                            modifier = Modifier.size(28.dp),
+                            colorFilter = tintColor?.let { ColorFilter.tint(it) }
                         )
                     }
 
@@ -155,7 +172,7 @@ fun AppBottomBar(
                                 text = stringResource(id = tab.titleResId),
                                 style = AppTheme.typography.size12.copy(
                                     fontWeight = FontWeight.SemiBold,
-                                    color = AppColors.White
+                                    color = tintColor ?: AppColors.White
                                 ),
                                 maxLines = 1,
                                 softWrap = false // Prevents text from jumping to a second line while shrinking!

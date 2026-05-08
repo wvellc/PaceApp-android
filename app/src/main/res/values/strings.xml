@@ -77,5 +77,18 @@
     <string name="male">Male</string>
     <string name="female">Female</string>
     <string name="other">Other</string>
+    <string name="notifications">Notifications</string>
+    <string name="developed_by">Developed by</string>
+    <string name="licenses">Licenses</string>
+    <string name="visit_website">Visit Website</string>
+    <string name="kms">Kms</string>
+    <string name="miles">Miles</string>
+    <string name="logout">Logout</string>
+    <string name="delete_account">Delete Account</string>
+    <string name="gender">Gender</string>
+    <string name="logout_dialog_title">Take a quick break?</string>
+    <string name="logout_dialog_message">Your events and Garmin sync will be waiting when you return.</string>
+    <string name="log_out">Log Out</string>
+    <string name="keep_going">Keep Going</string>
 
 </resources>

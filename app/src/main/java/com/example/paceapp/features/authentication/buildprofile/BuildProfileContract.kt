@@ -2,15 +2,15 @@ package com.example.paceapp.features.authentication.buildprofile
 
 import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
+import com.example.paceapp.core.domain.enums.GenderTypes
 import com.example.paceapp.core.garmin.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
-import com.example.paceapp.features.authentication.buildprofile.domain.GaitUnit
 import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
+import com.example.paceapp.features.authentication.buildprofile.domain.getDefaultGaits
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
-import com.wvelabs.core_ui.components.imagepicker.ImagePickerAction
 
 class BuildProfileContract {
     data class State(
@@ -21,6 +21,7 @@ class BuildProfileContract {
         // --- Step 1: Set Account ---
         val firstNameState: TextFieldState = TextFieldState(),
         val lastNameState: TextFieldState = TextFieldState(),
+        val selectedGender: GenderTypes = GenderTypes.MALE,
         val profileImage: String? = null,
 
         // --- Step 2, 3 & 4: Watch Pairing ---
@@ -30,8 +31,8 @@ class BuildProfileContract {
         val selectedWatch: WatchModel? = null,
 
         // --- Step 5: Set Gait
-        val walkingGait: GaitPace = GaitPace(value = 1.0f, unit = GaitUnit.METERS),
-        val runningGait: GaitPace = GaitPace(value = 1.0f, unit = GaitUnit.METERS),
+        val walkingGait: GaitPace = selectedGender.getDefaultGaits().first,
+        val runningGait: GaitPace = selectedGender.getDefaultGaits().second,
 
         // --- Step 6: Strava ---
         val stravaLinkState: TextFieldState = TextFieldState(),
@@ -45,8 +46,9 @@ class BuildProfileContract {
         data class SelectWatchModel(val device: WatchModel) : Event()
         data class OnWalkingGaitChanged(val gaitPace: GaitPace) : Event()
         data class OnRunningGaitChanged(val gaitPace: GaitPace) : Event()
-        data class OnImagePickerAction(val action: ImagePickerAction) : Event()
         data class OnGarminDialogRetry(val context: Context) : Event()
+        data class OnGenderSelected(val gender: GenderTypes) : Event()
+
         data object OnGarminDialogSkip : Event()
     }
 

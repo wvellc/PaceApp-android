@@ -13,12 +13,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -27,33 +24,32 @@ import com.kyant.capsule.continuities.G2Continuity
 import com.kyant.capsule.continuities.G2ContinuityProfile
 import com.wvelabs.core_ui.alerts.MessageType
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
-@Composable
+/**
+ * A highly performant, debounce-protected clickable modifier.
+ * It prevents double-navigation without triggering UI recompositions.
+ */
 fun Modifier.defaultClickable(
+    interactionSource: MutableInteractionSource? = null,
     rippleColor: Color? = AppColors.NeonAquaBlue20,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     debounceTime: Long = 500L,
-    enable: Boolean = true,// 500 milliseconds is the standard UX sweet spot
+    enabled: Boolean = true,
     onClick: () -> Unit,
-): Modifier {
-    val scope = rememberCoroutineScope()
-    var isClickable by remember { mutableStateOf(true) }
+): Modifier = composed {
 
-    return this.clickable(
-        enabled = isClickable && enable,
-        interactionSource = interactionSource,
+    val actualInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+    val lastClickTime = remember { longArrayOf(0L) }
+
+    this.clickable(
+        enabled = enabled,
+        interactionSource = actualInteractionSource, // 3. Use the resolved source here
         indication = rippleColor?.let { ripple(bounded = true, color = it) },
         onClick = {
-            if (isClickable) {
-                onClick()          // Fire the action
-                isClickable = false // Lock the button
-
-                // 3. Launch a coroutine to unlock it after the delay
-                scope.launch {
-                    delay(debounceTime)
-                    isClickable = true
-                }
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime[0] > debounceTime) {
+                lastClickTime[0] = currentTime
+                onClick()
             }
         }
     )

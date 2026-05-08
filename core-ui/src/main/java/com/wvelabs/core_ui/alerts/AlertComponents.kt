@@ -41,7 +41,7 @@ fun MessageType.defaultColor(): Color {
 }
 
 
-val MessageType.loadingIcon: ImageVector
+val MessageType.icon: ImageVector
     get() = when (this) {
         MessageType.Info -> Icons.Default.Info
         MessageType.Success -> Icons.Default.CheckCircle
@@ -88,14 +88,14 @@ fun DefaultSnackbar(snackbarData: SnackbarData) {
 fun DefaultDialog(alert: AlertType.Dialog, closeDialog: () -> Unit = {}) {
     AlertDialog(
         onDismissRequest = closeDialog,
-        title = { Text(alert.title, color = alert.type.defaultColor()) },
-        text = { Text(alert.text) },
+        title = { Text(alert.title.asString(), color = alert.type.defaultColor()) },
+        text = { Text(alert.text.asString()) },
         confirmButton = {
             TextButton(onClick = {
                 alert.onConfirm?.invoke()
                 closeDialog()
             }) {
-                Text(alert.confirmText)
+                Text(alert.confirmText.asString())
             }
         },
         dismissButton = alert.dismissText?.let {
@@ -104,7 +104,7 @@ fun DefaultDialog(alert: AlertType.Dialog, closeDialog: () -> Unit = {}) {
                     alert.onDismiss?.invoke()
                     closeDialog()
                 }) {
-                    Text(it)
+                    Text(it.asString())
                 }
             }
         }

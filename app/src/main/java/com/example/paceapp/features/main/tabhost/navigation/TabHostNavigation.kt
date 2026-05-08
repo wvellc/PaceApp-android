@@ -8,11 +8,13 @@ import com.example.paceapp.features.main.tabhost.TabHostScreen
 @Serializable
 data object TabHostRoute
 fun NavGraphBuilder.tabHostScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     composable<TabHostRoute> {
         TabHostScreen(
-            onBack = onBack
+            onBack = onBack,
+            onNavigateToSettings= onNavigateToSettings
         )
     }
 }

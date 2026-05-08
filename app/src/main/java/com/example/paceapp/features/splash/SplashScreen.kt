@@ -24,7 +24,7 @@ fun SplashScreen(
     }
 
     LaunchedEffect(key1 = Unit) {
-        viewModel.effect.collectLatest { effect ->
+        viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateToLogin -> onNavigateToLogin()
                 is Effect.NavigateToTabHost -> onNavigateToTabHost()

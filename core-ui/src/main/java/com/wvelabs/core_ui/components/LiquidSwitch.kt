@@ -44,46 +44,41 @@ import com.kyant.capsule.ContinuousCapsule
 import com.wvelabs.core_ui.components.liquidtabbar.DampedDragAnimation
 import kotlinx.coroutines.flow.collectLatest
 @Composable
-fun LiquidToggle(
+fun LiquidSwitch(
     selected: () -> Boolean,
     onSelect: (Boolean) -> Unit,
     backdrop: Backdrop,
     modifier: Modifier = Modifier,
-    // Colors extracted as parameters
     switchColor: Color = Color(0xFF34C759),
     trackColor: Color = Color(0xFF787878).copy(alpha = 0.2f),
     thumbColor: Color = Color.White,
-    // Sizes extracted as parameters with original defaults
     trackWidth: Dp = 64.dp,
     trackHeight: Dp = 28.dp,
     thumbWidth: Dp = 39.dp,
     thumbPadding: Dp = 2.dp
 ) {
-    // Dynamic Size Calculations
     val thumbHeight = trackHeight - (thumbPadding * 2)
-    // Coerce to 0 to prevent negative drag width if thumb is somehow larger than track
     val dragWidthDp = (trackWidth - thumbWidth - (thumbPadding * 2)).coerceAtLeast(0.dp)
 
     val density = LocalDensity.current
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
 
-    // Pixel conversions for modifiers and math
     val dragWidthPx = with(density) { dragWidthDp.toPx() }
     val paddingPx = with(density) { thumbPadding.toPx() }
     val thumbHeightPx = with(density) { thumbHeight.toPx() }
 
-    // Dynamic Effect Scaling (Calculated relative to thumbHeight)
-    // Original values were: blur=8dp, lens=5dp/10dp, shadow=4dp on a 24dp thumb
     val blurRadiusPx = thumbHeightPx * (8f / 24f)
     val lensDistPx = thumbHeightPx * (5f / 24f)
     val lensScalePx = thumbHeightPx * (10f / 24f)
     val shadowRadiusDp = thumbHeight * (4f / 24f)
 
     val animationScope = rememberCoroutineScope()
+
+    // NEW: Tracks if the user is physically touching the switch
+    var isInteracting by remember { mutableStateOf(false) }
     var didDrag by remember { mutableStateOf(false) }
     var fraction by remember { mutableFloatStateOf(if (selected()) 1f else 0f) }
 
-    // Add dragWidthPx and isLtr as keys so onDrag captures the latest measurements
     val dampedDragAnimation = remember(animationScope, dragWidthPx, isLtr) {
         DampedDragAnimation(
             animationScope = animationScope,
@@ -92,15 +87,21 @@ fun LiquidToggle(
             visibilityThreshold = 0.001f,
             initialScale = 1f,
             pressedScale = 1.5f,
-            onDragStarted = {},
+            onDragStarted = {
+                isInteracting = true // Finger is down
+            },
             onDragStopped = {
+                isInteracting = false // Finger is lifted
+
                 if (didDrag) {
                     fraction = if (targetValue >= 0.5f) 1f else 0f
                     onSelect(fraction == 1f)
                     didDrag = false
                 } else {
-                    fraction = if (selected()) 0f else 1f
-                    onSelect(fraction == 1f)
+                    // It was a direct tap on the switch!
+                    // Update state, the LaunchedEffect will handle the animation.
+                    val newTarget = if (selected()) 0f else 1f
+                    onSelect(newTarget == 1f)
                 }
             },
             onDrag = { _, dragAmount ->
@@ -115,18 +116,25 @@ fun LiquidToggle(
         )
     }
 
+    // Handles Dragging (Instantly sticks thumb to finger)
     LaunchedEffect(dampedDragAnimation) {
         snapshotFlow { fraction }
-            .collectLatest { fraction ->
-                dampedDragAnimation.updateValue(fraction)
+            .collectLatest { frac ->
+                // ONLY snap the value instantly if the user is physically dragging it
+                if (isInteracting) {
+                    dampedDragAnimation.updateValue(frac)
+                }
             }
     }
 
+    // Handles External Taps / State Changes (Smoothly animates)
     LaunchedEffect(selected) {
         snapshotFlow { selected() }
             .collectLatest { isSelected ->
                 val target = if (isSelected) 1f else 0f
-                if (target != fraction) {
+
+                // If state changes externally (Card tap) or via Switch tap, gracefully glide to it.
+                if (target != dampedDragAnimation.value) {
                     fraction = target
                     dampedDragAnimation.animateToValue(target)
                 }
@@ -139,7 +147,6 @@ fun LiquidToggle(
         modifier = modifier,
         contentAlignment = Alignment.CenterStart
     ) {
-        // Track
         Box(
             Modifier
                 .layerBackdrop(trackBackdrop)
@@ -151,7 +158,6 @@ fun LiquidToggle(
                 .size(trackWidth, trackHeight)
         )
 
-        // Thumb
         Box(
             Modifier
                 .graphicsLayer {
@@ -160,9 +166,7 @@ fun LiquidToggle(
                         if (isLtr) lerp(paddingPx, paddingPx + dragWidthPx, currentFraction)
                         else lerp(-paddingPx, -(paddingPx + dragWidthPx), currentFraction)
                 }
-                .semantics {
-                    role = Role.Switch
-                }
+                .semantics { role = Role.Switch }
                 .then(dampedDragAnimation.modifier)
                 .drawBackdrop(
                     backdrop = rememberCombinedBackdrop(
@@ -171,15 +175,12 @@ fun LiquidToggle(
                             val progress = dampedDragAnimation.pressProgress
                             val scaleX = lerp(2f / 3f, 0.75f, progress)
                             val scaleY = lerp(0f, 0.75f, progress)
-                            scale(scaleX, scaleY) {
-                                drawBackdrop()
-                            }
+                            scale(scaleX, scaleY) { drawBackdrop() }
                         }
                     ),
                     shape = { ContinuousCapsule },
                     effects = {
                         val progress = dampedDragAnimation.pressProgress
-                        // Using dynamically calculated size effects
                         blur(blurRadiusPx * (1f - progress))
                         lens(
                             lensDistPx * progress,
@@ -196,17 +197,11 @@ fun LiquidToggle(
                         )
                     },
                     shadow = {
-                        Shadow(
-                            radius = shadowRadiusDp, // Dynamic based on height ratio
-                            color = Color.Black.copy(alpha = 0.05f)
-                        )
+                        Shadow(radius = shadowRadiusDp, color = Color.Black.copy(alpha = 0.05f))
                     },
                     innerShadow = {
                         val progress = dampedDragAnimation.pressProgress
-                        InnerShadow(
-                            radius = shadowRadiusDp * progress, // Dynamic based on height ratio
-                            alpha = progress
-                        )
+                        InnerShadow(radius = shadowRadiusDp * progress, alpha = progress)
                     },
                     layerBlock = {
                         scaleX = dampedDragAnimation.scaleX
@@ -220,7 +215,7 @@ fun LiquidToggle(
                         drawRect(thumbColor.copy(alpha = 1f - progress))
                     }
                 )
-                .size(thumbWidth, thumbHeight) // Sized dynamically accounting for padding
+                .size(thumbWidth, thumbHeight)
         )
     }
 }
