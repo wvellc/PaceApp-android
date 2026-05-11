@@ -65,31 +65,31 @@ internal fun ProfileContent(
         isLoading = state.isLoading,
         hasPattern = true,
         appBar = {
-            //App bar
-            CommonAppBar(
-                showBackButton = false,
-                showAppLogo = true,
-                onBackClick = {
-                    onEvent(Event.OnBackClick)
-                },
+                //App bar
+                CommonAppBar(
+                    showBackButton = false,
+                    showAppLogo = true,
+                    onBackClick = {
+                        onEvent(Event.OnBackClick)
+                    },
 
-                actions = {
-                    //Settings
-                    Image(
-                        painter = painterResource(R.drawable.ic_settings),
-                        contentDescription = stringResource(R.string.back),
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .graphicsLayer {
-                                rotationZ = rotation
-                            }
-                            .defaultClickable {
-                                onEvent(Event.OnSettingClick)
-                            }
+                    actions = {
+                        //Settings
+                        Image(
+                            painter = painterResource(R.drawable.ic_settings),
+                            contentDescription = stringResource(R.string.back),
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .graphicsLayer {
+                                    rotationZ = rotation
+                                }
+                                .defaultClickable {
+                                    onEvent(Event.OnSettingClick)
+                                }
 
-                    )
-                }
-            )
+                        )
+                    }
+                )
         }
     ) { innerPaddings ->
 

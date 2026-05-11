@@ -41,11 +41,23 @@ fun SettingsScreen(
                     title = UiText.StringResource(R.string.logout_dialog_title),
                     text = UiText.StringResource(R.string.logout_dialog_message),
                     dismissText = UiText.StringResource(R.string.log_out),
-                    confirmText =UiText.StringResource(R.string.keep_going),
+                    confirmText = UiText.StringResource(R.string.keep_going),
                     cancelable = true,
                     type = MessageType.Warning,
                     onDismiss = {
                         viewModel.setEvent(Event.OnLogoutConfirm)
+                    }
+                )
+
+                is Effect.ShowDeleteAccountDialog -> AppAlerts.showDialog(
+                    title = UiText.StringResource(R.string.delete_account_dialog_title),
+                    text = UiText.StringResource(R.string.delete_account_dialog_message),
+                    dismissText = UiText.StringResource(R.string.new_start),
+                    confirmText = UiText.StringResource(R.string.stay_with_me),
+                    cancelable = true,
+                    type = MessageType.Warning,
+                    onDismiss = {
+                        viewModel.setEvent(Event.OnDeleteAccountConfirm)
                     }
                 )
             }

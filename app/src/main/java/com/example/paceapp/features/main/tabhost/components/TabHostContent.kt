@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.runtime.Composable
@@ -76,7 +77,7 @@ internal fun TabHostContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = AppTheme.screenPadding)
-                .safeContentPadding()
+                .navigationBarsPadding()
                 .align(Alignment.BottomCenter),
             tabNavController = tabNavController,
             backdrop = backdrop

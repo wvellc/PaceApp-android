@@ -98,12 +98,12 @@ fun AppBottomBar(
         // Disable backdrop effects if you want solid colors like the screenshot
         containerEffects = {
             vibrancy()
-            blur(4f.dp.toPx())
+            blur(16f.dp.toPx())
             lens(16f.dp.toPx(), 32.dp.toPx())
         },
         tabsEffects = { progress ->
             vibrancy()
-            blur(4f.dp.toPx())
+            blur(16f.dp.toPx())
             lens(
                 16f.dp.toPx() * progress,
                 32.dp.toPx() * progress

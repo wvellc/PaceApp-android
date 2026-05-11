@@ -90,5 +90,9 @@
     <string name="logout_dialog_message">Your events and Garmin sync will be waiting when you return.</string>
     <string name="log_out">Log Out</string>
     <string name="keep_going">Keep Going</string>
+    <string name="delete_account_dialog_title">Start Fresh?</string>
+    <string name="delete_account_dialog_message">Create a new Pace App experience anytime. Your next race adventure awaits!</string>
+    <string name="new_start">New Start</string>
+    <string name="stay_with_me">Stay With Me</string>
 
 </resources>

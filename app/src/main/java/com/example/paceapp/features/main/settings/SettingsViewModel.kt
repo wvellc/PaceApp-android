@@ -34,8 +34,7 @@ class SettingsViewModel @Inject constructor(
             is Event.OnLogoutClick -> handleOnLogoutClick()
             is Event.OnDeleteAccountClick -> handleOnDeleteAccountClick()
             is Event.OnLogoutConfirm -> handleLogout()
-
-
+            is Event.OnDeleteAccountConfirm -> handleDeleteAccount()
         }
     }
 
@@ -91,14 +90,32 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun handleOnDeleteAccountClick() {
+        setEffect { Effect.ShowDeleteAccountDialog }
     }
 
     private fun handleLogout() {
-        safeLaunch({
-            //TODO : CallAPI
-            sessionManager.onSessionExpired()
-        }, onLoading = { loading ->
-            setState { copy(isLoading = loading) }
-        })
+        safeLaunch(
+            block = {
+                //TODO : CallAPI
+                clearSessionData()
+            },
+            onLoading = { loading ->
+                setState { copy(isLoading = loading) }
+            },
+        )
     }
+
+    private fun handleDeleteAccount() {
+        safeLaunch(
+            block = {
+                //TODO : CallAPI
+                clearSessionData()
+            },
+            onLoading = { loading ->
+                setState { copy(isLoading = loading) }
+            }
+        )
+    }
+
+    private suspend fun clearSessionData() = sessionManager.onSessionExpired()
 }

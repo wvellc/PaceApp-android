@@ -48,7 +48,6 @@ fun AppActionDialog(
     Dialog(
         onDismissRequest = {
             if (alert.cancelable) {
-                alert.onDismiss?.invoke()
                 closeDialog()
             }
         },
