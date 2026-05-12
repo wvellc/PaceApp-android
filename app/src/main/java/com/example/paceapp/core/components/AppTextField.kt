@@ -82,7 +82,11 @@ fun AppTextField(
     readOnly: Boolean = false,
     maxLines: Int = 1,
     minLines: Int = 1,
-    textStyle: TextStyle = AppTheme.typography.size18.copy(fontWeight = FontWeight.Medium),
+    textStyle: TextStyle = AppTheme.typography.size18.copy(
+        fontWeight = FontWeight.Medium,
+        color = AppColors.White
+    ),
+    hintTextColor: Color = AppColors.HintGray.copy(0.8f),
     borderColor: Color = AppColors.White,
     iconColor: Color = AppColors.HintGray,
     onKeyboardAction: KeyboardActionHandler? = null,
@@ -98,6 +102,7 @@ fun AppTextField(
     onCountrySelected: (country: CountryDetails) -> Unit = {},
     height: Dp = 48.dp,
     title: String? = null,
+    titleStyle: TextStyle = AppTheme.typography.size20.copy(color = AppColors.White),
     titleSpacing: Dp = 5.dp,
     selectedCountryCode: String = "",
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -146,7 +151,7 @@ fun AppTextField(
     val currentIconColor = if (isError) AppColors.Error else iconColor
     val currentTextStyle = textStyle.copy(
         color = when {
-            enabled -> AppColors.White
+            enabled -> textStyle.color
             else -> AppColors.FashionGray
         }
     )
@@ -186,12 +191,12 @@ fun AppTextField(
                 modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.CenterStart
             ) {
-                // Hint (Using state.text instead of value.text)
+                // Hint
                 if (state.text.isEmpty()) {
                     Text(
                         text = hint,
                         style = textStyle,
-                        color = AppColors.HintGray.copy(0.8f)
+                        color = hintTextColor,
                     )
                 }
                 innerTextField()
@@ -223,8 +228,7 @@ fun AppTextField(
         title?.let {
             Text(
                 text = title,
-                style = AppTheme.typography.size20.copy(color = AppColors.White)
-
+                style = titleStyle
             )
         }
 

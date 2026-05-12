@@ -1,15 +1,24 @@
 package com.example.paceapp.features.main.history
 
+import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.features.main.history.HistoryContract.Effect
 import com.example.paceapp.features.main.history.HistoryContract.Event
 import com.example.paceapp.features.main.history.HistoryContract.State
-import com.example.paceapp.features.main.history.domain.HistoryUiModel
+import com.example.paceapp.features.main.history.domain.FilterHistoryListUseCase
+import com.example.paceapp.features.main.history.models.HistoryFilterModel
+import com.example.paceapp.features.main.history.models.HistoryUiModel
+import com.wvelabs.core_ui.extensions.debounceInput
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effect>() {
+class HistoryViewModel @Inject constructor(
+    private val filterHistoryListUseCase: FilterHistoryListUseCase
+) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
 
@@ -20,17 +29,33 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
                 setEffect { Effect.NavigateBack }
             }
 
-            is Event.OnFilterClick -> handleOnFilterClick()
+            is Event.OnFilterChange -> handleOnFilterChange(event.filter)
         }
     }
 
     private fun initData() {
         if (currentState.isInitialized) return
-        setState { copy(historyList = getDummyRunActivities()) }
+        fetchHistoryList()
+        observeSearchField()
         setState { copy(isInitialized = true) }
     }
 
-    fun getDummyRunActivities(): List<HistoryUiModel> = listOf(
+
+    private fun fetchHistoryList() {
+        safeLaunch(
+            block = {
+                getDummyHistoryList()
+            },
+            onLoading = { loadingState ->
+                setState { copy(isLoading = loadingState) }
+            },
+            onSuccess = { historyList ->
+                setState { copy(historyList = historyList) }
+            },
+        )
+    }
+
+    fun getDummyHistoryList(): List<HistoryUiModel> = listOf(
         HistoryUiModel(
             id = "1",
             title = "Thursday Run",
@@ -40,8 +65,7 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
             avgPace = "9:00 /mi",
             paceDifference = "+01:10",
             isPaceImproved = false
-        ),
-        HistoryUiModel(
+        ), HistoryUiModel(
             id = "2",
             title = "Saturday Run",
             date = "31 Jan",
@@ -50,8 +74,7 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
             avgPace = "3:20 /mi",
             paceDifference = "-02:15",
             isPaceImproved = true
-        ),
-        HistoryUiModel(
+        ), HistoryUiModel(
             id = "3",
             title = "Saturday Run",
             date = "31 Jan",
@@ -60,8 +83,7 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
             avgPace = "3:20 /mi",
             paceDifference = "-02:15",
             isPaceImproved = true
-        ),
-        HistoryUiModel(
+        ), HistoryUiModel(
             id = "4",
             title = "Saturday Run",
             date = "31 Jan",
@@ -70,8 +92,7 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
             avgPace = "3:20 /mi",
             paceDifference = "-02:15",
             isPaceImproved = true
-        ),
-        HistoryUiModel(
+        ), HistoryUiModel(
             id = "5",
             title = "Monday Run",
             date = "02 Feb",
@@ -80,8 +101,7 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
             avgPace = "8:03 /mi",
             paceDifference = "-00:45",
             isPaceImproved = true
-        ),
-        HistoryUiModel(
+        ), HistoryUiModel(
             id = "6",
             title = "Wednesday Run",
             date = "04 Feb",
@@ -93,7 +113,41 @@ class HistoryViewModel @Inject constructor() : BaseViewModel<State, Event, Effec
         )
     )
 
-    private fun handleOnFilterClick() {
-        //  TODO ("Not yet implemented")
+    private fun observeSearchField() {
+        val searchFlow = snapshotFlow { currentState.searchTextState.text }
+            .debounceInput()
+            .map { query ->
+                // Execute Use Case
+                filterHistoryListUseCase(
+                    activities = getDummyHistoryList(),
+                    filter = currentState.activeFilter,
+                    searchQuery = query.toString(),
+                )
+            }
+
+        observeState(searchFlow) { filteredList ->
+            copy(historyList = filteredList)
+        }
+    }
+
+
+    private fun handleOnFilterChange(filter: HistoryFilterModel?) {
+        viewModelScope.launch {
+            // Get your raw data
+            val allActivities = getDummyHistoryList()
+            // Pass it to your Use Case (runs safely on background thread)
+            val filteredActivities = filterHistoryListUseCase(
+                activities = allActivities,
+                filter = filter,
+                searchQuery = currentState.searchTextState.text.toString(),
+            )
+            // Update the UI state with the result
+            setState {
+                copy(
+                    activeFilter = filter,
+                    historyList = filteredActivities
+                )
+            }
+        }
     }
 }

@@ -1,7 +1,7 @@
 package com.example.paceapp.features.main.profile
 
 import com.example.paceapp.core.domain.models.UserUiModel
-import com.example.paceapp.features.main.profile.domain.ProfileOptions
+import com.example.paceapp.features.main.profile.enums.ProfileOptions
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState

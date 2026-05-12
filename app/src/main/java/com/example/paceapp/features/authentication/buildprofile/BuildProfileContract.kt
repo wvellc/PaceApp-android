@@ -6,8 +6,8 @@ import com.example.paceapp.core.domain.enums.GenderTypes
 import com.example.paceapp.core.garmin.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
-import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
-import com.example.paceapp.features.authentication.buildprofile.domain.getDefaultGaits
+import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
+import com.example.paceapp.features.authentication.buildprofile.extensions.getDefaultGaits
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState

@@ -3,7 +3,6 @@ package com.example.paceapp.features.main.tabhost.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -22,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -34,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.paceapp.features.main.tabhost.domain.BottomTab
+import com.example.paceapp.features.main.tabhost.models.BottomTab
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.backdrop.Backdrop
@@ -51,7 +49,7 @@ fun AppBottomBar(
     tabNavController: NavHostController,
     backdrop: Backdrop,
 ) {
-    
+
     val tabs = remember {
         listOf(
             BottomTab.Home,
@@ -94,19 +92,20 @@ fun AppBottomBar(
         padding = 8.dp,
         // Colors from screenshot
         containerColor = AppColors.White.copy(alpha = 0.3f),
-        accentColor = AppColors.NeonAquaBlue,
+        selectedTabColor = AppColors.NeonAquaBlue,
+        unselectedTabColor = AppColors.FashionGray,
         // Disable backdrop effects if you want solid colors like the screenshot
         containerEffects = {
             vibrancy()
-            blur(16f.dp.toPx())
-            lens(16f.dp.toPx(), 32.dp.toPx())
+            blur(6f.dp.toPx())
+            lens(24f.dp.toPx(), 48f.dp.toPx())
         },
         tabsEffects = { progress ->
             vibrancy()
-            blur(16f.dp.toPx())
+            blur(6f.dp.toPx())
             lens(
-                16f.dp.toPx() * progress,
-                32.dp.toPx() * progress
+                24f.dp.toPx() * progress,
+                48f.dp.toPx() * progress
             )
         },
         indicatorEffects = { progress ->
@@ -121,15 +120,24 @@ fun AppBottomBar(
             1.dp,
             Brush.verticalGradient(AppColors.bottomTabBorderGradient)
         )
-    ) { index, measurementModifier, tintColor ->
+    ) { index, measurementModifier, providedColor, isBaseLayer ->
         val tab = tabs[index]
         val isSelected = selectedIndex == index
+
+        val finalIconColor = if (isBaseLayer) {
+            // If it's the base layer AND selected, it sits on the Neon pill, so use White.
+            // Otherwise, it is an unselected tab, so use the provided DarkCharcoal!
+            if (isSelected) AppColors.White else providedColor
+        } else {
+            // If it is the active/invisible layer, it always uses the provided NeonAquaBlue.
+            providedColor
+        }
         // The LiquidBottomTabs handles the clicks/dragging automatically.
         // We just define what the item looks like!
         LiquidTabItem(
             modifier = measurementModifier,
             shape = tabShape,
-            selectedColor = tintColor?.let { AppColors.Transparent } ?: AppColors.NeonAquaBlue,
+            selectedColor = if (isBaseLayer) AppColors.NeonAquaBlue else AppColors.Transparent,
             isSelected = isSelected,
             content = {
                 Row(
@@ -149,8 +157,9 @@ fun AppBottomBar(
                         Image(
                             painter = painterResource(id = iconRes),
                             contentDescription = stringResource(id = tab.titleResId),
-                            modifier = Modifier.size(28.dp),
-                            colorFilter = tintColor?.let { ColorFilter.tint(it) }
+                            modifier = Modifier
+                                .size(28.dp),
+                            colorFilter = ColorFilter.tint(finalIconColor)
                         )
                     }
 
@@ -172,7 +181,7 @@ fun AppBottomBar(
                                 text = stringResource(id = tab.titleResId),
                                 style = AppTheme.typography.size12.copy(
                                     fontWeight = FontWeight.SemiBold,
-                                    color = tintColor ?: AppColors.White
+                                    color = finalIconColor
                                 ),
                                 maxLines = 1,
                                 softWrap = false // Prevents text from jumping to a second line while shrinking!

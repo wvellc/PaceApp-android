@@ -1,4 +1,4 @@
-package com.example.paceapp.features.main.history.domain
+package com.example.paceapp.features.main.history.models
 
 data class HistoryUiModel(
     val id: String,

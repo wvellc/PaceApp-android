@@ -8,6 +8,7 @@ import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
@@ -161,7 +162,13 @@ fun slideInLeftTransition(
     ) { offset + (index * 12) }
 }
 
-fun  defaultScaleIn() = scaleIn(
+fun  defaultScaleIn(initialScale: Float = 0.4f) = scaleIn(
     animationSpec = defaultAnimSpec(),
-    initialScale = 0.4f,
+    initialScale = initialScale,
+)
+fun  defaultFadeIn() = fadeIn(
+    animationSpec = defaultAnimSpec(),
+)
+fun  defaultFadeOut() = fadeOut(
+    animationSpec = defaultAnimSpec(),
 )

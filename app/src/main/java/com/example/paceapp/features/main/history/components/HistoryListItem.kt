@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.features.main.history.domain.HistoryUiModel
+import com.example.paceapp.features.main.history.models.HistoryUiModel
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 

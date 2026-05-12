@@ -4,6 +4,7 @@ import com.example.paceapp.core.components.Validator
 import com.example.paceapp.core.components.ValidatorType
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
+import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import javax.inject.Inject
 
 class ValidateBuildProfileUseCase @Inject constructor() {

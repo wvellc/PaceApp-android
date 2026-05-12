@@ -31,7 +31,7 @@ import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
-import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
+import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.steps.AccountSetContent
 import com.example.paceapp.features.authentication.buildprofile.steps.ConnectStravaContent
 import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchContent

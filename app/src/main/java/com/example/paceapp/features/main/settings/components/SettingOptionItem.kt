@@ -20,7 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.features.main.settings.domain.SettingOptions
+import com.example.paceapp.features.main.settings.enums.SettingOptions
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.extensions.defaultAnimSpec

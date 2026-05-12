@@ -1,5 +1,6 @@
 package com.example.paceapp.features.main.history.domain
 
+import com.example.paceapp.features.main.history.models.HistoryUiModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -16,24 +17,27 @@ class ConvertRunHistoryToUiUseCase @Inject constructor() {
         return HistoryUiModel(
             id = networkModel.id,
             title = networkModel.title,
-            
+
             // Format date timestamp
-            date = SimpleDateFormat("dd MMM", Locale.getDefault()).format(Date(networkModel.timestamp)),
-            
+            date = SimpleDateFormat(
+                "dd MMM",
+                Locale.getDefault()
+            ).format(Date(networkModel.timestamp)),
+
             // Format distance
             distance = String.format(Locale.getDefault(), "%.2f mi", networkModel.distance),
-            
+
             // Format duration seconds
             time = formatSecondsToTime(networkModel.durationSeconds),
-            
+
             // Format pace
             avgPace = "${formatSecondsToTime(networkModel.avgPaceSeconds)} /mi",
-            
+
             // Format difference
             paceDifference = formatPaceDifference(networkModel.paceDifferenceSeconds),
-            
+
             // Derive the boolean directly from the data
-            isPaceImproved = networkModel.paceDifferenceSeconds < 0 
+            isPaceImproved = networkModel.paceDifferenceSeconds < 0
         )
     }
 

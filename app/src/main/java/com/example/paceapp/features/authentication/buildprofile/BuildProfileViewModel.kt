@@ -14,9 +14,9 @@ import com.example.paceapp.features.authentication.buildprofile.BuildProfileCont
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
-import com.example.paceapp.features.authentication.buildprofile.domain.ProfileStep
+import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
-import com.example.paceapp.features.authentication.buildprofile.domain.getDefaultGaits
+import com.example.paceapp.features.authentication.buildprofile.extensions.getDefaultGaits
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel

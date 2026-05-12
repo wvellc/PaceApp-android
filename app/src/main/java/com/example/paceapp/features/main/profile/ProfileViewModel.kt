@@ -6,7 +6,7 @@ import com.example.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import com.example.paceapp.features.main.profile.ProfileContract.Effect
 import com.example.paceapp.features.main.profile.ProfileContract.Event
 import com.example.paceapp.features.main.profile.ProfileContract.State
-import com.example.paceapp.features.main.profile.domain.ProfileOptions
+import com.example.paceapp.features.main.profile.enums.ProfileOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach

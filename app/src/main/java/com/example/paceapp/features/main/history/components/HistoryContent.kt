@@ -1,26 +1,37 @@
 package com.example.paceapp.features.main.history.components
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.CommonAppBar
+import com.example.paceapp.core.components.NoDataView
 import com.example.paceapp.core.components.SearchTextField
 import com.example.paceapp.features.main.history.HistoryContract.Event
 import com.example.paceapp.features.main.history.HistoryContract.State
 import com.example.paceapp.theme.AppTheme
+import com.wvelabs.core_ui.alerts.AppAlerts
+import com.wvelabs.core_ui.alerts.MessageType
+import com.wvelabs.core_ui.extensions.defaultAnimSpec
 
 @Composable
 internal fun HistoryContent(
@@ -29,6 +40,8 @@ internal fun HistoryContent(
 ) {
 
     val historyListState = rememberLazyListState()
+    var isFilterVisible by remember { mutableStateOf(false) }
+
     AppBaseScreen(
         modifier = Modifier
             .fillMaxSize(),
@@ -50,8 +63,7 @@ internal fun HistoryContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(top = innerPaddings.calculateTopPadding())
-                .padding(horizontal = AppTheme.screenPadding)
-                .imePadding(),
+                .padding(horizontal = AppTheme.screenPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
 
@@ -64,34 +76,62 @@ internal fun HistoryContent(
                 trailingIcon = {
                     BadgedFilterIcon(
                         modifier = Modifier,
-                        hasActiveFilters = state.hasFilterApplied,
+                        hasActiveFilters = state.activeFilter != null,
                         onClick = {
-                            onEvent(Event.OnFilterClick)
+                            isFilterVisible = true
                         }
                     )
                 }
             )
 
-            //History list
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                state = historyListState,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(
-                    top = 16.dp,
-                    bottom = AppTheme.bottomNavBarPadding + AppTheme.screenPadding
-                )
-            ) {
-                items(state.historyList, key = { it.id }) { history ->
-                    HistoryItem(history = history) {
+            Crossfade(
+                targetState = state.historyList.isEmpty() && !state.isLoading,
+                animationSpec = defaultAnimSpec(duration = 300)
+            ) { hasNoData ->
+                if (hasNoData) {
+                    NoDataView(
+                        title = stringResource(R.string.no_history_title),
+                        imageRes = R.drawable.ic_empty_history,
+                        imageShape = CircleShape,
+                        onImageClick = {
+                            AppAlerts.showToast("Coming Soon", type = MessageType.Warning)
+                        }
+                    )
+                } else {
+                    //History list
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f),
+                        state = historyListState,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        contentPadding = PaddingValues(
+                            top = AppTheme.screenPadding,
+                            bottom = AppTheme.bottomNavBarPadding + AppTheme.screenPadding
+                        )
+                    ) {
+                        items(state.historyList, key = { it.id }) { history ->
+                            HistoryItem(history = history) {
 
+                            }
+                        }
                     }
                 }
             }
         }
     }
+
+    //Filter sheet
+    FilterBottomSheet(
+        isVisible = isFilterVisible,
+        initialFilter = state.activeFilter, // Pass current state down
+        onApplyFilter = { filter ->
+            onEvent(Event.OnFilterChange(filter))
+            isFilterVisible = false
+        },
+        onDismiss = { isFilterVisible = false },
+    )
+
 }
 
 

@@ -14,11 +14,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 
@@ -28,7 +32,9 @@ fun NoDataView(
     title: String,
     subtitle: String? = null,
     @DrawableRes imageRes: Int? = null,
+    imageShape: Shape = RectangleShape,
     buttonLabel: String? = null,
+    onImageClick: (() -> Unit)? = null,
     onButtonClick: () -> Unit = {}
 ) {
     Column(
@@ -45,7 +51,13 @@ fun NoDataView(
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = null,
-                modifier = Modifier.size(180.dp),
+                modifier = Modifier
+                    .size(180.dp)
+                    .clip(imageShape)
+                    .defaultClickable(
+                        onClick = onImageClick ?: {},
+                        enabled = onImageClick != null
+                    ),
             )
 
             Spacer(modifier = Modifier.height(34.dp))

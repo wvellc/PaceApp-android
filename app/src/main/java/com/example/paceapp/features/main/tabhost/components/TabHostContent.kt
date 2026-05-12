@@ -20,7 +20,7 @@ import com.example.paceapp.features.main.home.navigation.homeScreen
 import com.example.paceapp.features.main.profile.navigation.profileScreen
 import com.example.paceapp.features.main.tabhost.TabHostContract.Event
 import com.example.paceapp.features.main.tabhost.TabHostContract.State
-import com.example.paceapp.features.main.tabhost.domain.BottomTab
+import com.example.paceapp.features.main.tabhost.models.BottomTab
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.backdrop.backdrops.layerBackdrop

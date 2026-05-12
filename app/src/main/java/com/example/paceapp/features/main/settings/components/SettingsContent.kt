@@ -29,7 +29,7 @@ import com.example.paceapp.core.domain.enums.DistanceUnits
 import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.features.main.settings.SettingsContract.Event
 import com.example.paceapp.features.main.settings.SettingsContract.State
-import com.example.paceapp.features.main.settings.domain.SettingOptions
+import com.example.paceapp.features.main.settings.enums.SettingOptions
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle

@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -73,7 +72,8 @@ fun LiquidBottomTabs(
     containerHeight: Dp = 64.dp,
     containerShape: Shape = ContinuousCapsule,
     containerColor: Color = Color.White.copy(alpha = 0.4f),
-    accentColor: Color = Color.Black,
+    selectedTabColor: Color = Color.Black,
+    unselectedTabColor: Color = Color.DarkGray,
     containerEffects: BackdropEffectScope.() -> Unit = {},
     tabsEffects: BackdropEffectScope.(progress: Float) -> Unit = {},
     indicatorEffects: BackdropEffectScope.(progress: Float) -> Unit = {},
@@ -81,7 +81,7 @@ fun LiquidBottomTabs(
     borderStroke: BorderStroke = BorderStroke(
         1.dp, Brush.verticalGradient(listOf(Color.White, Color.Black))
     ),
-    tabItem: @Composable RowScope.(index: Int, measurementModifier: Modifier, tintColor: Color?) -> Unit
+    tabItem: @Composable RowScope.(index: Int, measurementModifier: Modifier, providedColor: Color, isBaseLayer: Boolean) -> Unit
 ) {
     val tabsBackdrop = rememberLayerBackdrop()
     val tabHeight = containerHeight - (padding * 2)
@@ -221,7 +221,7 @@ fun LiquidBottomTabs(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             for (i in 0 until tabsCount) {
-                tabItem(i, createMeasurementModifier(i), null)
+                tabItem(i, createMeasurementModifier(i), unselectedTabColor, true)
             }
         }
 
@@ -241,7 +241,7 @@ fun LiquidBottomTabs(
                         shape = { containerShape },
                         effects = { tabsEffects(activePressProgress) },
                         highlight = { Highlight.Default.copy(alpha = activePressProgress) },
-                        onDrawSurface = { drawRect(accentColor, alpha = 0.1f) })
+                        onDrawSurface = { drawRect(selectedTabColor, alpha = 0.1f) })
                     .then(interactiveHighlight.modifier)
                     .height(tabHeight + (padding / 2))
                     .fillMaxWidth()
@@ -250,7 +250,7 @@ fun LiquidBottomTabs(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 for (i in 0 until tabsCount) {
-                    tabItem(i, createMeasurementModifier(i), accentColor)
+                    tabItem(i, createMeasurementModifier(i), selectedTabColor, false)
                 }
             }
         }

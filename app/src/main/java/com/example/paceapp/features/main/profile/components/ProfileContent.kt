@@ -37,7 +37,7 @@ import com.example.paceapp.core.components.CommonAppBar
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.features.main.profile.ProfileContract.Event
 import com.example.paceapp.features.main.profile.ProfileContract.State
-import com.example.paceapp.features.main.profile.domain.ProfileOptions
+import com.example.paceapp.features.main.profile.enums.ProfileOptions
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.components.InitialAvatarView

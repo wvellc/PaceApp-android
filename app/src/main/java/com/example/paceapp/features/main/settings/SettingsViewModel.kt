@@ -8,7 +8,7 @@ import com.example.paceapp.core.providers.AppResourceProvider
 import com.example.paceapp.features.main.settings.SettingsContract.Effect
 import com.example.paceapp.features.main.settings.SettingsContract.Event
 import com.example.paceapp.features.main.settings.SettingsContract.State
-import com.example.paceapp.features.main.settings.domain.SettingOptions
+import com.example.paceapp.features.main.settings.enums.SettingOptions
 import com.example.paceapp.session.AppSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

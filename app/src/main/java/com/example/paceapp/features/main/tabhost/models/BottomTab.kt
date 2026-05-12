@@ -1,4 +1,4 @@
-package com.example.paceapp.features.main.tabhost.domain
+package com.example.paceapp.features.main.tabhost.models
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes

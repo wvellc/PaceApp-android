@@ -24,7 +24,7 @@ import com.example.paceapp.core.components.AppSegmentedButtons
 import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitUnit
-import com.example.paceapp.features.authentication.buildprofile.domain.titleRes
+import com.example.paceapp.features.authentication.buildprofile.extensions.titleRes
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle

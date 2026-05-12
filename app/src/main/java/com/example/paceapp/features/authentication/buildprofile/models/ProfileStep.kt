@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.buildprofile.domain
+package com.example.paceapp.features.authentication.buildprofile.models
 
 import androidx.annotation.StringRes
 import com.example.paceapp.R
@@ -70,4 +70,3 @@ sealed class ProfileStep(
         override val previousStep get() = SetGait
     }
 }
-

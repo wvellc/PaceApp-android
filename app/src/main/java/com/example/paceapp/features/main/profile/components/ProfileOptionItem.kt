@@ -18,7 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.features.main.profile.domain.ProfileOptions
+import com.example.paceapp.features.main.profile.enums.ProfileOptions
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop

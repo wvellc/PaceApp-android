@@ -1,4 +1,4 @@
-package com.example.paceapp.features.main.settings.domain
+package com.example.paceapp.features.main.settings.enums
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
