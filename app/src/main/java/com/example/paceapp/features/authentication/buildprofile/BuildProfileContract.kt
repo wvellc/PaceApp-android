@@ -3,7 +3,7 @@ package com.example.paceapp.features.authentication.buildprofile
 import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import com.example.paceapp.core.domain.enums.GenderTypes
-import com.example.paceapp.core.garmin.WatchModel
+import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
 import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep

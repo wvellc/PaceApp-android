@@ -1,6 +1,9 @@
 package com.example.paceapp.core.garmin
 
 import android.content.Context
+import com.example.paceapp.core.garmin.enums.WatchConnectionState
+import com.example.paceapp.core.garmin.mappers.toWatchModel
+import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.garmin.android.connectiq.IQDevice
 import com.wvelabs.core_network.di.ApplicationScope
@@ -80,6 +83,21 @@ class GarminDeviceManager @Inject constructor(
                         AppLogger.e("Watch Disconnected globally!")
                     }
                 }
+        }
+    }
+
+    suspend fun getKnownDevicesAfterInit(context: Context): List<WatchModel>? {
+        // 1. Check current status
+        val currentStatus = sdkStateFlow.value
+
+        // 2. Decide if we need to initialize
+        val finalStatus = currentStatus as? GarminSdkState.Ready ?: garminHelper.initializeSdk(context)
+
+        // 3. Return devices or null based on final outcome
+        return if (finalStatus is GarminSdkState.Ready) {
+            getKnownDevices()
+        } else {
+            null
         }
     }
 

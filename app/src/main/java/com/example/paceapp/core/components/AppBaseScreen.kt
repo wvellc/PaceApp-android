@@ -13,11 +13,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.paceapp.R
 import com.example.paceapp.theme.AppColors
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.wvelabs.core_ui.shell.BaseScreenBox
 
 @Composable
 fun AppBaseScreen(
     modifier: Modifier = Modifier,
+    backgroundModifier: Modifier = Modifier,
     animationWrapper: @Composable (content: @Composable () -> Unit) -> Unit = { content -> content() },
     isLoading: Boolean = false,
     customBackground: (@Composable () -> Unit)? = null,
@@ -27,6 +30,7 @@ fun AppBaseScreen(
     appLoader: @Composable () -> Unit = { AppLoadingIndicator() },
     content: @Composable ((innerPaddings: PaddingValues) -> Unit),
 ) {
+
     Box(modifier = Modifier.fillMaxSize()) {
         BaseScreenBox(
             animationWrapper = animationWrapper,
@@ -36,7 +40,7 @@ fun AppBaseScreen(
             applySystemInsets = applySystemInsets,
             background = {
                 Box(
-                    modifier = Modifier
+                    modifier = backgroundModifier
                         .fillMaxSize()
                         .background(
                             brush = Brush.verticalGradient(
@@ -50,7 +54,9 @@ fun AppBaseScreen(
 
                     if (hasPattern) {
                         Image(
-                            modifier = Modifier.fillMaxSize(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                ,
                             painter = painterResource(R.drawable.bg_star_pattern),
                             contentDescription = null,
                             contentScale = ContentScale.Crop

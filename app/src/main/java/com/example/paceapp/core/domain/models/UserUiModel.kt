@@ -9,5 +9,5 @@ data class UserUiModel(
     val fullName: String,
     val fullNameAndGender: String,
     val contactInfo: String, // email or phone based on loginType
-    val loginType: LoginTypes
+    val loginType: LoginTypes,
 )

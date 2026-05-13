@@ -39,7 +39,7 @@ object AppColors {
     )
 
     val bottomTabBorderGradient = listOf(
-        White.copy(alpha = 0.0f),
+        White.copy(alpha = 0.1f),
         FluorescentMint.copy(alpha = 0.6f),
     )
 

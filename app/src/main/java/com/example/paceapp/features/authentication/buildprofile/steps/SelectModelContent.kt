@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.NoDataView
 import com.example.paceapp.core.extensions.defaultClickable
-import com.example.paceapp.core.garmin.WatchModel
+import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.components.AppNetworkImage

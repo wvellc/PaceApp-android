@@ -1,5 +1,7 @@
-package com.example.paceapp.core.garmin
+package com.example.paceapp.core.garmin.mappers
 
+import com.example.paceapp.core.garmin.enums.WatchConnectionState
+import com.example.paceapp.core.garmin.models.WatchModel
 import com.garmin.android.connectiq.IQDevice
 
 /**

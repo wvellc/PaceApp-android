@@ -1,5 +1,6 @@
 package com.example.paceapp.features.main.tabhost
 
+import com.example.paceapp.features.main.home.models.WatchMetric
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
@@ -7,7 +8,8 @@ import com.wvelabs.core_ui.base.ViewState
 class TabHostContract {
     data class State(
         val isInitialized: Boolean = false,
-        val isLoading: Boolean = false
+        val isLoading: Boolean = false,
+        val metrics: List<WatchMetric> = emptyList(),
     ) : ViewState
 
     sealed class Event : ViewEvent {

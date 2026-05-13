@@ -7,16 +7,16 @@ import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.core.domain.enums.GenderTypes
 import com.example.paceapp.core.garmin.GarminDeviceManager
-import com.example.paceapp.core.garmin.WatchConnectionState
-import com.example.paceapp.core.garmin.WatchModel
+import com.example.paceapp.core.garmin.enums.WatchConnectionState
+import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Effect
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
 import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
-import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
 import com.example.paceapp.features.authentication.buildprofile.extensions.getDefaultGaits
+import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -250,7 +250,10 @@ class BuildProfileViewModel @Inject constructor(
                     firstName = currentState.firstNameState.text.trim().toString(),
                     lastName = currentState.lastNameState.text.trim().toString(),
                     gender = currentState.selectedGender,
-                    id = UUID.randomUUID().toString()
+                    walkingGait = currentState.walkingGait,
+                    runningGait = currentState.runningGait,
+                    watchModel = currentState.selectedWatch,
+                    id = UUID.randomUUID().toString(),
                 )
             )
         }, onLoading = { loading ->

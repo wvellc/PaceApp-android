@@ -3,6 +3,7 @@ package com.example.paceapp.core.domain.usecases
 import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.core.domain.models.UserUiModel
 import com.example.paceapp.core.extensions.titleRes
+import com.example.paceapp.core.garmin.enums.WatchConnectionState
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_ui.resources.ResourceProvider
 import kotlinx.coroutines.flow.Flow
@@ -40,6 +41,8 @@ class ObserveUserUiModelUseCase @Inject constructor(
                 else -> sessionUser.email.orEmpty()
             }.ifBlank { "No contact info" }
 
+
+
             UserUiModel(
                 id = sessionUser.id.orEmpty(),
                 firstName = fName,
@@ -47,7 +50,7 @@ class ObserveUserUiModelUseCase @Inject constructor(
                 fullName = fullName,
                 fullNameAndGender = fullNameAndGender,
                 contactInfo = contactInfo,
-                loginType = sessionUser.loginType
+                loginType = sessionUser.loginType,
             )
         }
     }

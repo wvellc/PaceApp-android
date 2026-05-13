@@ -38,6 +38,7 @@ import com.example.paceapp.theme.AppTheme
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
+import com.kyant.backdrop.effects.opacity
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.capsule.ContinuousCapsule
 import com.wvelabs.core_ui.components.liquidtabbar.LiquidBottomTabs
@@ -91,27 +92,31 @@ fun AppBottomBar(
         containerHeight = 58.dp,
         padding = 8.dp,
         // Colors from screenshot
-        containerColor = AppColors.White.copy(alpha = 0.3f),
+        containerColor = AppColors.White.copy(0.3f),
         selectedTabColor = AppColors.NeonAquaBlue,
         unselectedTabColor = AppColors.FashionGray,
         // Disable backdrop effects if you want solid colors like the screenshot
         containerEffects = {
+            opacity(0.95f)
             vibrancy()
-            blur(6f.dp.toPx())
-            lens(24f.dp.toPx(), 48f.dp.toPx())
+            blur(20f.dp.toPx())
+            lens(
+                refractionHeight = 16f.dp.toPx(),
+                refractionAmount = 32f.dp.toPx(),
+            )
         },
         tabsEffects = { progress ->
             vibrancy()
-            blur(6f.dp.toPx())
+            blur(20f.dp.toPx())
             lens(
-                24f.dp.toPx() * progress,
-                48f.dp.toPx() * progress
+                refractionHeight = 16f.dp.toPx() * progress,
+                refractionAmount = 32f.dp.toPx() * progress,
             )
         },
         indicatorEffects = { progress ->
             lens(
-                10f.dp.toPx() * progress,
-                14f.dp.toPx() * progress,
+                refractionHeight = 10f.dp.toPx() * progress,
+                refractionAmount = 14f.dp.toPx() * progress,
                 chromaticAberration = true
             )
         },
