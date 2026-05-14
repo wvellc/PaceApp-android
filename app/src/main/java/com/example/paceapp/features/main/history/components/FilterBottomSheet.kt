@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.tooling.preview.Preview
@@ -196,9 +195,9 @@ private fun FilterSheetContent(
             Text(
                 modifier = Modifier.weight(1f),
                 text = "Filter",
-                style = AppTheme.typography.size24.copy(
+                style = AppTheme.typography.semiBold.copy(
                     color = AppColors.DarkCharcoal,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 24.sp,
                 )
             )
             //Close
@@ -216,9 +215,9 @@ private fun FilterSheetContent(
         //Distance by label
         Text(
             text = "Distance by",
-            style = AppTheme.typography.size20.copy(
+            style = AppTheme.typography.semiBold.copy(
                 color = AppColors.DarkCharcoal,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp,
             )
         )
         Spacer(Modifier.height(8.dp))
@@ -246,17 +245,17 @@ private fun FilterSheetContent(
         AppTextField(
             title = "Location",
             titleSpacing = 8.dp,
-            titleStyle = AppTheme.typography.size20.copy(
+            titleStyle = AppTheme.typography.semiBold.copy(
                 color = AppColors.DarkCharcoal,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp,
             ),
             modifier = Modifier.fillMaxWidth(),
             state = locationTextState,
             hint = "e.g. City",
-            textStyle = AppTheme.typography.size18.copy(
+            textStyle = AppTheme.typography.medium.copy(
                 lineHeight = 24.sp,
+                fontSize = 18.sp,
                 color = AppColors.DarkCharcoal,
-                fontWeight = FontWeight.Medium
             ),
             hintTextColor = AppColors.FashionGray,
             borderColor = AppColors.FashionGray,

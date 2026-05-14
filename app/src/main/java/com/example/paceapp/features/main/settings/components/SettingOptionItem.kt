@@ -19,6 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.features.main.settings.enums.SettingOptions
 import com.example.paceapp.theme.AppColors
@@ -62,9 +63,9 @@ fun SettingOptionItem(
             Text(
                 modifier = Modifier.weight(1f),
                 text = stringResource(option.titleRes),
-                style = AppTheme.typography.size16.copy(
+                style = AppTheme.typography.semiBold.copy(
                     color = AppColors.DarkCharcoal,
-                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 16.sp,
                 )
             )
         }

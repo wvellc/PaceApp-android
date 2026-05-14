@@ -36,6 +36,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -52,9 +53,9 @@ fun OtpField(
     enabled: Boolean = true,
     isError: Boolean = false,
     shape: Shape = RoundedCornerShape(12.dp),
-    textStyle: TextStyle = AppTheme.typography.size24.copy(
+    textStyle: TextStyle = AppTheme.typography.medium.copy(
         textAlign = TextAlign.Center,
-        fontWeight = FontWeight.Medium,
+        fontSize = 24.sp,
         color = AppColors.White
     ),
     focusedBorderColor: Color = AppColors.White, // Default Indigo

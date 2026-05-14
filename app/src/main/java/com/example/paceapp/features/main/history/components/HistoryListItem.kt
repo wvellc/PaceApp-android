@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,7 +52,7 @@ fun HistoryItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_run),
+                painter = painterResource(id = R.drawable.ic_runner),
                 contentDescription = "Run Icon",
                 modifier = Modifier,
             )
@@ -113,9 +112,8 @@ private fun RunStat(
     ) {
         Text(
             text = paceDifference,
-            style = AppTheme.typography.size12.copy(
+            style = AppTheme.typography.semiBold.copy(
                 fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold,
                 color = textColor,
                 lineHeight = 11.sp,
                 letterSpacing = 0.22.sp,
@@ -129,16 +127,14 @@ private fun RowScope.RunStatItem(
     modifier: Modifier = Modifier,
     label: String,
     value: String,
-    titleStyle: TextStyle = AppTheme.typography.size12.copy(
+    titleStyle: TextStyle = AppTheme.typography.regular.copy(
         fontSize = 13.sp,
-        fontWeight = FontWeight.Normal,
         lineHeight = 13.sp,
         letterSpacing = 0.26.sp,
         color = AppColors.FashionGray
     ),
-    valueStyle: TextStyle = AppTheme.typography.size12.copy(
+    valueStyle: TextStyle = AppTheme.typography.semiBold.copy(
         fontSize = 17.sp,
-        fontWeight = FontWeight.SemiBold,
         lineHeight = 17.sp,
         letterSpacing = 0.34.sp,
     ),

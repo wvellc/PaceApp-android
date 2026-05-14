@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,10 +43,6 @@ fun WatchMetricsButton(
             .height(115.dp),
         shape = shape,
         backdrop = backdrop,
-        tintColor = AppColors.White,
-        refractionAmount = 57.dp,
-        refractionHeight = 34.dp,
-        blurRadius = 42.dp,
         onClick = onClick
     ) {
         Column(
@@ -73,11 +68,10 @@ fun WatchMetricsButton(
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = AppTheme.typography.size10.copy(
+                    style = AppTheme.typography.semiBold.copy(
                         color = tintColor,
                         fontSize = 17.sp,
                         lineHeight = 17.sp,
-                        fontWeight = FontWeight.SemiBold,
                         letterSpacing = 0.34.sp,
                     )
                 )
@@ -86,10 +80,10 @@ fun WatchMetricsButton(
                     textAlign = TextAlign.Center,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    style = AppTheme.typography.size10.copy(
+                    style = AppTheme.typography.semiBold.copy(
                         color = tintColor,
                         lineHeight = 10.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 10.sp,
                         letterSpacing = 0.2.sp,
                     )
                 )

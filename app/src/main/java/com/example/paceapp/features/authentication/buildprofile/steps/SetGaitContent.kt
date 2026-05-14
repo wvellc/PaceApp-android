@@ -45,9 +45,9 @@ fun SetGaitContent(
         Spacer(Modifier.height(16.dp))
         Text(
             text = stringResource(R.string.set_gait_step_description),
-            style = AppTheme.typography.size20.copy(
+            style = AppTheme.typography.medium.copy(
                 color = AppColors.White,
-                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
                 lineHeight = 32.sp
             )
         )
@@ -85,9 +85,9 @@ fun GaitPickerView(
         //Title
         Text(
             text = title,
-            style = AppTheme.typography.size16.copy(
+            style = AppTheme.typography.medium.copy(
                 color = AppColors.White,
-                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
             )
         )
 

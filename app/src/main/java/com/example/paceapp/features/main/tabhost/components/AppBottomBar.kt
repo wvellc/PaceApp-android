@@ -29,6 +29,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -184,8 +185,8 @@ fun AppBottomBar(
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = stringResource(id = tab.titleResId),
-                                style = AppTheme.typography.size12.copy(
-                                    fontWeight = FontWeight.SemiBold,
+                                style = AppTheme.typography.semiBold.copy(
+                                    fontSize = 12.sp,
                                     color = finalIconColor
                                 ),
                                 maxLines = 1,

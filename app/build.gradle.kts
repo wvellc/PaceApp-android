@@ -84,6 +84,8 @@ dependencies {
     // ---------------------------------------------------------
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    // Fallback workaround if Hilt throws a metadata version exception
+    implementation(libs.kotlin.metadata.jvm)
 
     // This allows you to use `hiltViewModel()` inside your generated Compose screens!
     implementation(libs.androidx.hilt.navigation.compose)

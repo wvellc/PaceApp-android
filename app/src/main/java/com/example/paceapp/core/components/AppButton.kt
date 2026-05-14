@@ -109,8 +109,8 @@ fun AppButton(
                     start = if (trailingIconRes != null) 32.dp else 0.dp,
                     end = if (trailingIconRes != null) 32.dp else 0.dp
                 ),
-            style = AppTheme.typography.size16.copy(
-                fontWeight = FontWeight.Medium,
+            style = AppTheme.typography.medium.copy(
+                fontSize = 16.sp,
                 color = contentColor,
                 lineHeight = 24.sp
             ),

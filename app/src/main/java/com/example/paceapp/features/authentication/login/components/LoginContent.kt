@@ -94,8 +94,8 @@ internal fun LoginContent(
                 //Title
                 Text(
                     stringResource(R.string.login_to_your_account),
-                    style = AppTheme.typography.size20.copy(
-                        fontWeight = FontWeight.Medium
+                    style = AppTheme.typography.medium.copy(
+                        fontSize = 20.sp
                     ),
                     color = AppColors.White,
                 )
@@ -210,8 +210,8 @@ internal fun LoginContent(
                 //Term condition text
                 Text(
                     annotatedString,
-                    style = AppTheme.typography.size16.copy(
-                        fontWeight = FontWeight.Medium,
+                    style = AppTheme.typography.medium.copy(
+                        fontSize = 16.sp,
                         textAlign = TextAlign.Center,
                         lineHeight = 24.sp
                     ),

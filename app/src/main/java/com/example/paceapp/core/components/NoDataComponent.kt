@@ -71,9 +71,9 @@ fun NoDataView(
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             textAlign = TextAlign.Center,
-            style = AppTheme.typography.size24.copy(
+            style = AppTheme.typography.semiBold.copy(
                 color = AppColors.White,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 24.sp,
                 lineHeight = 24.sp,
             )
         )
@@ -88,9 +88,9 @@ fun NoDataView(
                     .fillMaxWidth()
                     .padding(horizontal = 8.dp),
                 textAlign = TextAlign.Center,
-                style = AppTheme.typography.size16.copy(
+                style = AppTheme.typography.medium.copy(
                     color = AppColors.White,
-                    fontWeight = FontWeight.Medium,
+                    fontSize = 16.sp,
                 )
             )
         }

@@ -44,9 +44,9 @@ fun SearchTextField(
     BasicTextField(
         state = state,
         lineLimits = TextFieldLineLimits.SingleLine,
-        textStyle = AppTheme.typography.size16.copy(
+        textStyle = AppTheme.typography.medium.copy(
             lineHeight = 24.sp,
-            fontWeight = FontWeight.Medium,
+            fontSize = 16.sp,
             color = AppColors.White // Assumes white text for the dark field
         ),
         cursorBrush = SolidColor(AppColors.NeonAquaBlue),
@@ -80,9 +80,9 @@ fun SearchTextField(
                     if (state.text.isEmpty()) {
                         Text(
                             text = placeholderText,
-                            style = AppTheme.typography.size16.copy(
+                            style = AppTheme.typography.medium.copy(
                                 lineHeight = 24.sp,
-                                fontWeight = FontWeight.Medium,
+                                fontSize = 16.sp,
                                 color = AppColors.HintGray.copy(alpha = 0.5f)
                             ),
                         )

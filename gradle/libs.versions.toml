@@ -1,26 +1,28 @@
 [versions]
 # Core Build Tools
 agp = "8.13.2"
-kotlin = "2.2.20"
-ksp = "2.2.20-2.0.3" # Strictly matched to Kotlin 2.2.20
+kotlin = "2.3.0"
+ksp = "2.3.7" # Strictly matched to Kotlin version
 
 # AndroidX Lifecycle & UI
 coreKtx = "1.18.0"
 lifecycleRuntimeKtx = "2.10.0"
 activityCompose = "1.13.0"
-composeBom = "2026.03.00" # Latest BOM for Narwhal 4 cycle
+composeBom = "2026.03.00"
 navigationCompose = "2.9.7"
 coreSplashscreen = "1.2.0"
 
 # Dependency Injection
-hilt = "2.57.1" # Latest stable to fix KSP processing errors
+hilt = "2.58" # Latest stable to fix KSP processing errors
 hiltNavigationCompose = "1.3.0" # Updated to match Nav 2.9.x
+kotlinMetadataJvm = "2.2.0"    # Fallback workaround if Hilt throws a metadata version exception
+
 
 # Data & Networking
 retrofit = "2.11.0"
 okhttp = "4.12.0"
-kotlinxSerialization = "1.7.0" # Performance boost for Kotlin 2.2
-kotlinxDatetime = "0.7.1"
+kotlinxSerialization = "1.7.0"
+kotlinxDatetime = "0.8.0"
 datastore = "1.2.1"
 
 # Image Loading & SDKs
@@ -62,10 +64,11 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref 
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 
-# Hilt (For whole app)
+# Hilt
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlinMetadataJvm" }
 
 # Spalsh screen
 androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }

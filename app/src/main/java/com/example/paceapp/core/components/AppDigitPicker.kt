@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import kotlin.math.roundToInt
@@ -40,12 +41,12 @@ fun <T> AppDigitPicker(
     itemSpacing: Dp = 8.dp,
     itemHeight: Dp = 28.dp,
     padWithZero: Boolean = false,
-    selectedTextStyle: TextStyle = AppTheme.typography.size22.copy(
-        fontWeight = FontWeight.Medium,
+    selectedTextStyle: TextStyle = AppTheme.typography.medium.copy(
+        fontSize = 22.sp,
         color = AppColors.White
     ),
-    unselectedTextStyle: TextStyle = AppTheme.typography.size18.copy(
-        fontWeight = FontWeight.Normal,
+    unselectedTextStyle: TextStyle = AppTheme.typography.regular.copy(
+        fontSize = 18.sp,
         color = AppColors.White.copy(alpha = 0.35f)
     )
 ) where T : Number, T : Comparable<T> {

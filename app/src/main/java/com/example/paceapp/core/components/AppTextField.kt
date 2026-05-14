@@ -52,13 +52,13 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.arpitkatiyarprojects.countrypicker.models.CountryDetails
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -82,8 +82,8 @@ fun AppTextField(
     readOnly: Boolean = false,
     maxLines: Int = 1,
     minLines: Int = 1,
-    textStyle: TextStyle = AppTheme.typography.size18.copy(
-        fontWeight = FontWeight.Medium,
+    textStyle: TextStyle = AppTheme.typography.medium.copy(
+        fontSize = 18.sp,
         color = AppColors.White
     ),
     hintTextColor: Color = AppColors.HintGray.copy(0.8f),
@@ -96,13 +96,16 @@ fun AppTextField(
 
     // Simplified Error State
     showErrorMessage: Boolean = false, // Parent can force an error state
-    errorTextStyle: TextStyle = AppTheme.typography.size16.copy(fontWeight = FontWeight.Medium),
+    errorTextStyle: TextStyle = AppTheme.typography.medium.copy(fontSize = 16.sp),
     @DimenRes showPasswordIcon: Int? = null,
     @DimenRes hidePasswordIcon: Int? = null,
     onCountrySelected: (country: CountryDetails) -> Unit = {},
     height: Dp = 48.dp,
     title: String? = null,
-    titleStyle: TextStyle = AppTheme.typography.size20.copy(color = AppColors.White),
+    titleStyle: TextStyle = AppTheme.typography.semiBold.copy(
+        fontSize = 20.sp,
+        color = AppColors.White
+    ),
     titleSpacing: Dp = 5.dp,
     selectedCountryCode: String = "",
     trailingIcon: @Composable (() -> Unit)? = null,

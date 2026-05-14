@@ -38,8 +38,8 @@ fun ImagePickerOption(
         modifier = Modifier
             .fillMaxWidth(),
         contentColor = type.tint,
-        style = AppTheme.typography.size16.copy(
-            fontWeight = FontWeight.Medium,
+        style = AppTheme.typography.medium.copy(
+            fontSize = 16.sp,
             letterSpacing = 1.sp
         ),
     )

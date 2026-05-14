@@ -19,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
@@ -88,8 +89,8 @@ internal fun SplashContent(
                         Text(
 
                             annotatedString,
-                            style = AppTheme.typography.size32.copy(
-                                fontWeight = FontWeight.Light,
+                            style = AppTheme.typography.light.copy(
+                                fontSize = 32.sp,
                                 textAlign = TextAlign.Center
                             ),
                             color = AppColors.White,

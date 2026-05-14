@@ -57,6 +57,7 @@ dependencies {
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    implementation(libs.kotlin.metadata.jvm)
 
     //Coil
     implementation(libs.coil.compose)
@@ -73,5 +74,6 @@ dependencies {
     
     //Kotlin Date time extension
     implementation(libs.kotlinx.datetime)
+
 
 }

@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -150,8 +151,7 @@ private fun SegmentItem(
     ) {
         Text(
             text = title,
-            style = AppTheme.typography.size14.copy(
-                fontWeight = FontWeight.Medium,
+            style = AppTheme.typography.medium.copy(fontSize = 14.sp
             ),
             color = textColor
         )

@@ -10,6 +10,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.arpitkatiyarprojects.countrypicker.CountryPicker
 import com.arpitkatiyarprojects.countrypicker.enums.CountryListDisplayType
 import com.arpitkatiyarprojects.countrypicker.models.CountriesListDialogDisplayProperties
@@ -33,6 +34,7 @@ fun CountryCodeField(
     enabled: Boolean = true,
     onCountrySelected: (country: CountryDetails) -> Unit,
 ) {
+    val dialogTextStyle = AppTheme.typography.medium
     CountryPicker(
         modifier = modifier,
         isPickerEnabled = enabled,
@@ -63,25 +65,25 @@ fun CountryCodeField(
                 showCountryCode = false
             ),
             textStyles = CountryPickerDialogTextStyles(
-                searchBarEnteredTextTextStyle = AppTheme.typography.size16.copy(
-                    fontWeight = FontWeight.Medium,
+                searchBarEnteredTextTextStyle = dialogTextStyle.copy(
+                    fontSize = 16.sp,
                     color = AppColors.DarkCharcoal,
                 ),
-                searchBarHintTextStyle = AppTheme.typography.size16.copy(
-                    fontWeight = FontWeight.Medium,
+                searchBarHintTextStyle = dialogTextStyle.copy(
+                    fontSize = 16.sp,
                     color = AppColors.HintGray,
                 ),
-                countryNameTextStyle = AppTheme.typography.size16.copy(
+                countryNameTextStyle = dialogTextStyle.copy(
                     color = AppColors.DarkCharcoal,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 16.sp,
                 ),
-                countryPhoneCodeTextStyle = AppTheme.typography.size18.copy(
+                countryPhoneCodeTextStyle = dialogTextStyle.copy(
                     color = AppColors.Black,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 18.sp,
                 ),
-                titleTextStyle = AppTheme.typography.size20.copy(
+                titleTextStyle = AppTheme.typography.semiBold.copy(
                     color = AppColors.DarkCharcoal,
-                    fontWeight = FontWeight.SemiBold
+                    fontSize = 20.sp,
                 )
             ),
             flagShape = RectangleShape,
@@ -106,7 +108,7 @@ fun CountryCodeField(
 @Composable
 private fun CountryCodeFieldPreview() {
     CountryCodeField(
-        textStyle = AppTheme.typography.size16.copy(color = AppColors.White),
+        textStyle = AppTheme.typography.medium.copy(fontSize = 16.sp,color = AppColors.White),
         onCountrySelected = {},
         modifier = Modifier
     )

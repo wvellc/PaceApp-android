@@ -28,8 +28,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.NoDataView
 import com.example.paceapp.core.extensions.defaultClickable
@@ -101,16 +101,17 @@ fun SelectModelContent(
                 ) {
                     Text(
                         device.name,
-                        style = AppTheme.typography.size24.copy(
-                            color = AppColors.DarkCharcoal, fontWeight = FontWeight.SemiBold,
-
-                            )
+                        style = AppTheme.typography.semiBold.copy(
+                            fontSize = 24.sp,
+                            color = AppColors.DarkCharcoal,
+                        )
                     )
                     if (device.model != null) {
                         Text(
                             device.model,
-                            style = AppTheme.typography.size16.copy(
-                                color = AppColors.NeonAquaBlue, fontWeight = FontWeight.Normal,
+                            style = AppTheme.typography.regular.copy(
+                                fontSize = 16.sp,
+                                color = AppColors.NeonAquaBlue,
                             )
                         )
                     }

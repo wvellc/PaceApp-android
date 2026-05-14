@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
@@ -64,8 +65,8 @@ fun EditProfileButton(
         Text(
             stringResource(R.string.edit_profile),
             modifier = Modifier.align(Alignment.Center),
-            style = AppTheme.typography.size16.copy(
-                fontWeight = FontWeight.SemiBold,
+            style = AppTheme.typography.semiBold.copy(
+                fontSize = 16.sp,
                 color = AppColors.FluorescentMint,
             ),
         )

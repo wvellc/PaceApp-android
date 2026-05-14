@@ -90,8 +90,7 @@ internal fun BuildProfileContent(
                     if (state.currentStep.isSkippable) {
                         AppTextButton(
                             text = stringResource(R.string.skip),
-                            style = AppTheme.typography.size16.copy(
-                                fontWeight = FontWeight.Medium,
+                            style = AppTheme.typography.medium.copy(
                                 color = AppColors.White,
                                 fontSize = 17.sp
                             ),

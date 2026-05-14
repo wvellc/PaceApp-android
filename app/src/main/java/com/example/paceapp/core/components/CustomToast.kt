@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.core.extensions.tintColor
 import com.example.paceapp.theme.AppColors
@@ -126,7 +127,7 @@ fun CustomToast(
                 text = toast.message,
                 color = AppColors.Black,
                 textAlign = TextAlign.Center,
-                style = AppTheme.typography.size14.copy(fontWeight = FontWeight.Medium),
+                style = AppTheme.typography.medium.copy(fontSize = 14.sp),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier
@@ -143,7 +144,7 @@ fun CustomToast(
                     Text(
                         text = btn.title,
                         color = btn.color,
-                        style = AppTheme.typography.size14.copy(fontWeight = FontWeight.SemiBold),
+                        style = AppTheme.typography.semiBold.copy(fontSize = 14.sp),
                         modifier = Modifier.defaultClickable {
                             btn.action()
                             onDismiss()

@@ -122,17 +122,17 @@ private fun SliderLabel(
     Column(horizontalAlignment = alignment) {
         Text(
             text = "$value $unitLabel",
-            style = AppTheme.typography.size20.copy(
+            style = AppTheme.typography.semiBold.copy(
                 color = AppColors.DarkCharcoal,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 20.sp,
                 lineHeight = 24.sp
             )
         )
         Text(
             text = title,
-            style = AppTheme.typography.size16.copy(
+            style = AppTheme.typography.medium.copy(
                 color = AppColors.FashionGray,
-                fontWeight = FontWeight.Medium,
+                fontSize = 16.sp,
                 lineHeight = 24.sp
             )
         )

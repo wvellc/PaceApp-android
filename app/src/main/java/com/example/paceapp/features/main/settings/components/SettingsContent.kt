@@ -117,8 +117,8 @@ internal fun SettingsContent(
 
             AppTextButton(
                 text = stringResource(R.string.delete_account),
-                style = AppTheme.typography.size14.copy(
-                    fontWeight = FontWeight.SemiBold,
+                style = AppTheme.typography.semiBold.copy(
+                    fontSize = 14.sp,
                     color = AppColors.FashionGray,
                 ),
                 onClick = { onEvent(Event.OnDeleteAccountClick) },

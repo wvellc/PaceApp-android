@@ -30,7 +30,7 @@ fun AppLogo(
     showLabel: Boolean = true,
     logoStyle: LogoStyle = LogoStyle.Horizontal,
     imageSize: DpSize = DpSize(154.dp, 104.dp),
-    titleTextStyle: TextStyle = AppTheme.typography.size34,
+    titleTextStyle: TextStyle = AppTheme.typography.extraBold,
 ) {
     when (logoStyle) {
         LogoStyle.Horizontal -> Row(
@@ -50,7 +50,6 @@ fun AppLogo(
                     style = titleTextStyle.copy(
                         fontSize = 19.sp,
                         letterSpacing = 2.sp,
-                        fontWeight = FontWeight.ExtraBold
                     ),
                 )
             }
@@ -71,7 +70,7 @@ fun AppLogo(
                     text = stringResource(R.string.app_name_capitalize),
                     color = AppColors.White,
                     style = titleTextStyle.copy(
-                        fontWeight = FontWeight.ExtraBold
+                        fontSize = 34.sp
                     ),
                 )
             }

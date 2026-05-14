@@ -24,6 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
@@ -112,8 +113,8 @@ fun CustomProfileImage(
                         hasImage -> stringResource(R.string.update_photo)
                         else -> stringResource(R.string.add_photo)
                     },
-                    style = AppTheme.typography.size16.copy(
-                        fontWeight = FontWeight.Medium,
+                    style = AppTheme.typography.medium.copy(
+                        fontSize = 16.sp,
                         color = AppColors.White
                     )
                 )

@@ -18,7 +18,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,9 +33,9 @@ fun DatePickerField(
     shape: Shape = ContinuousRoundedRectangle(12.dp),
     value: String? = null,
     title: String? = null,
-    titleStyle: TextStyle = AppTheme.typography.size20.copy(
+    titleStyle: TextStyle = AppTheme.typography.semiBold.copy(
         color = AppColors.DarkCharcoal,
-        fontWeight = FontWeight.SemiBold,
+        fontSize = 20.sp,
     ),
     titleSpacing: Dp = 8.dp,
     onClick: () -> Unit
@@ -67,23 +66,21 @@ fun DatePickerField(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(modifier = Modifier.weight(1f)) {
+                val textStyle = AppTheme.typography.medium.copy(
+                    lineHeight = 24.sp,
+                    fontSize = 18.sp,
+                )
                 if (value.isNullOrBlank()) {
                     Text(
                         text = "e.g. 31 Jan 2026",
-                        style = AppTheme.typography.size18.copy(
-                            lineHeight = 24.sp,
-                            color = AppColors.FashionGray,
-                            fontWeight = FontWeight.Medium
-                        )
+                        color = AppColors.FashionGray,
+                        style = textStyle
                     )
                 } else {
                     Text(
                         text = value,
-                        style = AppTheme.typography.size18.copy(
-                            lineHeight = 24.sp,
-                            color = AppColors.DarkCharcoal,
-                            fontWeight = FontWeight.Medium
-                        )
+                        color = AppColors.DarkCharcoal,
+                        style = textStyle
                     )
                 }
             }

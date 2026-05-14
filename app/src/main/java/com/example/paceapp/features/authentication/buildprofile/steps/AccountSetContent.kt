@@ -120,9 +120,9 @@ fun AccountSetContent(
         Spacer(modifier = Modifier.height(24.dp))
         Text(
             text = stringResource(R.string.gender),
-            style = AppTheme.typography.size16.copy(
+            style = AppTheme.typography.semiBold.copy(
                 color = AppColors.White,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp,
                 lineHeight = 20.sp
             )
         )

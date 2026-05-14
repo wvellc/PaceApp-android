@@ -114,9 +114,9 @@ internal fun ProfileContent(
                 ),
                 name = state.userUiModel?.fullName ?: "",
                 backgroundColor = AppColors.White,
-                textStyle = AppTheme.typography.size46.copy(
+                textStyle = AppTheme.typography.bold.copy(
                     color = AppColors.RadiantBlue,
-                    fontWeight = FontWeight.Bold,
+                    fontSize = 46.sp,
                 )
             )
             //User info
@@ -124,8 +124,8 @@ internal fun ProfileContent(
                 //Name
                 Text(
                     text = state.userUiModel?.fullNameAndGender ?: "",
-                    style = AppTheme.typography.size24.copy(
-                        fontWeight = FontWeight.Bold,
+                    style = AppTheme.typography.bold.copy(
+                        fontSize = 24.sp,
                         color = AppColors.White
                     )
                 )
@@ -133,9 +133,8 @@ internal fun ProfileContent(
                 //Email or phone number
                 Text(
                     text = state.userUiModel?.contactInfo ?: "",
-                    style = AppTheme.typography.size24.copy(
+                    style = AppTheme.typography.medium.copy(
                         fontSize = 13.sp,
-                        fontWeight = FontWeight.Medium,
                         color = AppColors.White.copy(alpha = 0.5f)
                     )
                 )

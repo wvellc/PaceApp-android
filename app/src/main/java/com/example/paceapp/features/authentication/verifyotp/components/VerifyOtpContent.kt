@@ -78,8 +78,8 @@ internal fun VerifyOtpContent(
                     R.string.verify_otp_message,
                     stringResource(state.loginType.titleRes).lowercase()
                 ),
-                style = AppTheme.typography.size20.copy(
-                    fontWeight = FontWeight.Medium,
+                style = AppTheme.typography.medium.copy(
+                    fontSize = 20.sp,
                     color = AppColors.White,
                     lineHeight = 32.sp
                 )

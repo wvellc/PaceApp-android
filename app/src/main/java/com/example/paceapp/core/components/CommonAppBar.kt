@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.theme.AppColors
@@ -43,8 +44,8 @@ fun CommonAppBar(
     }
     BaseAppBar(
         title = title,
-        titleStyle = AppTheme.typography.size16.copy(
-            fontWeight = FontWeight.Medium,
+        titleStyle = AppTheme.typography.medium.copy(
+            fontSize = 16.sp,
             color = AppColors.White,
         ),
         showBackButton = showBackButton,

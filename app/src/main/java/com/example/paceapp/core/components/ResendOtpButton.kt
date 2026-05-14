@@ -8,6 +8,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -37,16 +38,18 @@ fun ResendOtpButton(
 
         else -> AnnotatedString(stringResource(R.string.resend_code))
     }
-
+    val timerTextStyle = when {
+        isTimerRunning -> AppTheme.typography.medium
+        else -> AppTheme.typography.semiBold
+    }
     AppTextButton(
         text = buttonContent,
         onClick = onClick,
         modifier = modifier,
         enabled = !isTimerRunning,
         disabledContentColor = AppColors.White,
-        style = AppTheme.typography.size14.copy(
-            fontWeight = if (isTimerRunning) FontWeight.Medium else FontWeight.SemiBold
+        style = timerTextStyle.copy(
+            fontSize = 14.sp
         ),
-
     )
 }

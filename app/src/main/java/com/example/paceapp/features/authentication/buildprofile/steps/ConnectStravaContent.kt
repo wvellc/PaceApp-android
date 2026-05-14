@@ -49,9 +49,9 @@ fun ConnectStravaContent(
         //Description
         Text(
             text = stringResource(R.string.connect_strava_step_message),
-            style = AppTheme.typography.size20.copy(
+            style = AppTheme.typography.medium.copy(
                 color = AppColors.White,
-                fontWeight = FontWeight.Medium,
+                fontSize = 20.sp,
                 lineHeight = 32.sp
             )
         )

@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 
@@ -24,7 +24,7 @@ fun AppTextButton(
     shape: Shape = RoundedCornerShape(50),
     contentColor: Color = AppColors.NeonAquaBlue,
     disabledContentColor: Color = AppColors.NeonAquaBlue20,
-    style: TextStyle = AppTheme.typography.size14.copy(fontWeight = FontWeight.SemiBold),
+    style: TextStyle = AppTheme.typography.semiBold.copy(fontSize = 14.sp),
     contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,

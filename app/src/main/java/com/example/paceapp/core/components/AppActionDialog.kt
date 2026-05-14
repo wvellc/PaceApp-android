@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.paceapp.R
@@ -39,7 +40,7 @@ fun AppActionDialog(
     alert: AlertType.Dialog,
     closeDialog: () -> Unit = {}
 ) {
-    // 1. Enforce cancelable rules natively
+    // Enforce cancelable rules natively
     val properties = DialogProperties(
         dismissOnBackPress = alert.cancelable,
         dismissOnClickOutside = alert.cancelable
@@ -80,8 +81,8 @@ fun AppActionDialog(
             // --- Title ---
             Text(
                 text = alert.title.asString(), 
-                style = AppTheme.typography.size24.copy(
-                    fontWeight = FontWeight.Medium,
+                style = AppTheme.typography.medium.copy(
+                    fontSize = 24.sp,
                     color = AppColors.DarkCharcoal,
                     textAlign = TextAlign.Center
                 )
@@ -94,9 +95,9 @@ fun AppActionDialog(
             if (textValue.isNotBlank()) {
                 Text(
                     text = textValue,
-                    style = AppTheme.typography.size16.copy(
+                    style = AppTheme.typography.medium.copy(
                         color = AppColors.FashionGray,
-                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
                         textAlign = TextAlign.Center
                     ),
                     modifier = Modifier.padding(horizontal = 8.dp)
