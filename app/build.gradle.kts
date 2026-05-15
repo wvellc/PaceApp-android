@@ -84,11 +84,9 @@ dependencies {
     // ---------------------------------------------------------
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-    // Fallback workaround if Hilt throws a metadata version exception
-    implementation(libs.kotlin.metadata.jvm)
-
-    // This allows you to use `hiltViewModel()` inside your generated Compose screens!
     implementation(libs.androidx.hilt.navigation.compose)
+     // Fallback workaround if Hilt throws a metadata version exception
+    implementation(libs.kotlin.metadata.jvm)
 
     // ---------------------------------------------------------
     // NETWORK & DATA (Your existing setup)
@@ -133,6 +131,12 @@ dependencies {
     // Image cropper
     // ---------------------------------------------------------
     implementation(libs.ucrop)
+
+    // ---------------------------------------------------------
+    // Vico Charts
+    // ---------------------------------------------------------
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m3)
 
     // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)

@@ -91,7 +91,7 @@ fun GaitPickerView(
             )
         )
 
-        //Pace unit
+        //PACE unit
         AppSegmentedButtons(
             modifier = Modifier
                 .fillMaxWidth()

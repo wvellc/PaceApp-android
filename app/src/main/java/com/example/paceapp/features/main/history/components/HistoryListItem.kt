@@ -71,7 +71,7 @@ fun HistoryItem(
         }
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Stats Row (Distance, Time, Avg Pace)
+        // Stats Row (Distance, Time, Avg PACE)
         Row(
             modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -86,7 +86,7 @@ fun HistoryItem(
 
                 )
             RunStatItem(
-                label = "Avg Pace",
+                label = "Avg PACE",
                 value = history.avgPace,
 
                 )
@@ -166,7 +166,7 @@ fun RunHistoryItemPreview() {
         Column(
             modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Preview 1: Improved Pace (Fluorescent Mint Badge)
+            // Preview 1: Improved PACE (Fluorescent Mint Badge)
             HistoryItem(
                 history = HistoryUiModel(
                     id = "2",
@@ -180,7 +180,7 @@ fun RunHistoryItemPreview() {
                 ),
             )
 
-            // Preview 2: Slower Pace (Error/Red Badge)
+            // Preview 2: Slower PACE (Error/Red Badge)
             HistoryItem(
                 history = HistoryUiModel(
                     id = "1",

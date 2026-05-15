@@ -6,7 +6,7 @@ package com.example.paceapp.features.splash
 import android.content.Context
 import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.core.domain.enums.AuthDestination
+import com.example.paceapp.core.enums.AuthDestination
 import com.example.paceapp.core.domain.usecases.AuthRouteManager
 import com.example.paceapp.core.utils.AppConstants
 import com.example.paceapp.features.splash.SplashContract.Effect

@@ -12,7 +12,7 @@ private const val DEFAULT_OTHER_WALK = 1f
 private const val DEFAULT_OTHER_RUN = 1f
 
 /**
- * Extension to resolve the default Gait Pace based on the user's gender.
+ * Extension to resolve the default Gait PACE based on the user's gender.
  * @return A Pair containing (WalkingGait, RunningGait)
  */
 fun GenderTypes.getDefaultGaits(): Pair<com.example.paceapp.features.authentication.buildprofile.domain.GaitPace, com.example.paceapp.features.authentication.buildprofile.domain.GaitPace> {

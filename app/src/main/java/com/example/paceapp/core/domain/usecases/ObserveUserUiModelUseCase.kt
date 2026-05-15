@@ -1,7 +1,7 @@
 package com.example.paceapp.core.domain.usecases
 
 import com.example.paceapp.core.domain.enums.LoginTypes
-import com.example.paceapp.core.domain.models.UserUiModel
+import com.example.paceapp.core.models.UserUiModel
 import com.example.paceapp.core.extensions.titleRes
 import com.example.paceapp.core.garmin.enums.WatchConnectionState
 import com.example.paceapp.session.AppSessionManager

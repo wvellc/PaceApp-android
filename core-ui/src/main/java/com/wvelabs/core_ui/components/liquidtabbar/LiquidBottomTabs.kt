@@ -216,7 +216,12 @@ fun LiquidBottomTabs(
                 .height(containerHeight)
                 .fillMaxWidth()
                 .border(borderStroke, containerShape)
-                .padding(padding),
+                .padding(padding)
+                .clickable(
+                    onClick = {},
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {

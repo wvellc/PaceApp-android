@@ -1,4 +1,4 @@
-package com.example.paceapp.core.domain.models
+package com.example.paceapp.core.models
 
 import com.example.paceapp.core.domain.enums.LoginTypes
 

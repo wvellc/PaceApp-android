@@ -18,6 +18,7 @@ import com.example.paceapp.features.authentication.login.navigation.loginScreen
 import com.example.paceapp.features.authentication.profilecreated.navigation.profileCreatedScreen
 import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
+import com.example.paceapp.features.main.analyticsdetail.navigation.analyticsDetailScreen
 import com.example.paceapp.features.main.settings.navigation.settingsScreen
 import com.example.paceapp.features.main.tabhost.navigation.tabHostScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
@@ -138,6 +139,7 @@ fun AppNavHost(
             // Pass global actions down to the TabHost
             onBack = navActions::goBack,
             onNavigateToSettings = navActions::toSettings,
+            onNavigateToAnalyticsDetails = navActions::toAnalyticsDetails,
         )
 
         //Settings
@@ -145,6 +147,7 @@ fun AppNavHost(
             onBack = navActions::goBack,
             onNavigateToWebview = navActions::toWebView
         )
-
+        //Analytics Details
+        analyticsDetailScreen(onBack = navActions::goBack)
     }
 }

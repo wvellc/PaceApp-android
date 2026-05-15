@@ -1,6 +1,6 @@
 package com.example.paceapp.features.main.home
 
-import com.example.paceapp.core.domain.models.UserUiModel
+import com.example.paceapp.core.models.UserUiModel
 import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.main.home.models.ActivityUiModel

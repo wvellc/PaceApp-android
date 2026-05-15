@@ -1,4 +1,4 @@
-package com.example.paceapp.core.domain.enums
+package com.example.paceapp.core.enums
 
 enum class AuthDestination {
     LOGIN,

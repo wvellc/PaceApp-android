@@ -3,7 +3,6 @@ package com.example.paceapp.core.extensions
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.net.toUri
@@ -33,16 +32,16 @@ fun Context.openAppNotificationSettings() {
                 putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
             }
 
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
-                action = "android.settings.APP_NOTIFICATION_SETTINGS"
-                putExtra("app_package", packageName)
-                putExtra("app_uid", applicationInfo.uid)
-            }
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP -> {
+//                action = "android.settings.APP_NOTIFICATION_SETTINGS"
+//                putExtra("app_package", packageName)
+//                putExtra("app_uid", applicationInfo.uid)
+//            }
 
             else -> {
                 action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
                 addCategory(Intent.CATEGORY_DEFAULT)
-                data = Uri.parse("package:$packageName")
+                data = "package:$packageName".toUri()
             }
         }
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -55,7 +54,7 @@ fun Context.openAppNotificationSettings() {
  */
 fun Context.openAppSettings() {
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-        data = Uri.parse("package:$packageName")
+        data = "package:$packageName".toUri()
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
     }
     startActivity(intent)

@@ -122,5 +122,13 @@
     <string name="close">Close</string>
     <string name="previous">Previous</string>
     <string name="done">Done</string>
+    <string name="avg_pace">Avg Pace</string>
+    <string name="avg_heart_rate">Avg Heart Rate</string>
+    <string name="elevation">Elevation</string>
+    <string name="avg_percentage">Avg Percentage</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
 
 </resources>

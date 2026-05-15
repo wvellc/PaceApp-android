@@ -25,7 +25,7 @@ import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppSegmentedButtons
 import com.example.paceapp.core.components.AppTextButton
 import com.example.paceapp.core.components.CommonAppBar
-import com.example.paceapp.core.domain.enums.DistanceUnits
+import com.example.paceapp.core.enums.DistanceUnits
 import com.example.paceapp.core.extensions.g2Continuity
 import com.example.paceapp.features.main.settings.SettingsContract.Event
 import com.example.paceapp.features.main.settings.SettingsContract.State

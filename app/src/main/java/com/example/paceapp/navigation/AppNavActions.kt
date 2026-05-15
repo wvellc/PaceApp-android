@@ -7,6 +7,8 @@ import com.example.paceapp.features.authentication.login.navigation.LoginRoute
 import com.example.paceapp.features.authentication.profilecreated.navigation.ProfileCreatedRoute
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
+import com.example.paceapp.core.enums.AnalyticsMetricType
+import com.example.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
 import com.example.paceapp.features.main.settings.navigation.SettingsRoute
 import com.example.paceapp.features.main.tabhost.navigation.TabHostRoute
 
@@ -85,6 +87,12 @@ class AppNavActions(
 
     fun toSettings() {
         navController.navigate(SettingsRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toAnalyticsDetails(type: AnalyticsMetricType) {
+        navController.navigate(AnalyticsDetailRoute(type = type)) {
             launchSingleTop = true
         }
     }

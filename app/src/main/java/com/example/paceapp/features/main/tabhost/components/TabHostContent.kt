@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.example.paceapp.core.enums.AnalyticsMetricType
 import com.example.paceapp.features.main.analytics.navigation.analyticsScreen
 import com.example.paceapp.features.main.history.navigation.historyScreen
 import com.example.paceapp.features.main.home.navigation.homeScreen
@@ -30,7 +31,8 @@ internal fun TabHostContent(
     state: State,
     onEvent: (Event) -> Unit,
     onBack: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -65,7 +67,10 @@ internal fun TabHostContent(
         ) {
             homeScreen(onBack = onBack)
             historyScreen(onBack = onBack)
-            analyticsScreen(onBack =onBack)
+            analyticsScreen(
+                onBack = onBack,
+                onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails
+            )
             profileScreen(
                 onBack = onBack,
                 onNavigateToSettings = onNavigateToSettings

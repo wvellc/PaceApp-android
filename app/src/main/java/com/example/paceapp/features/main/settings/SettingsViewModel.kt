@@ -3,7 +3,7 @@ package com.example.paceapp.features.main.settings
 import com.example.paceapp.R
 import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.core.domain.enums.DistanceUnits
+import com.example.paceapp.core.enums.DistanceUnits
 import com.example.paceapp.core.providers.AppResourceProvider
 import com.example.paceapp.features.main.settings.SettingsContract.Effect
 import com.example.paceapp.features.main.settings.SettingsContract.Event

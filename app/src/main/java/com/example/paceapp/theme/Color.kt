@@ -18,8 +18,11 @@ object AppColors {
     val HintGray = Color(0xFFE5E5E5)
     val FashionGray = Color(0xFF8C8C8C)
     val DarkCharcoal = Color(0xFF323334)
+    val LightGray = Color(0xFFF1F1F1)
+    val Gray = Color(0xFF7D7D7D)
     val Orange = Color(0xFFFF9500)
     val ShipGray30 = Color(0x4D3C3C43)
+    val LimeGreen = Color(0xFF25cd25)
 
     val backgroundGradient = listOf(
         Color(0xFF0C2D8C),

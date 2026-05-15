@@ -1,6 +1,6 @@
 package com.example.paceapp.features.main.settings
 
-import com.example.paceapp.core.domain.enums.DistanceUnits
+import com.example.paceapp.core.enums.DistanceUnits
 import com.example.paceapp.features.main.settings.enums.SettingOptions
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect

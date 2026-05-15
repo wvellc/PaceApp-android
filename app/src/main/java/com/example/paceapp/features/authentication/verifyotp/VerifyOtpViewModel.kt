@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.example.paceapp.core.base.BaseViewModel
-import com.example.paceapp.core.domain.enums.AuthDestination
+import com.example.paceapp.core.enums.AuthDestination
 import com.example.paceapp.core.domain.enums.LoginTypes
 import com.example.paceapp.core.domain.models.UserData
 import com.example.paceapp.core.domain.usecases.AuthRouteManager
