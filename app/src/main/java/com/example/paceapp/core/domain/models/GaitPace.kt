@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.buildprofile.domain
+package com.example.paceapp.core.domain.models
 
 import kotlinx.serialization.Serializable
 

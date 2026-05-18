@@ -2,15 +2,16 @@ package com.example.paceapp.navigation
 
 import androidx.navigation.NavHostController
 import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.core.enums.AnalyticsMetricType
 import com.example.paceapp.features.authentication.buildprofile.navigation.BuildProfileRoute
 import com.example.paceapp.features.authentication.login.navigation.LoginRoute
 import com.example.paceapp.features.authentication.profilecreated.navigation.ProfileCreatedRoute
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
-import com.example.paceapp.core.enums.AnalyticsMetricType
 import com.example.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
 import com.example.paceapp.features.main.settings.navigation.SettingsRoute
 import com.example.paceapp.features.main.tabhost.navigation.TabHostRoute
+import com.example.paceapp.features.main.updategait.navigation.UpdateGaitRoute
 
 class AppNavActions(
     private val navController: NavHostController,
@@ -93,6 +94,12 @@ class AppNavActions(
 
     fun toAnalyticsDetails(type: AnalyticsMetricType) {
         navController.navigate(AnalyticsDetailRoute(type = type)) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toUpdateGait() {
+        navController.navigate(UpdateGaitRoute) {
             launchSingleTop = true
         }
     }

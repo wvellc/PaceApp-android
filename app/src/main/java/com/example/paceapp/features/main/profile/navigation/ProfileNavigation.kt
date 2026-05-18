@@ -10,12 +10,15 @@ data object ProfileRoute
 
 fun NavGraphBuilder.profileScreen(
     onBack: () -> Unit,
-    onNavigateToSettings: () -> Unit
-) {
+    onNavigateToSettings: () -> Unit,
+    onNavigateToSetGait: () -> Unit,
+
+    ) {
     composable<ProfileRoute> {
         ProfileScreen(
             onBack = onBack,
-            onNavigateToSettings = onNavigateToSettings
+            onNavigateToSettings = onNavigateToSettings,
+            onNavigateToSetGait = onNavigateToSetGait,
         )
     }
 }

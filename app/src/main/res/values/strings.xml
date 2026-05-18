@@ -130,5 +130,7 @@
     <string name="week">Week</string>
     <string name="month">Month</string>
     <string name="year">Year</string>
+    <string name="running">Running</string>
+    <string name="walking">Walking</string>
 
 </resources>

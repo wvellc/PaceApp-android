@@ -13,9 +13,9 @@ import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Effect
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
-import com.example.paceapp.features.authentication.buildprofile.domain.GaitPace
+import com.example.paceapp.core.domain.models.GaitPace
+import com.example.paceapp.core.extensions.getDefaultGaits
 import com.example.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
-import com.example.paceapp.features.authentication.buildprofile.extensions.getDefaultGaits
 import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.session.AppSessionManager
 import com.wvelabs.core_network.utils.AppLogger

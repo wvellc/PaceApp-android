@@ -4,7 +4,6 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.paceapp.core.domain.models.UserData
 import com.wvelabs.core_network.di.ApplicationScope
-import com.wvelabs.core_network.session.SessionCache
 import com.wvelabs.core_network.session.SessionListener
 import com.wvelabs.core_network.session.TimerCache
 import com.wvelabs.core_network.utils.CoreDataStore
@@ -28,13 +27,12 @@ class AppSessionManager @Inject constructor(
     dataStore: DataStore<Preferences>,// Injected by Hilt
     private val cryptoManager: CryptoManager,
     @param:ApplicationScope private val appScope: CoroutineScope
-) : CoreDataStore(dataStore), SessionCache, SessionListener, TimerCache {
-    // --- INTERCEPTOR CONTRACTS ---
+) : CoreDataStore(dataStore), SessionListener, TimerCache {
     private val _sessionExpiredEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val sessionExpiredEvent = _sessionExpiredEvent.asSharedFlow()
     private val useEncryption = true
 
-    override suspend fun getAccessToken(): String? {
+     suspend fun getAccessToken(): String? {
         val rawValue = readOnce(AppSessionKeys.ACCESS_TOKEN) ?: return null
         return if (useEncryption) {
             val decrypted = cryptoManager.decrypt(rawValue)

@@ -15,6 +15,7 @@ fun TabHostScreen(
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
+    onNavigateToSetGait: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -40,5 +41,6 @@ fun TabHostScreen(
         onBack = onBack,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails,
+        onNavigateToSetGait = onNavigateToSetGait,
     )
 }

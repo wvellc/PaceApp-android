@@ -12,13 +12,15 @@ data object TabHostRoute
 fun NavGraphBuilder.tabHostScreen(
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit
+    onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
+    onNavigateToSetGait: () -> Unit
 ) {
     composable<TabHostRoute> {
         TabHostScreen(
             onBack = onBack,
             onNavigateToSettings = onNavigateToSettings,
-            onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails
+            onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails,
+            onNavigateToSetGait = onNavigateToSetGait,
         )
     }
 }

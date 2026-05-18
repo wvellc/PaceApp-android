@@ -26,8 +26,6 @@ class SettingsContract {
         data object OnDeleteAccountClick : Event()
         data object OnLogoutConfirm : Event()
         data object OnDeleteAccountConfirm : Event()
-
-
     }
 
     sealed class Effect : ViewSideEffect {

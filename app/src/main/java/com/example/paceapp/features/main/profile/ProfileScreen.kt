@@ -15,7 +15,8 @@ import com.wvelabs.core_ui.alerts.MessageType
 fun ProfileScreen(
     viewModel: ProfileViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToSettings: () -> Unit
+    onNavigateToSettings: () -> Unit,
+    onNavigateToSetGait: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -34,9 +35,7 @@ fun ProfileScreen(
                     AppAlerts.showToast("Coming Soon", type =  MessageType.Warning)
                 }
 
-                Effect.NavigateToSetGait -> {
-                    AppAlerts.showToast("Coming Soon", type =  MessageType.Warning)
-                }
+                Effect.NavigateToSetGait ->onNavigateToSetGait()
             }
         }
     }

@@ -16,10 +16,10 @@ class AuthInterceptor @Inject constructor(
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        // 1. Fetch the token securely
+        // Fetch the token securely
         val token = runBlocking { sessionCache.getAccessToken() }
 
-        // 2. Attach the token to the header using our constants
+        // Attach the token to the header using our constants
         val requestBuilder = chain.request().newBuilder()
         if (!token.isNullOrEmpty()) {
             requestBuilder.addHeader(
@@ -28,10 +28,10 @@ class AuthInterceptor @Inject constructor(
             )
         }
 
-        // 3. Execute the call
+        // Execute the call
         val response = chain.proceed(requestBuilder.build())
 
-        // 4. Global 401 Handler mapped through your exact ErrorType enum!
+        // Global 401 Handler mapped through your exact ErrorType enum!
         val networkError = NetworkError.fromStatusCode(response.code, response.message)
         if (networkError.errorType == ErrorType.UNAUTHORIZED) {
             sessionListener.onSessionExpired()

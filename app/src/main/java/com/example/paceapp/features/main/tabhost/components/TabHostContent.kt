@@ -32,7 +32,8 @@ internal fun TabHostContent(
     onEvent: (Event) -> Unit,
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
-    onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit
+    onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
+    onNavigateToSetGait: () -> Unit,
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -73,7 +74,8 @@ internal fun TabHostContent(
             )
             profileScreen(
                 onBack = onBack,
-                onNavigateToSettings = onNavigateToSettings
+                onNavigateToSettings = onNavigateToSettings,
+                onNavigateToSetGait = onNavigateToSetGait,
             )
         }
         ///Bottom tab bar

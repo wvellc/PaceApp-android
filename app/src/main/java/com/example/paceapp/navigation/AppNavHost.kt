@@ -21,6 +21,7 @@ import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.main.analyticsdetail.navigation.analyticsDetailScreen
 import com.example.paceapp.features.main.settings.navigation.settingsScreen
 import com.example.paceapp.features.main.tabhost.navigation.tabHostScreen
+import com.example.paceapp.features.main.updategait.navigation.updateGaitScreen
 import com.example.paceapp.features.splash.navigation.SplashRoute
 import com.example.paceapp.features.splash.navigation.splashScreen
 import com.example.paceapp.session.AppSessionManager
@@ -140,6 +141,7 @@ fun AppNavHost(
             onBack = navActions::goBack,
             onNavigateToSettings = navActions::toSettings,
             onNavigateToAnalyticsDetails = navActions::toAnalyticsDetails,
+            onNavigateToSetGait = navActions::toUpdateGait,
         )
 
         //Settings
@@ -149,5 +151,8 @@ fun AppNavHost(
         )
         //Analytics Details
         analyticsDetailScreen(onBack = navActions::goBack)
+
+        //Update Gait
+        updateGaitScreen(onBack = navActions::goBack)
     }
 }
