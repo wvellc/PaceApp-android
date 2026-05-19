@@ -6,6 +6,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.example.paceapp.core.base.BaseViewModel
 import com.example.paceapp.core.domain.enums.GenderTypes
+import com.example.paceapp.core.domain.models.GaitPace
+import com.example.paceapp.core.extensions.getDefaultGaits
 import com.example.paceapp.core.garmin.GarminDeviceManager
 import com.example.paceapp.core.garmin.enums.WatchConnectionState
 import com.example.paceapp.core.garmin.models.WatchModel
@@ -13,8 +15,6 @@ import com.example.paceapp.core.garmin.state.GarminSdkState
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Effect
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.State
-import com.example.paceapp.core.domain.models.GaitPace
-import com.example.paceapp.core.extensions.getDefaultGaits
 import com.example.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
 import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.session.AppSessionManager
@@ -52,9 +52,9 @@ class BuildProfileViewModel @Inject constructor(
 
     private fun initData() {
         if (currentState.isInitialized) return
-        if (isDebugMode) {
-            setDummyData()
-        }
+
+        setDummyData() //TODO:Replace with garmin watch list
+
         val (defaultWalk, defaultRun) = currentState.selectedGender.getDefaultGaits()
         setState { copy(runningGait = defaultRun, walkingGait = defaultWalk) }
         observeFields()

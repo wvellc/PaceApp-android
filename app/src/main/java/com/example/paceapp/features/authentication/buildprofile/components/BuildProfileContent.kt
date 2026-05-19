@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppActionDialog
@@ -27,6 +26,7 @@ import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppTextButton
 import com.example.paceapp.core.components.CommonAppBar
+import com.example.paceapp.core.components.profilesteps.SetGaitContent
 import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.verticalScrollOnIme
 import com.example.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
@@ -34,10 +34,9 @@ import com.example.paceapp.features.authentication.buildprofile.BuildProfileCont
 import com.example.paceapp.features.authentication.buildprofile.models.ProfileStep
 import com.example.paceapp.features.authentication.buildprofile.steps.AccountSetContent
 import com.example.paceapp.features.authentication.buildprofile.steps.ConnectStravaContent
-import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchContent
-import com.example.paceapp.features.authentication.buildprofile.steps.PairWatchSuccessContent
-import com.example.paceapp.features.authentication.buildprofile.steps.SelectModelContent
-import com.example.paceapp.features.authentication.buildprofile.steps.SetGaitContent
+import com.example.paceapp.core.components.profilesteps.PairWatchInitContent
+import com.example.paceapp.core.components.profilesteps.PairWatchSuccessContent
+import com.example.paceapp.core.components.profilesteps.SelectModelContent
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.alerts.AlertType
@@ -150,7 +149,7 @@ internal fun BuildProfileContent(
                             )
 
                             // Pair Watch Initialization
-                            ProfileStep.PairWatchInit -> PairWatchContent()
+                            ProfileStep.PairWatchInit -> PairWatchInitContent()
 
                             // Select Watch Model
                             ProfileStep.SelectModel -> SelectModelContent(
@@ -164,6 +163,8 @@ internal fun BuildProfileContent(
 
                             // Set Gait (Running/Walking)
                             ProfileStep.SetGait -> SetGaitContent(
+                                modifier = Modifier
+                                    .fillMaxSize(),
                                 runningGait = state.runningGait,
                                 walkingGait = state.walkingGait,
                                 onWalkingChange = { onEvent(Event.OnWalkingGaitChanged(it)) },

@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.buildprofile.steps
+package com.example.paceapp.core.components.profilesteps
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Spring
@@ -120,12 +120,12 @@ fun SelectModelContent(
                 AnimatedContent(
                     targetState = selectedWatch?.id == device.id,
                     transitionSpec = {
-                        // The new icon springs in while scaling up and fading in
-                        val enter =
-                            scaleIn(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeIn()
-                        // The old icon scales down and fades out
-                        val exit =
-                            scaleOut(animationSpec = spring(stiffness = Spring.StiffnessMediumLow)) + fadeOut()
+                        val enter = scaleIn(
+                            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                        ) + fadeIn()
+                        val exit = scaleOut(
+                            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                        ) + fadeOut()
                         enter togetherWith exit
                     },
                     label = "IconSwitchAnimation"

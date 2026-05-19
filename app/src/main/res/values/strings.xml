@@ -133,5 +133,7 @@
     <string name="running">Running</string>
     <string name="walking">Walking</string>
     <string name="update_profile">Update Profile</string>
+    <string name="manage_watch_disconnect">Disconnect Device</string>
+    <string name="select_watch_error_message">Please select a watch to connect</string>
 
 </resources>

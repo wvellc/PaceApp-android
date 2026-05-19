@@ -1,4 +1,4 @@
-package com.example.paceapp.core.components
+package com.example.paceapp.core.components.profilesteps
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,6 +17,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.paceapp.R
+import com.example.paceapp.core.components.AppDigitPicker
+import com.example.paceapp.core.components.AppSegmentedButtons
 import com.example.paceapp.core.domain.models.GaitPace
 import com.example.paceapp.core.domain.models.GaitUnit
 import com.example.paceapp.core.extensions.g2Continuity
@@ -26,7 +28,7 @@ import com.example.paceapp.theme.AppTheme
 import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
-fun AppGaitContent(
+fun SetGaitContent(
     modifier: Modifier = Modifier,
     runningGait: GaitPace,
     onRunningChange: (GaitPace) -> Unit,

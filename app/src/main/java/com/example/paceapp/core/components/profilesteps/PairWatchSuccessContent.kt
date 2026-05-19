@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.buildprofile.steps
+package com.example.paceapp.core.components.profilesteps
 
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.fadeIn

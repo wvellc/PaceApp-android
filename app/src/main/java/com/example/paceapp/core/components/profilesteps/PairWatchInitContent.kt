@@ -1,4 +1,4 @@
-package com.example.paceapp.features.authentication.buildprofile.steps
+package com.example.paceapp.core.components.profilesteps
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -10,7 +10,7 @@ import com.example.paceapp.core.components.NoDataView
 import com.example.paceapp.theme.AppTheme
 
 @Composable
-fun PairWatchContent() {
+fun PairWatchInitContent() {
     NoDataView(
         modifier = Modifier
             .padding(AppTheme.screenPadding)

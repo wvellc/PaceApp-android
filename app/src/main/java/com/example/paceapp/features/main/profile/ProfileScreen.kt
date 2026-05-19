@@ -8,8 +8,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.paceapp.features.main.profile.ProfileContract.Effect
 import com.example.paceapp.features.main.profile.ProfileContract.Event
 import com.example.paceapp.features.main.profile.components.ProfileContent
-import com.wvelabs.core_ui.alerts.AppAlerts
-import com.wvelabs.core_ui.alerts.MessageType
 
 @Composable
 fun ProfileScreen(
@@ -18,6 +16,7 @@ fun ProfileScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToSetGait: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
+    onNavigateToManageWatch: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -32,10 +31,7 @@ fun ProfileScreen(
             when (effect) {
                 is Effect.NavigateBack -> onBack()
                 is Effect.NavigateToSettings -> onNavigateToSettings()
-                is Effect.NavigateToManageWatch -> {
-                    AppAlerts.showToast("Coming Soon", type = MessageType.Warning)
-                }
-
+                is Effect.NavigateToManageWatch -> onNavigateToManageWatch()
                 is Effect.NavigateToSetGait -> onNavigateToSetGait()
                 is Effect.NavigateToEditProfile -> onNavigateToEditProfile()
             }
