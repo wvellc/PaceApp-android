@@ -13,6 +13,7 @@ import com.example.paceapp.features.main.home.components.HomeContent
 fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onBack: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -26,6 +27,7 @@ fun HomeScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
+                is Effect.NavigateToNotifications -> onNavigateToNotifications()
             }
         }
     }

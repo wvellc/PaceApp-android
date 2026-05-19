@@ -192,6 +192,7 @@ class HomeViewModel @Inject constructor(
 
 
     private fun handleOnNotificationClick() {
+        setEffect { Effect.NavigateToNotifications }
     }
 
 

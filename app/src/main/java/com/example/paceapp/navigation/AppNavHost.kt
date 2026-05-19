@@ -21,6 +21,7 @@ import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.main.analyticsdetail.navigation.analyticsDetailScreen
 import com.example.paceapp.features.main.editprofile.navigation.editprofileScreen
 import com.example.paceapp.features.main.managewatch.navigation.managewatchScreen
+import com.example.paceapp.features.main.notifications.navigation.notificationsScreen
 import com.example.paceapp.features.main.settings.navigation.settingsScreen
 import com.example.paceapp.features.main.tabhost.navigation.tabHostScreen
 import com.example.paceapp.features.main.updategait.navigation.updateGaitScreen
@@ -146,6 +147,7 @@ fun AppNavHost(
             onNavigateToSetGait = navActions::toUpdateGait,
             onNavigateToEditProfile = navActions::toEditProfile,
             onNavigateToManageWatch = navActions::toManageWatch,
+            onNavigateToNotifications = navActions::toNotifications,
         )
 
         //Settings
@@ -165,5 +167,8 @@ fun AppNavHost(
 
         //Manage Watch
         managewatchScreen(onBack = navActions::goBack)
+
+        //Notifications
+        notificationsScreen(onBack = navActions::goBack)
     }
 }

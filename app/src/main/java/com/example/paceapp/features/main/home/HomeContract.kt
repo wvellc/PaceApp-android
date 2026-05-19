@@ -1,8 +1,8 @@
 package com.example.paceapp.features.main.home
 
-import com.example.paceapp.core.models.UserUiModel
 import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.core.garmin.state.GarminSdkState
+import com.example.paceapp.core.models.UserUiModel
 import com.example.paceapp.features.main.home.models.ActivityUiModel
 import com.example.paceapp.features.main.home.models.WatchMetric
 import com.wvelabs.core_ui.base.ViewEvent
@@ -30,5 +30,6 @@ class HomeContract {
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
+        data object NavigateToNotifications : Effect()
     }
 }

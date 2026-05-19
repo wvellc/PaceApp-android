@@ -75,13 +75,12 @@ internal fun ManageWatchContent(
                     // Initially no animation
                     if (initialState is ManageWatchStep.PairWatchInit && targetState is ManageWatchStep.PairWatchSuccess) {
                         EnterTransition.None togetherWith ExitTransition.None
-                    }
-                    else if (state.isMovingForward) {
+                    } else if (state.isMovingForward) {
                         (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
                             slideOutHorizontally { width -> -width } + fadeOut()
                         ).using(SizeTransform(clip = false))
                     }
-                    // User pressed back 
+                    // User pressed back
                     else {
                         (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
                             slideOutHorizontally { width -> width } + fadeOut()
@@ -114,8 +113,7 @@ internal fun ManageWatchContent(
                 enabled = state.isNextButtonEnabled,
                 title = stringResource(state.currentStep.buttonLabelRes),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = AppTheme.screenPadding + innerPaddings.calculateBottomPadding()),
+                    .fillMaxWidth(),
                 onClick = {
                     onEvent(Event.OnNextButtonClick(context = context))
                 }

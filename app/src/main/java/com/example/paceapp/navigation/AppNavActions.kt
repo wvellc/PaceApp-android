@@ -11,6 +11,7 @@ import com.example.paceapp.features.common.webview.navigation.WebviewRoute
 import com.example.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
 import com.example.paceapp.features.main.editprofile.navigation.EditProfileRoute
 import com.example.paceapp.features.main.managewatch.navigation.ManageWatchRoute
+import com.example.paceapp.features.main.notifications.navigation.NotificationsRoute
 import com.example.paceapp.features.main.settings.navigation.SettingsRoute
 import com.example.paceapp.features.main.tabhost.navigation.TabHostRoute
 import com.example.paceapp.features.main.updategait.navigation.UpdateGaitRoute
@@ -114,6 +115,12 @@ class AppNavActions(
 
     fun toManageWatch() {
         navController.navigate(ManageWatchRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toNotifications() {
+        navController.navigate(NotificationsRoute) {
             launchSingleTop = true
         }
     }

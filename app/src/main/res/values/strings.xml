@@ -135,5 +135,11 @@
     <string name="update_profile">Update Profile</string>
     <string name="manage_watch_disconnect">Disconnect Device</string>
     <string name="select_watch_error_message">Please select a watch to connect</string>
+    <string name="clear_all_alert_title">Clear All Notifications?</string>
+    <string name="clear_all_alert_message">Are you sure you want to clear all notifications?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="no_notification_title">No Notifications Yet</string>
+    <string name="no_notification_subtitle">You don’t have any notifications right\nnow.</string>
 
 </resources>

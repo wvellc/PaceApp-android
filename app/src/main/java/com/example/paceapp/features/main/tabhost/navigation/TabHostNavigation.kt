@@ -15,7 +15,8 @@ fun NavGraphBuilder.tabHostScreen(
     onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
     onNavigateToSetGait: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
-    onNavigateToManageWatch: () -> Unit
+    onNavigateToManageWatch: () -> Unit,
+    onNavigateToNotifications: () -> Unit
 ) {
     composable<TabHostRoute> {
         TabHostScreen(
@@ -24,7 +25,8 @@ fun NavGraphBuilder.tabHostScreen(
             onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails,
             onNavigateToSetGait = onNavigateToSetGait,
             onNavigateToEditProfile = onNavigateToEditProfile,
-            onNavigateToManageWatch= onNavigateToManageWatch,
+            onNavigateToManageWatch = onNavigateToManageWatch,
+            onNavigateToNotifications = onNavigateToNotifications,
         )
     }
 }

@@ -36,6 +36,7 @@ internal fun TabHostContent(
     onNavigateToSetGait: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
+    onNavigateToNotifications: () -> Unit,
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -68,12 +69,22 @@ internal fun TabHostContent(
                 fadeOut(animationSpec = tween(durationMillis = 300))
             }
         ) {
-            homeScreen(onBack = onBack)
+            //Home
+            homeScreen(
+                onBack = onBack,
+                onNavigateToNotifications = onNavigateToNotifications
+            )
+
+            //History
             historyScreen(onBack = onBack)
+
+            //Analytics
             analyticsScreen(
                 onBack = onBack,
                 onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails
             )
+
+            //Profile
             profileScreen(
                 onBack = onBack,
                 onNavigateToSettings = onNavigateToSettings,
