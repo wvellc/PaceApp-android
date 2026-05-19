@@ -19,6 +19,7 @@ import com.example.paceapp.features.authentication.profilecreated.navigation.pro
 import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.main.analyticsdetail.navigation.analyticsDetailScreen
+import com.example.paceapp.features.main.editprofile.navigation.editprofileScreen
 import com.example.paceapp.features.main.settings.navigation.settingsScreen
 import com.example.paceapp.features.main.tabhost.navigation.tabHostScreen
 import com.example.paceapp.features.main.updategait.navigation.updateGaitScreen
@@ -142,6 +143,7 @@ fun AppNavHost(
             onNavigateToSettings = navActions::toSettings,
             onNavigateToAnalyticsDetails = navActions::toAnalyticsDetails,
             onNavigateToSetGait = navActions::toUpdateGait,
+            onNavigateToEditProfile = navActions::toEditProfile,
         )
 
         //Settings
@@ -154,5 +156,8 @@ fun AppNavHost(
 
         //Update Gait
         updateGaitScreen(onBack = navActions::goBack)
+
+        //Edit Profile
+        editprofileScreen(onBack = navActions::goBack)
     }
 }

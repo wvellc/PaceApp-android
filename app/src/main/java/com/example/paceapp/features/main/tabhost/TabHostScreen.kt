@@ -16,6 +16,7 @@ fun TabHostScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
     onNavigateToSetGait: () -> Unit,
+    onNavigateToEditProfile: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -24,15 +25,6 @@ fun TabHostScreen(
         viewModel.setEvent(Event.Init)
     }
 
-    // Handle one-time effects
-    LaunchedEffect(key1 = Unit) {
-        viewModel.effect.collect { effect ->
-            /*when (effect) {
-                TODO: Handle Effects
-
-            }*/
-        }
-    }
 
     // Render content
     TabHostContent(
@@ -42,5 +34,6 @@ fun TabHostScreen(
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails,
         onNavigateToSetGait = onNavigateToSetGait,
+        onNavigateToEditProfile = onNavigateToEditProfile,
     )
 }

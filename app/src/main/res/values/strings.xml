@@ -132,5 +132,6 @@
     <string name="year">Year</string>
     <string name="running">Running</string>
     <string name="walking">Walking</string>
+    <string name="update_profile">Update Profile</string>
 
 </resources>

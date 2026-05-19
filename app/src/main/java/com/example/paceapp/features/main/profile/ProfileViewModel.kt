@@ -52,7 +52,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     private fun handleOnEditProfileClick() {
-
+        setEffect { Effect.NavigateToEditProfile }
     }
 
     private fun handleOnProfileOptionClick(option: ProfileOptions) {

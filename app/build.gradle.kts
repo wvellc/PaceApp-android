@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 
     // Hilt DI Plugins
-    alias(libs.plugins.ksp) // ✅ ADD KSP
+    alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
 }
 
@@ -29,6 +29,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -85,7 +86,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-     // Fallback workaround if Hilt throws a metadata version exception
+    // Fallback workaround if Hilt throws a metadata version exception
     implementation(libs.kotlin.metadata.jvm)
 
     // ---------------------------------------------------------

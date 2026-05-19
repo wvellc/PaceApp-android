@@ -9,6 +9,7 @@ import com.example.paceapp.features.authentication.profilecreated.navigation.Pro
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
 import com.example.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
+import com.example.paceapp.features.main.editprofile.navigation.EditProfileRoute
 import com.example.paceapp.features.main.settings.navigation.SettingsRoute
 import com.example.paceapp.features.main.tabhost.navigation.TabHostRoute
 import com.example.paceapp.features.main.updategait.navigation.UpdateGaitRoute
@@ -100,6 +101,12 @@ class AppNavActions(
 
     fun toUpdateGait() {
         navController.navigate(UpdateGaitRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toEditProfile() {
+        navController.navigate(EditProfileRoute) {
             launchSingleTop = true
         }
     }

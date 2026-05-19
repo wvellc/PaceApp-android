@@ -29,6 +29,7 @@ class ProfileContract {
         data object NavigateToSetGait : Effect()
 
         data object NavigateToManageWatch : Effect()
-        object NavigateToSettings : Effect()
+        data object NavigateToSettings : Effect()
+        data object NavigateToEditProfile : Effect()
     }
 }

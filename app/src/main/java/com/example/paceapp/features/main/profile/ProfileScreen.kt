@@ -17,6 +17,7 @@ fun ProfileScreen(
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSetGait: () -> Unit,
+    onNavigateToEditProfile: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -31,11 +32,12 @@ fun ProfileScreen(
             when (effect) {
                 is Effect.NavigateBack -> onBack()
                 is Effect.NavigateToSettings -> onNavigateToSettings()
-                Effect.NavigateToManageWatch -> {
-                    AppAlerts.showToast("Coming Soon", type =  MessageType.Warning)
+                is Effect.NavigateToManageWatch -> {
+                    AppAlerts.showToast("Coming Soon", type = MessageType.Warning)
                 }
 
-                Effect.NavigateToSetGait ->onNavigateToSetGait()
+                is Effect.NavigateToSetGait -> onNavigateToSetGait()
+                is Effect.NavigateToEditProfile -> onNavigateToEditProfile()
             }
         }
     }

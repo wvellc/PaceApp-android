@@ -34,6 +34,7 @@ internal fun TabHostContent(
     onNavigateToSettings: () -> Unit,
     onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
     onNavigateToSetGait: () -> Unit,
+    onNavigateToEditProfile: () -> Unit,
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -76,6 +77,7 @@ internal fun TabHostContent(
                 onBack = onBack,
                 onNavigateToSettings = onNavigateToSettings,
                 onNavigateToSetGait = onNavigateToSetGait,
+                onNavigateToEditProfile = onNavigateToEditProfile,
             )
         }
         ///Bottom tab bar

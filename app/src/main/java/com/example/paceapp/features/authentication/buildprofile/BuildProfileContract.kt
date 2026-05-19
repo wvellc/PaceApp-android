@@ -22,8 +22,6 @@ class BuildProfileContract {
         val firstNameState: TextFieldState = TextFieldState(),
         val lastNameState: TextFieldState = TextFieldState(),
         val selectedGender: GenderTypes = GenderTypes.MALE,
-        val profileImage: String? = null,
-
         // --- Step 2, 3 & 4: Watch Pairing ---
         val garminState: GarminSdkState = GarminSdkState.Uninitialized,
         val showGarminSetupDialog: Boolean = false,

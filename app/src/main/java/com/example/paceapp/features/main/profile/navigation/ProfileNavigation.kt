@@ -12,13 +12,14 @@ fun NavGraphBuilder.profileScreen(
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToSetGait: () -> Unit,
-
-    ) {
+    onNavigateToEditProfile: () -> Unit,
+) {
     composable<ProfileRoute> {
         ProfileScreen(
             onBack = onBack,
             onNavigateToSettings = onNavigateToSettings,
             onNavigateToSetGait = onNavigateToSetGait,
+            onNavigateToEditProfile = onNavigateToEditProfile
         )
     }
 }
