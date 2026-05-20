@@ -28,7 +28,7 @@ fun PureComposeOverlayDialog(
     modifier: Modifier = Modifier,
     cancelable: Boolean = true,
     overlayColor: Color = Color.Black.copy(alpha = 0.6f),
-    animationDuration: Int = 300,
+    animationDuration: Int = 500,
     content: @Composable (triggerDismiss: () -> Unit) -> Unit
 ) {
     // 1. THE FIX: MutableTransitionState
