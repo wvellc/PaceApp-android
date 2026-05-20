@@ -14,6 +14,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
     onBack: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToCreateEvent: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -28,6 +29,7 @@ fun HomeScreen(
             when (effect) {
                 is Effect.NavigateBack -> onBack()
                 is Effect.NavigateToNotifications -> onNavigateToNotifications()
+                is Effect.NavigateToCreateEvent -> onNavigateToCreateEvent()
             }
         }
     }

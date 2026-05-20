@@ -19,6 +19,7 @@ import com.example.paceapp.features.authentication.profilecreated.navigation.pro
 import com.example.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import com.example.paceapp.features.common.webview.navigation.webviewScreen
 import com.example.paceapp.features.main.analyticsdetail.navigation.analyticsDetailScreen
+import com.example.paceapp.features.main.createevent.navigation.createeventScreen
 import com.example.paceapp.features.main.editprofile.navigation.editprofileScreen
 import com.example.paceapp.features.main.managewatch.navigation.managewatchScreen
 import com.example.paceapp.features.main.notifications.navigation.notificationsScreen
@@ -148,6 +149,7 @@ fun AppNavHost(
             onNavigateToEditProfile = navActions::toEditProfile,
             onNavigateToManageWatch = navActions::toManageWatch,
             onNavigateToNotifications = navActions::toNotifications,
+            onNavigateToCreateEvent = navActions::toCreateEvent,
         )
 
         //Settings
@@ -170,5 +172,8 @@ fun AppNavHost(
 
         //Notifications
         notificationsScreen(onBack = navActions::goBack)
+
+        //Create event
+        createeventScreen(onBack = navActions::goBack)
     }
 }

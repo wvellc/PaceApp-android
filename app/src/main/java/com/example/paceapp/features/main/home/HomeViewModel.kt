@@ -43,6 +43,7 @@ class HomeViewModel @Inject constructor(
 
             is Event.OnNotificationClick -> handleOnNotificationClick()
             is Event.OnActivityClick -> handleOnActivityClick(event.activity)
+            is Event.OnNewEventClick -> handleOnNewEventClick()
         }
     }
 
@@ -219,6 +220,11 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handleOnActivityClick(activity: ActivityUiModel) {
+    }
+
+
+    private fun handleOnNewEventClick() {
+        setEffect { Effect.NavigateToCreateEvent }
     }
 
 

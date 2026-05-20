@@ -37,6 +37,7 @@ internal fun TabHostContent(
     onNavigateToEditProfile: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToCreateEvent: () -> Unit,
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -72,7 +73,8 @@ internal fun TabHostContent(
             //Home
             homeScreen(
                 onBack = onBack,
-                onNavigateToNotifications = onNavigateToNotifications
+                onNavigateToNotifications = onNavigateToNotifications,
+                onNavigateToCreateEvent = onNavigateToCreateEvent
             )
 
             //History

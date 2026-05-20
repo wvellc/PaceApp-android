@@ -19,6 +19,7 @@ fun TabHostScreen(
     onNavigateToEditProfile: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToCreateEvent: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -39,5 +40,6 @@ fun TabHostScreen(
         onNavigateToEditProfile = onNavigateToEditProfile,
         onNavigateToManageWatch = onNavigateToManageWatch,
         onNavigateToNotifications = onNavigateToNotifications,
+        onNavigateToCreateEvent = onNavigateToCreateEvent,
     )
 }

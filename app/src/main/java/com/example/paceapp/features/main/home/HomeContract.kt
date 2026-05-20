@@ -24,12 +24,16 @@ class HomeContract {
     sealed class Event : ViewEvent {
         data object Init : Event()
         data object OnBackClick : Event()
-        data object OnNotificationClick : Event()
         data class OnActivityClick(val activity: ActivityUiModel) : Event()
+
+        data object OnNotificationClick : Event()
+        data object OnNewEventClick : Event()
+
     }
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
         data object NavigateToNotifications : Effect()
+        data object NavigateToCreateEvent : Effect()
     }
 }

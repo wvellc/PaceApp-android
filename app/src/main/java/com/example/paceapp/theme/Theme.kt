@@ -16,7 +16,10 @@ private val DarkColorScheme = darkColorScheme(
 
     primary = AppColors.NeonAquaBlue,
     secondary = AppColors.NeonAquaBlue,
-    tertiary = AppColors.FluorescentMint
+    tertiary = AppColors.FluorescentMint,
+    scrim = AppColors.NeonAquaBlue20,
+    surfaceDim = AppColors.NeonAquaBlue20,
+
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

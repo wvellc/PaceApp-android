@@ -1,6 +1,5 @@
 package com.wvelabs.core_ui.alerts
 
-import android.graphics.drawable.Icon
 import androidx.annotation.DrawableRes
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -88,7 +87,7 @@ object AppAlerts {
         confirmText: UiText = UiText.DynamicString("OK"), // Or UiText.StringResource(R.string.ok)
         cancelable: Boolean = true,
         dismissText: UiText? = null,
-        onConfirm: (() -> Unit)? = null,
+        onConfirm: (() -> Unit) = {},
         onDismiss: (() -> Unit)? = null
     ) = send(
         AlertType.Dialog(

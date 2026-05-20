@@ -24,6 +24,7 @@ fun NotificationsScreen(
     LaunchedEffect(key1 = Unit) {
         viewModel.setEvent(Event.Init)
     }
+    fun close(){}
 
     // Handle one-time effects
     LaunchedEffect(key1 = Unit) {
@@ -38,6 +39,8 @@ fun NotificationsScreen(
                         type = MessageType.Warning,
                         confirmText = UiText.StringResource(R.string.no),
                         dismissText = UiText.StringResource(R.string.yes),
+                        onConfirm = {
+                        },
                         onDismiss = {
                             viewModel.setEvent(Event.OnClearAllNotifications)
                         },
@@ -46,7 +49,6 @@ fun NotificationsScreen(
             }
         }
     }
-
     // Render content
     NotificationsContent(
         state = state,

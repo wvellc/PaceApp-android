@@ -9,6 +9,7 @@ import com.example.paceapp.features.authentication.profilecreated.navigation.Pro
 import com.example.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import com.example.paceapp.features.common.webview.navigation.WebviewRoute
 import com.example.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
+import com.example.paceapp.features.main.createevent.navigation.CreateEventRoute
 import com.example.paceapp.features.main.editprofile.navigation.EditProfileRoute
 import com.example.paceapp.features.main.managewatch.navigation.ManageWatchRoute
 import com.example.paceapp.features.main.notifications.navigation.NotificationsRoute
@@ -121,6 +122,12 @@ class AppNavActions(
 
     fun toNotifications() {
         navController.navigate(NotificationsRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toCreateEvent() {
+        navController.navigate(CreateEventRoute) {
             launchSingleTop = true
         }
     }

@@ -15,6 +15,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -33,6 +36,7 @@ fun DatePickerField(
     shape: Shape = ContinuousRoundedRectangle(12.dp),
     value: String? = null,
     title: String? = null,
+    iconColor: Color? = null,
     titleStyle: TextStyle = AppTheme.typography.semiBold.copy(
         color = AppColors.DarkCharcoal,
         fontSize = 20.sp,
@@ -56,6 +60,7 @@ fun DatePickerField(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(48.dp)
+                .clip(shape)
                 .border(
                     border = BorderStroke(1.2.dp, color = AppColors.FashionGray),
                     shape = shape,
@@ -87,7 +92,11 @@ fun DatePickerField(
 
             Image(
                 painter = painterResource(R.drawable.ic_calender),
-                contentDescription = "Calendar"
+                contentDescription = "Calendar",
+                modifier = Modifier,
+                colorFilter = iconColor?.let {
+                    ColorFilter.tint(it)
+                }
             )
         }
     }

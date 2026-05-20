@@ -11,11 +11,13 @@ data object HomeRoute
 fun NavGraphBuilder.homeScreen(
     onBack: () -> Unit,
     onNavigateToNotifications: () -> Unit,
+    onNavigateToCreateEvent: () -> Unit,
 ) {
     composable<HomeRoute> {
         HomeScreen(
             onBack = onBack,
-            onNavigateToNotifications = onNavigateToNotifications
+            onNavigateToNotifications = onNavigateToNotifications,
+            onNavigateToCreateEvent = onNavigateToCreateEvent
         )
     }
 }

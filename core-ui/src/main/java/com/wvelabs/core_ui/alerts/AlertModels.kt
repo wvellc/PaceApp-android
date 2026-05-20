@@ -62,7 +62,7 @@ sealed class AlertType {
         val cancelable: Boolean = true,
         val confirmText: UiText = UiText.DynamicString("OK"),
         val dismissText: UiText? = null,
-        val onConfirm: (() -> Unit)? = null,
+        val onConfirm: (() -> Unit) = {},
         val onDismiss: (() -> Unit)? = null
     ) : AlertType()
 }

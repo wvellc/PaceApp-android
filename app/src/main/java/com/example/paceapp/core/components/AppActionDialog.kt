@@ -18,12 +18,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.paceapp.R
 import com.example.paceapp.theme.AppColors
@@ -33,7 +31,8 @@ import com.wvelabs.core_ui.alerts.AlertType
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.alerts.UiText
 import com.wvelabs.core_ui.alerts.icon
-// IMPORT YOUR UiText HERE!
+import com.wvelabs.core_ui.components.PureComposeOverlayDialog
+
 
 @Composable
 fun AppActionDialog(
@@ -46,13 +45,15 @@ fun AppActionDialog(
         dismissOnClickOutside = alert.cancelable
     )
 
-    Dialog(
+    PureComposeOverlayDialog(
+        cancelable = alert.cancelable,
+        modifier = Modifier.padding(24.dp),
+        overlayColor = AppColors.NeonAquaBlue20,
         onDismissRequest = {
             if (alert.cancelable) {
                 closeDialog()
             }
         },
-        properties = properties
     ) {
         Column(
             modifier = Modifier
@@ -80,7 +81,7 @@ fun AppActionDialog(
 
             // --- Title ---
             Text(
-                text = alert.title.asString(), 
+                text = alert.title.asString(),
                 style = AppTheme.typography.medium.copy(
                     fontSize = 24.sp,
                     color = AppColors.DarkCharcoal,
@@ -91,7 +92,7 @@ fun AppActionDialog(
             Spacer(modifier = Modifier.height(12.dp))
 
             // --- Description ---
-            val textValue = alert.text.asString() 
+            val textValue = alert.text.asString()
             if (textValue.isNotBlank()) {
                 Text(
                     text = textValue,
@@ -113,7 +114,7 @@ fun AppActionDialog(
             ) {
                 if (alert.dismissText != null) {
                     AppButton(
-                        title = alert.dismissText?.asString()?:"", 
+                        title = alert.dismissText?.asString() ?: "",
                         onClick = {
                             alert.onDismiss?.invoke()
                             closeDialog()
@@ -126,10 +127,13 @@ fun AppActionDialog(
                 }
 
                 AppButton(
-                    title = alert.confirmText.asString(), 
+                    title = alert.confirmText.asString(),
                     onClick = {
+                        println("DEBUG: Confirm clicked")
                         alert.onConfirm?.invoke()
+                        println("DEBUG: onConfirm finished successfully")
                         closeDialog()
+                        println("DEBUG: closeDialog triggered")
                     },
                     style = AppButtonStyle.FILLED_GRADIENT,
                     modifier = Modifier.weight(1f)

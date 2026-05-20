@@ -34,7 +34,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppButton
@@ -43,6 +42,7 @@ import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.features.main.home.models.WatchMetric
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
+import com.wvelabs.core_ui.components.CustomOverlayDialog
 
 @Composable
 fun WatchMetricsInfoDialog(
@@ -60,8 +60,8 @@ fun WatchMetricsInfoDialog(
         dismissOnClickOutside = cancelable,
         usePlatformDefaultWidth = false
     )
-
-    Dialog(
+    CustomOverlayDialog(
+        overlayColor = AppColors.Black.copy(alpha = 0.4f),
         onDismissRequest = {
             if (cancelable) {
                 onDismissDialog()
@@ -70,7 +70,8 @@ fun WatchMetricsInfoDialog(
         properties = properties
     ) {
         Column(
-            modifier = Modifier.padding(AppTheme.screenPadding),
+            modifier = Modifier
+                .padding(AppTheme.screenPadding),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             //Close button
