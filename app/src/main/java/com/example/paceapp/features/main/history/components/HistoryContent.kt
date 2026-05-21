@@ -28,9 +28,13 @@ import com.example.paceapp.core.components.NoDataView
 import com.example.paceapp.core.components.SearchTextField
 import com.example.paceapp.features.main.history.HistoryContract.Event
 import com.example.paceapp.features.main.history.HistoryContract.State
+import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.alerts.AppAlerts
 import com.wvelabs.core_ui.alerts.MessageType
+import com.wvelabs.core_ui.components.SwipeDirection
+import com.wvelabs.core_ui.components.SwipeToActionBox
+import com.wvelabs.core_ui.components.rememberSwipeActionState
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
 
 @Composable
@@ -41,7 +45,7 @@ internal fun HistoryContent(
 
     val historyListState = rememberLazyListState()
     var isFilterVisible by remember { mutableStateOf(false) }
-
+    val historySwipeState = rememberSwipeActionState()
     AppBaseScreen(
         modifier = Modifier
             .fillMaxSize(),
@@ -89,6 +93,8 @@ internal fun HistoryContent(
                 animationSpec = defaultAnimSpec(duration = 300)
             ) { hasNoData ->
                 if (hasNoData) {
+                    //No Data
+
                     NoDataView(
                         title = stringResource(R.string.no_history_title),
                         imageRes = R.drawable.ic_empty_history,
@@ -111,9 +117,35 @@ internal fun HistoryContent(
                         )
                     ) {
                         items(state.historyList, key = { it.id }) { history ->
-                            HistoryItem(history = history) {
+                            //Swipe to action item
+                            SwipeToActionBox(
+                                actionModifier = Modifier.padding(start = 16.dp),
+                                direction = SwipeDirection.EndToStart,
+                                actionBackgroundColor = AppColors.Transparent,
+                                itemId = history.id,
+                                state = historySwipeState,
+                                actions = {
+                                    //Duplicate button
+                                    SwipeActionButtons(
+                                        id = R.drawable.ic_duplicate,
+                                        background = AppColors.NeonAquaBlue,
+                                    ) {
+                                        onEvent(Event.OnDuplicateHistoryClick(history))
+                                        historySwipeState.closeAll()
+                                    }
 
-                            }
+                                    //Delete button
+                                    SwipeActionButtons(id = R.drawable.ic_delete) {
+                                        onEvent(Event.OnDeleteHistoryClick(history))
+                                        historySwipeState.closeAll()
+                                    }
+
+                                },
+                                content = {
+                                    //History item UI
+                                    HistoryItem(history = history, onClick = { })
+                                }
+                            )
                         }
                     }
                 }
@@ -139,5 +171,7 @@ internal fun HistoryContent(
 @Composable
 fun HistoryPreview() = HistoryContent(
     state = State()
-) { }
+) {
+
+}
 

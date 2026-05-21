@@ -23,6 +23,7 @@ class HistoryViewModel @Inject constructor(
     override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
+
         when (event) {
             is Event.Init -> initData()
             is Event.OnBackClick -> {
@@ -30,8 +31,11 @@ class HistoryViewModel @Inject constructor(
             }
 
             is Event.OnFilterChange -> handleOnFilterChange(event.filter)
+            is Event.OnDuplicateHistoryClick -> handleOnDuplicateHistoryClick(event.history)
+            is Event.OnDeleteHistoryClick -> handleOnDeleteHistoryClick(event.history)
         }
     }
+
 
     private fun initData() {
         if (currentState.isInitialized) return
@@ -150,4 +154,11 @@ class HistoryViewModel @Inject constructor(
             }
         }
     }
+
+    private fun handleOnDuplicateHistoryClick(history: HistoryUiModel) {
+    }
+
+    private fun handleOnDeleteHistoryClick(history: HistoryUiModel) {
+    }
+
 }

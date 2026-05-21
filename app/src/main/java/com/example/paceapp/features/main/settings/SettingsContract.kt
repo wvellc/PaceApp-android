@@ -11,7 +11,7 @@ class SettingsContract {
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
         val isDevOptionExpanded: Boolean = false,
-        val selectedDistanceUnits: DistanceUnits = DistanceUnits.MILE,
+        val selectedDistanceUnits: DistanceUnits = DistanceUnits.MILES,
     ) : ViewState
 
     sealed class Event : ViewEvent {

@@ -22,7 +22,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
 import com.example.paceapp.R
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
@@ -31,7 +30,6 @@ import com.wvelabs.core_ui.alerts.AlertType
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.alerts.UiText
 import com.wvelabs.core_ui.alerts.icon
-import com.wvelabs.core_ui.components.PureComposeOverlayDialog
 
 
 @Composable
@@ -39,25 +37,17 @@ fun AppActionDialog(
     alert: AlertType.Dialog,
     closeDialog: () -> Unit = {}
 ) {
-    // Enforce cancelable rules natively
-    val properties = DialogProperties(
-        dismissOnBackPress = alert.cancelable,
-        dismissOnClickOutside = alert.cancelable
-    )
-
-    PureComposeOverlayDialog(
+    AppDialogOverlay(
         cancelable = alert.cancelable,
-        modifier = Modifier.padding(24.dp),
-        overlayColor = AppColors.NeonAquaBlue20,
         onDismissRequest = {
             if (alert.cancelable) {
                 closeDialog()
             }
         },
-    ) {
+    ) { dismiss ->
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxWidth(0.9f)
                 .clip(RoundedCornerShape(16.dp))
                 .background(AppColors.White)
                 .padding(horizontal = 16.dp, vertical = 16.dp),
@@ -117,7 +107,7 @@ fun AppActionDialog(
                         title = alert.dismissText?.asString() ?: "",
                         onClick = {
                             alert.onDismiss?.invoke()
-                            closeDialog()
+                            dismiss()
                         },
                         backgroundColor = AppColors.HintGray,
                         contentColor = AppColors.Error,
@@ -129,11 +119,8 @@ fun AppActionDialog(
                 AppButton(
                     title = alert.confirmText.asString(),
                     onClick = {
-                        println("DEBUG: Confirm clicked")
-                        alert.onConfirm?.invoke()
-                        println("DEBUG: onConfirm finished successfully")
-                        closeDialog()
-                        println("DEBUG: closeDialog triggered")
+                        alert.onConfirm.invoke()
+                        dismiss()
                     },
                     style = AppButtonStyle.FILLED_GRADIENT,
                     modifier = Modifier.weight(1f)

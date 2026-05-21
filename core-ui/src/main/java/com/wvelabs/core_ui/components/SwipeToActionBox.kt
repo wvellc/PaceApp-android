@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -81,24 +83,29 @@ fun rememberSwipeActionState(): SwipeActionState {
 @Composable
 fun SwipeToActionBox(
     modifier: Modifier = Modifier,
+    actionModifier: Modifier = Modifier,
     itemId: String,
     state: SwipeActionState = rememberSwipeActionState(),
-    swipeThreshold: Dp = 100.dp,
+    swipeThreshold: Dp = 0.dp, //Wrap content swiped portion based on actions
     direction: SwipeDirection = SwipeDirection.EndToStart,
     actionBackgroundColor: Color = Color.Transparent,
     actionShape: Shape = RectangleShape,
+    actionSpacing: Dp = 16.dp,
     closeOtherItemsOnSwipe: Boolean = true,
     actions: @Composable (RowScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val offsetX = remember { Animatable(0f) }
-    val swipeThresholdPx = with(LocalDensity.current) { swipeThreshold.toPx() }
-
+    val density = LocalDensity.current
+    val providedThresholdPx = with(density) { swipeThreshold.toPx() }
+    var dynamicThresholdPx by remember { mutableFloatStateOf(0f) }
+    val effectiveThresholdPx =
+        if (providedThresholdPx > 0f) providedThresholdPx else dynamicThresholdPx
     val minBound =
-        if (direction == SwipeDirection.EndToStart || direction == SwipeDirection.Both) -swipeThresholdPx else 0f
+        if (direction == SwipeDirection.EndToStart || direction == SwipeDirection.Both) -effectiveThresholdPx else 0f
     val maxBound =
-        if (direction == SwipeDirection.StartToEnd || direction == SwipeDirection.Both) swipeThresholdPx else 0f
+        if (direction == SwipeDirection.StartToEnd || direction == SwipeDirection.Both) effectiveThresholdPx else 0f
     // Keep latest callback reference for pointerInput
 
     // ---  The Auto-Close Trigger ---
@@ -126,14 +133,20 @@ fun SwipeToActionBox(
                     SwipeDirection.EndToStart -> Alignment.CenterEnd
                     SwipeDirection.Both -> if (offsetX.value < 0f) Alignment.CenterEnd else Alignment.CenterStart
                 }
-
+                val widthModifier = if (providedThresholdPx > 0f) {
+                    Modifier.width(swipeThreshold)
+                } else {
+                    Modifier.onSizeChanged { size ->
+                        dynamicThresholdPx = size.width.toFloat()
+                    }
+                }
                 // A Row container exactly the width of the swipe threshold
                 Row(
-                    modifier = Modifier
-                        .align(actionAlignment)
-                        .width(swipeThreshold)
-                        .fillMaxHeight(),
-                    horizontalArrangement = Arrangement.SpaceEvenly, // Distributes multiple icons nicely
+                    modifier = widthModifier
+                        .fillMaxHeight()
+                        .then(actionModifier)
+                        .align(actionAlignment),
+                    horizontalArrangement = Arrangement.spacedBy(actionSpacing), // Distributes multiple icons nicely
                     verticalAlignment = Alignment.CenterVertically,
                     content = actions
                 )
@@ -144,7 +157,7 @@ fun SwipeToActionBox(
         Box(
             modifier = Modifier
                 .offset { IntOffset(offsetX.value.roundToInt(), 0) }
-                .pointerInput(direction, swipeThresholdPx) {
+                .pointerInput(direction, effectiveThresholdPx) {
                     detectHorizontalDragGestures(
                         onDragStart = {
                             state.openItem(itemId, closeOthers = closeOtherItemsOnSwipe)
@@ -157,8 +170,8 @@ fun SwipeToActionBox(
                         onDragEnd = {
                             coroutineScope.launch {
                                 val targetValue = when {
-                                    offsetX.value <= -swipeThresholdPx / 2 -> -swipeThresholdPx
-                                    offsetX.value >= swipeThresholdPx / 2 -> swipeThresholdPx
+                                    offsetX.value <= -effectiveThresholdPx / 2 -> -effectiveThresholdPx
+                                    offsetX.value >= effectiveThresholdPx / 2 -> effectiveThresholdPx
                                     else -> 0f
                                 }
                                 offsetX.animateTo(

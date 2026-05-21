@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,15 +35,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.DialogProperties
 import com.example.paceapp.R
 import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppButtonStyle
+import com.example.paceapp.core.components.AppDialogOverlay
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.features.main.home.models.WatchMetric
 import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
-import com.wvelabs.core_ui.components.CustomOverlayDialog
 
 @Composable
 fun WatchMetricsInfoDialog(
@@ -50,27 +50,22 @@ fun WatchMetricsInfoDialog(
     currentIndex: Int = 0,
     totalSteps: Int = 1,
     cancelable: Boolean = false,
-    onDismissDialog: () -> Unit = {},
+    onCloseDialog: () -> Unit = {},
     onNextClick: () -> Unit,
     onPrevClick: () -> Unit
 ) {
-    // Enforce cancelable rules natively
-    val properties = DialogProperties(
-        dismissOnBackPress = cancelable,
-        dismissOnClickOutside = cancelable,
-        usePlatformDefaultWidth = false
-    )
-    CustomOverlayDialog(
-        overlayColor = AppColors.Black.copy(alpha = 0.4f),
+
+    AppDialogOverlay(
+        cancelable = cancelable,
         onDismissRequest = {
             if (cancelable) {
-                onDismissDialog()
+                onCloseDialog()
             }
         },
-        properties = properties
-    ) {
+    ) { dismiss ->
         Column(
             modifier = Modifier
+                .fillMaxWidth()
                 .padding(AppTheme.screenPadding),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
@@ -80,7 +75,7 @@ fun WatchMetricsInfoDialog(
                 contentDescription = stringResource(R.string.close),
                 modifier = Modifier
                     .clip(CircleShape)
-                    .defaultClickable(onClick = onDismissDialog)
+                    .defaultClickable(onClick = { dismiss() })
                     .align(Alignment.End)
             )
 

@@ -13,6 +13,7 @@ import kotlinx.datetime.toLocalDateTime
 import kotlin.math.abs
 import kotlin.time.Clock
 import kotlin.time.Duration
+import kotlin.time.Instant
 
 enum class AppDateFormat {
     TIMESTAMP,
@@ -224,6 +225,12 @@ object DateTimeHelper {
 
     private fun LocalDate.atStartOfDay() =
         LocalDateTime(this, MIDNIGHT)
+
+    fun getLocalDateTime(millis: Long): LocalDateTime {
+        return Instant.fromEpochSeconds(millis)
+            .toLocalDateTime(SYSTEM_TZ)
+
+    }
 }
 
 fun LocalTime.to24hours(): String =

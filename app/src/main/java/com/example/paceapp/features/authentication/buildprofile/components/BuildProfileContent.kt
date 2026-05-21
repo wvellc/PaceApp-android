@@ -26,6 +26,7 @@ import com.example.paceapp.core.components.AppBaseScreen
 import com.example.paceapp.core.components.AppButton
 import com.example.paceapp.core.components.AppTextButton
 import com.example.paceapp.core.components.CommonAppBar
+import com.example.paceapp.core.components.animation.horizontalStepTransition
 import com.example.paceapp.core.components.profilesteps.SetGaitContent
 import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.verticalScrollOnIme
@@ -123,18 +124,8 @@ internal fun BuildProfileContent(
                 AnimatedContent(
                     modifier = Modifier.fillMaxSize(),
                     targetState = state.currentStep,
-                    transitionSpec = {
-                        val isMovingForward = targetState.stepOrder > initialState.stepOrder
-
-                        if (isMovingForward) {
-                            (slideInHorizontally { width -> width } + fadeIn()).togetherWith(
-                                slideOutHorizontally { width -> -width } + fadeOut()
-                            )
-                        } else {
-                            (slideInHorizontally { width -> -width } + fadeIn()).togetherWith(
-                                slideOutHorizontally { width -> width } + fadeOut()
-                            )
-                        }.using(SizeTransform(clip = false))
+                    transitionSpec = horizontalStepTransition { initial, target ->
+                        target.stepOrder > initial.stepOrder
                     },
                     label = "StepTransition"
                 ) { step ->

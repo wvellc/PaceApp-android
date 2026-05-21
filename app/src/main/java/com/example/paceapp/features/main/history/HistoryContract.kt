@@ -21,6 +21,8 @@ class HistoryContract {
         data object Init : Event()
         data object OnBackClick : Event()
         data class OnFilterChange(val filter: HistoryFilterModel?) : Event()
+        data class OnDuplicateHistoryClick(val history: HistoryUiModel) : Event()
+        data class OnDeleteHistoryClick(val history: HistoryUiModel) : Event()
     }
 
     sealed class Effect : ViewSideEffect {

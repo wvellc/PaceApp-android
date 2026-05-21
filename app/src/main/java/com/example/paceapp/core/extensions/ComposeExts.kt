@@ -1,5 +1,6 @@
 package com.example.paceapp.core.extensions
 
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -38,13 +39,15 @@ fun Modifier.defaultClickable(
 ): Modifier = composed {
 
     val actualInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
-
+    val indication = rippleColor?.let {
+        ripple(bounded = true, color = it)
+    }
     val lastClickTime = remember { longArrayOf(0L) }
 
     this.clickable(
         enabled = enabled,
         interactionSource = actualInteractionSource, // 3. Use the resolved source here
-        indication = rippleColor?.let { ripple(bounded = true, color = it) },
+        indication = indication,
         onClick = {
             val currentTime = System.currentTimeMillis()
             if (currentTime - lastClickTime[0] > debounceTime) {

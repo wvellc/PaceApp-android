@@ -100,7 +100,7 @@ fun BaseAppBar(
             modifier = Modifier
                 .fillMaxHeight()
                 .align(Alignment.CenterEnd)
-                .padding(end = 8.dp),
+                .padding(end = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = actionsArrangement,
             content = actions

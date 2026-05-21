@@ -32,7 +32,7 @@ class AppSessionManager @Inject constructor(
     val sessionExpiredEvent = _sessionExpiredEvent.asSharedFlow()
     private val useEncryption = true
 
-     suspend fun getAccessToken(): String? {
+    suspend fun getAccessToken(): String? {
         val rawValue = readOnce(AppSessionKeys.ACCESS_TOKEN) ?: return null
         return if (useEncryption) {
             val decrypted = cryptoManager.decrypt(rawValue)
@@ -54,7 +54,8 @@ class AppSessionManager @Inject constructor(
 
     // --- OBJECTS (JSON) ---
     // Storing a UserData
-    suspend fun setUserDetails(user: UserData) {
+    suspend fun setUserDetails(user: UserData?) {
+        if (user == null) return
         // Convert object to JSON String
         val jsonString = Json.encodeToString(UserData.serializer(), user)
         if (useEncryption) {

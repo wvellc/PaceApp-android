@@ -36,6 +36,8 @@ fun HistoryItem(
     history: HistoryUiModel,
     onClick: () -> Unit = {},
 ) {
+
+
     Column(
         modifier = modifier
             .fillMaxWidth()

@@ -141,5 +141,15 @@
     <string name="no">No</string>
     <string name="no_notification_title">No Notifications Yet</string>
     <string name="no_notification_subtitle">You don’t have any notifications right\nnow.</string>
+    <string name="create">Create</string>
+    <string name="step_distance_title">Please specify your distance.</string>
+    <string name="step_goal_time_title">Please specify your goal time.</string>
+    <string name="step_segment_choice_title">Do you want to run with segments?</string>
+    <string name="step_segment_count_title">Great! How many segments would you like for this run?</string>
+    <string name="step_look_back_title">Look-Back Intervals</string>
+    <string name="step_segment_details_title">%s Estimated Goal Finish Time</string>
+    <string name="run">Run</string>
+    <string name="walk">Walk</string>
+    <string name="cycling">Cycling</string>
 
 </resources>

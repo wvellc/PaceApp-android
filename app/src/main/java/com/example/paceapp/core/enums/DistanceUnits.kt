@@ -6,6 +6,6 @@ import com.example.paceapp.R
 enum class DistanceUnits(
     @param:StringRes val titleRes: Int,
 ) {
-    KM(R.string.kms),
-    MILE(R.string.miles);
+    KMS(R.string.kms),
+    MILES(R.string.miles);
 }

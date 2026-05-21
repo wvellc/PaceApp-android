@@ -1,5 +1,6 @@
 package com.example.paceapp.features.main.settings
 
+import androidx.lifecycle.viewModelScope
 import com.example.paceapp.R
 import com.example.paceapp.config.AppWebUrls
 import com.example.paceapp.core.base.BaseViewModel
@@ -11,6 +12,7 @@ import com.example.paceapp.features.main.settings.SettingsContract.State
 import com.example.paceapp.features.main.settings.enums.SettingOptions
 import com.example.paceapp.session.AppSessionManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -41,7 +43,17 @@ class SettingsViewModel @Inject constructor(
 
     private fun initData() {
         if (currentState.isInitialized) return
+        getDistanceUnits()
         setState { copy(isInitialized = true) }
+
+    }
+
+    private fun getDistanceUnits() {
+        viewModelScope.launch {
+            val userDetails = sessionManager.getUserDetails()
+            val units = userDetails?.distanceUnits ?: DistanceUnits.MILES
+            setState { copy(selectedDistanceUnits = units) }
+        }
     }
 
     private fun handleSettingOptionClick(option: SettingOptions) {
@@ -78,7 +90,18 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun handleDistanceUnitSelected(distanceUnits: DistanceUnits) {
-        setState { copy(selectedDistanceUnits = distanceUnits) }
+        viewModelScope.launch {
+            //Save distance units
+            val userDetails = sessionManager.getUserDetails()
+            sessionManager.setUserDetails(
+                userDetails?.copy(
+                    distanceUnits = distanceUnits
+                )
+            )
+            setState { copy(selectedDistanceUnits = distanceUnits) }
+
+        }
+
     }
 
     private fun handleDeveloperWebsiteClick() {

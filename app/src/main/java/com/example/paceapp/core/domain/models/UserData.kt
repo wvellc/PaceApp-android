@@ -2,6 +2,7 @@ package com.example.paceapp.core.domain.models
 
 import com.example.paceapp.core.domain.enums.GenderTypes
 import com.example.paceapp.core.domain.enums.LoginTypes
+import com.example.paceapp.core.enums.DistanceUnits
 import com.example.paceapp.core.garmin.models.WatchModel
 import com.example.paceapp.session.AppSessionManager
 import kotlinx.serialization.Serializable
@@ -20,6 +21,7 @@ data class UserData(
     val lastName: String? = null,
     val loginType: LoginTypes = LoginTypes.EMAIL,
     val gender: GenderTypes = GenderTypes.MALE,
+    val distanceUnits: DistanceUnits = DistanceUnits.MILES,
     val email: String? = null,
     val countryCode: String? = null,
     val phoneNumber: String? = null,

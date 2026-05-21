@@ -16,7 +16,6 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -47,6 +46,7 @@ import com.example.paceapp.core.components.AppRangeSlider
 import com.example.paceapp.core.components.AppTextField
 import com.example.paceapp.core.components.DatePickerField
 import com.example.paceapp.core.components.ValidatorType
+import com.example.paceapp.core.components.rememberPastOnlySelectableDates
 import com.example.paceapp.core.extensions.clearFocusOnTap
 import com.example.paceapp.core.extensions.defaultClickable
 import com.example.paceapp.core.extensions.verticalScrollOnIme
@@ -55,7 +55,6 @@ import com.example.paceapp.theme.AppColors
 import com.example.paceapp.theme.AppTheme
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -68,7 +67,7 @@ fun FilterBottomSheet(
     initialFilter: HistoryFilterModel? = null,
     backgroundColor: Color = AppColors.White,
     sheetShape: Shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-    overlayColor: Color = AppColors.NeonAquaBlue.copy(alpha = 0.4f),
+    overlayColor: Color = AppColors.Black40,
     onDismiss: () -> Unit,
     onApplyFilter: (HistoryFilterModel?) -> Unit,
 ) {
@@ -77,17 +76,7 @@ fun FilterBottomSheet(
     var isAnimating by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     // --- Initialize States ---
-    val pastOnlyFilter = remember {
-        object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                return utcTimeMillis <= System.currentTimeMillis()
-            }
-
-            override fun isSelectableYear(year: Int): Boolean {
-                return year <= Calendar.getInstance().get(Calendar.YEAR)
-            }
-        }
-    }
+    val pastOnlyFilter = rememberPastOnlySelectableDates()
     val locationTextState = remember { TextFieldState() }
     var sliderValue by remember { mutableStateOf(defaultDistanceRange) }
     var selectedDateMillis by remember { mutableStateOf<Long?>(null) }
