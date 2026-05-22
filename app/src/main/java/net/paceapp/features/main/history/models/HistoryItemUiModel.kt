@@ -1,0 +1,12 @@
+package net.paceapp.features.main.history.models
+
+data class HistoryUiModel(
+    val id: String,
+    val title: String,
+    val date: String,
+    val distance: String,
+    val time: String,
+    val avgPace: String,
+    val paceDifference: String,
+    val isPaceImproved: Boolean
+)

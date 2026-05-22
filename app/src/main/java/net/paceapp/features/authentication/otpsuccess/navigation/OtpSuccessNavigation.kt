@@ -1,0 +1,24 @@
+package net.paceapp.features.authentication.otpsuccess.navigation
+
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.compose.composable
+import net.paceapp.core.domain.enums.LoginTypes
+import net.paceapp.features.authentication.otpsuccess.OtpSuccessScreen
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class OtpSuccessRoute(val loginType: LoginTypes)
+
+fun NavGraphBuilder.otpSuccessScreen(
+    onBack: () -> Unit,
+    onNavigateToBuildProfile: () -> Unit,
+    onNavigateToTabHost: () -> Unit,
+) {
+    composable<OtpSuccessRoute> {
+        OtpSuccessScreen(
+            onBack = onBack,
+            onNavigateToTabHost = onNavigateToTabHost,
+            onNavigateToBuildProfile = onNavigateToBuildProfile,
+        )
+    }
+}

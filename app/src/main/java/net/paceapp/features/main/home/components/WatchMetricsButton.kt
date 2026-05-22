@@ -1,0 +1,93 @@
+package net.paceapp.features.main.home.components
+
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import net.paceapp.features.main.home.models.WatchMetric
+import net.paceapp.theme.AppColors
+import net.paceapp.theme.AppTheme
+import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.capsule.ContinuousRoundedRectangle
+import com.wvelabs.core_ui.components.LiquidGlassButton
+
+@Composable
+fun WatchMetricsButton(
+    backdrop: LayerBackdrop,
+    metric: WatchMetric,
+    shape: Shape = ContinuousRoundedRectangle(96.dp),
+    tintColor: Color = AppColors.FluorescentMint,
+    onClick: () -> Unit,
+) {
+
+
+    LiquidGlassButton(
+        modifier = Modifier
+            .width(56.dp)
+            .height(115.dp),
+        shape = shape,
+        backdrop = backdrop,
+        onClick = onClick
+    ) {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.spacedBy(
+                space = 8.dp,
+                alignment = Alignment.CenterVertically
+            ),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                painter = painterResource(metric.iconRes),
+                contentDescription = stringResource(metric.unitLabelRes),
+                modifier = Modifier.size(32.dp),
+                colorFilter = ColorFilter.tint(tintColor)
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(1.dp),
+            ) {
+                Text(
+                    text = metric.value,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = AppTheme.typography.semiBold.copy(
+                        color = tintColor,
+                        fontSize = 17.sp,
+                        lineHeight = 17.sp,
+                        letterSpacing = 0.34.sp,
+                    )
+                )
+                Text(
+                    text = stringResource(metric.unitLabelRes),
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = AppTheme.typography.semiBold.copy(
+                        color = tintColor,
+                        lineHeight = 10.sp,
+                        fontSize = 10.sp,
+                        letterSpacing = 0.2.sp,
+                    )
+                )
+            }
+        }
+    }
+}

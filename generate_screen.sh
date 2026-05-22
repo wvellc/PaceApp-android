@@ -5,7 +5,7 @@
 # ==========================================
 
 # 1. Configuration (Set these once per project!)
-APP_PACKAGE_NAME="com.example.paceapp"
+APP_PACKAGE_NAME="net.paceapp"
 APP_FOLDER_PATH="app/src/main/java/com/example/paceapp"
 
 # 2. Core Library Namespaces (These NEVER change across projects!)

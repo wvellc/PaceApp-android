@@ -6,7 +6,7 @@
 
 ### Example
 ```bash
-./generate_screen.sh com.example.paceapp.features.auth.login Login
+./generate_screen.sh net.paceapp.features.auth.login Login
 Result : 
 features/auth/login/
 ├── LoginContract.kt

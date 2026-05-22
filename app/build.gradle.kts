@@ -12,13 +12,21 @@ plugins {
 }
 
 android {
-    namespace = "com.example.paceapp"
+    signingConfigs {
+        create("release") {
+            storeFile = file("keyStore\\paceapp_key")
+            storePassword = "PaceApp!@#246"
+            keyPassword = "PaceApp!@#246"
+            keyAlias = "PaceApp"
+        }
+    }
+    namespace = "net.paceapp"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.paceapp"
+        applicationId = "net.paceapp"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -29,8 +37,9 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

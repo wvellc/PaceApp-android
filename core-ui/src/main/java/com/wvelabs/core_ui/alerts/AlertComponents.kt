@@ -92,7 +92,7 @@ fun DefaultDialog(alert: AlertType.Dialog, closeDialog: () -> Unit = {}) {
         text = { Text(alert.text.asString()) },
         confirmButton = {
             TextButton(onClick = {
-                alert.onConfirm?.invoke()
+                alert.onConfirm.invoke()
                 closeDialog()
             }) {
                 Text(alert.confirmText.asString())

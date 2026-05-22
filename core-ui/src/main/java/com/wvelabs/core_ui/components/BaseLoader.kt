@@ -1,5 +1,6 @@
 package com.wvelabs.core_ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -25,6 +26,9 @@ fun BaseLoader(
     customLoader: @Composable (() -> Unit)? = null,
     isFullScreen: Boolean = false
 ) {
+    BackHandler(  true) {
+        //Do nothing
+    }
     val containerModifier = if (isFullScreen) {
         Modifier
             .fillMaxSize()

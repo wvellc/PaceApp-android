@@ -1,0 +1,42 @@
+package net.paceapp.features.authentication.profilecreated
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+
+import net.paceapp.features.authentication.profilecreated.ProfileCreatedContract.Effect
+import net.paceapp.features.authentication.profilecreated.ProfileCreatedContract.Event
+import net.paceapp.features.authentication.profilecreated.components.ProfileCreatedContent
+
+@Composable
+fun ProfileCreatedScreen(
+    viewModel: ProfileCreatedViewModel = hiltViewModel(),
+    onBack: () -> Unit,
+    onNavigateToTabHost: () -> Unit
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Init view model
+    LaunchedEffect(key1 = Unit) {
+          viewModel.setEvent(Event.Init)
+    }
+
+    // Handle one-time effects
+    LaunchedEffect(key1 = Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is Effect.NavigateBack -> onBack()
+                is Effect.NavigateToTabHost -> onNavigateToTabHost()
+            }
+        }
+    }
+
+    // Render content
+    ProfileCreatedContent(
+        state = state,
+        onEvent = viewModel::setEvent
+    )
+}
