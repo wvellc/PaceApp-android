@@ -19,23 +19,21 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import net.paceapp.features.main.tabhost.models.BottomTab
-import net.paceapp.theme.AppColors
-import net.paceapp.theme.AppTheme
 import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
@@ -44,6 +42,9 @@ import com.kyant.backdrop.effects.vibrancy
 import com.kyant.capsule.ContinuousCapsule
 import com.wvelabs.core_ui.components.liquidtabbar.LiquidBottomTabs
 import com.wvelabs.core_ui.components.liquidtabbar.LiquidTabItem
+import net.paceapp.features.main.tabhost.models.BottomTab
+import net.paceapp.theme.AppColors
+import net.paceapp.theme.AppTheme
 
 @Composable
 fun AppBottomBar(
@@ -60,43 +61,35 @@ fun AppBottomBar(
             BottomTab.Profile
         )
     }
-    val navBackStackEntry by tabNavController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
-    val selectedIndex = tabs.indexOfFirst { tab ->
-        currentDestination?.hierarchy?.any { dest ->
-            dest.route?.contains(tab.routeClass.simpleName ?: "") == true
-        } == true
-    }.let { if (it != -1) it else 0 }
-
-
+    var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
+    LaunchedEffect(selectedIndex) {
+        val tab = tabs[selectedIndex]
+        tabNavController.navigate(tab.route) {
+            popUpTo(tabNavController.graph.id) {
+                saveState = true
+            }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
     val tabShape = ContinuousCapsule
 
     LiquidBottomTabs(
         selectedTabIndex = { selectedIndex },
         onTabSelected = { index ->
-            val tab = tabs[index]
-            tabNavController.navigate(tab.route) {
-                popUpTo(tabNavController.graph.id) {
-                    inclusive = true
-                    saveState = true
-                }
-                launchSingleTop = true
-                restoreState = true
+            if (selectedIndex != index) {
+                selectedIndex = index
             }
         },
         backdrop = backdrop,
         tabsCount = tabs.size,
         containerShape = tabShape,
-
-        // --- Styling to match your screenshot ---
         containerHeight = 58.dp,
         padding = 8.dp,
-        // Colors from screenshot
         containerColor = AppColors.White.copy(0.3f),
         selectedTabColor = AppColors.NeonAquaBlue,
         unselectedTabColor = AppColors.FashionGray,
-        // Disable backdrop effects if you want solid colors like the screenshot
+        selectedContentColor = AppColors.White,
         containerEffects = {
             opacity(0.95f)
             vibrancy()
@@ -126,25 +119,16 @@ fun AppBottomBar(
             1.dp,
             Brush.verticalGradient(AppColors.bottomTabBorderGradient)
         )
-    ) { index, measurementModifier, providedColor, isBaseLayer ->
+    ) { index, measurementModifier, contentColor, indicatorColor, isVisuallySelected ->
         val tab = tabs[index]
-        val isSelected = selectedIndex == index
 
-        val finalIconColor = if (isBaseLayer) {
-            // If it's the base layer AND selected, it sits on the Neon pill, so use White.
-            // Otherwise, it is an unselected tab, so use the provided DarkCharcoal!
-            if (isSelected) AppColors.White else providedColor
-        } else {
-            // If it is the active/invisible layer, it always uses the provided NeonAquaBlue.
-            providedColor
-        }
         // The LiquidBottomTabs handles the clicks/dragging automatically.
         // We just define what the item looks like!
         LiquidTabItem(
             modifier = measurementModifier,
             shape = tabShape,
-            selectedColor = if (isBaseLayer) AppColors.NeonAquaBlue else AppColors.Transparent,
-            isSelected = isSelected,
+            selectedColor = indicatorColor,
+            isSelected = isVisuallySelected,
             content = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -156,7 +140,7 @@ fun AppBottomBar(
                 ) {
                     // Crossfade icon resource
                     Crossfade(
-                        targetState = if (isSelected) tab.selectedIconResId else tab.iconResId,
+                        targetState = if (isVisuallySelected) tab.selectedIconResId else tab.iconResId,
                         animationSpec = tween(300),
                         label = "icon_fade"
                     ) { iconRes ->
@@ -165,13 +149,13 @@ fun AppBottomBar(
                             contentDescription = stringResource(id = tab.titleResId),
                             modifier = Modifier
                                 .size(28.dp),
-                            colorFilter = ColorFilter.tint(finalIconColor)
+                            colorFilter = ColorFilter.tint(contentColor)
                         )
                     }
 
                     // Smoothly expand and reveal the text
                     AnimatedVisibility(
-                        visible = isSelected,
+                        visible = isVisuallySelected,
                         enter = fadeIn(tween(250)) + expandHorizontally(
                             animationSpec = tween(300),
                             expandFrom = Alignment.Start
@@ -187,7 +171,7 @@ fun AppBottomBar(
                                 text = stringResource(id = tab.titleResId),
                                 style = AppTheme.typography.semiBold.copy(
                                     fontSize = 12.sp,
-                                    color = finalIconColor
+                                    color = contentColor
                                 ),
                                 maxLines = 1,
                                 softWrap = false // Prevents text from jumping to a second line while shrinking!

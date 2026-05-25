@@ -9,7 +9,6 @@ class TabHostContract {
     data class State(
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
-        val metrics: List<WatchMetric> = emptyList(),
     ) : ViewState
 
     sealed class Event : ViewEvent {

@@ -22,13 +22,6 @@ fun TabHostScreen(
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val context = LocalContext.current
-
-    // This fires exactly once when the Tab Host enters the composition
-    LaunchedEffect(Unit) {
-        viewModel.restoreGarminConnection(context)
-    }
     // Init view model
     LaunchedEffect(key1 = Unit) {
         viewModel.setEvent(Event.Init)
@@ -37,8 +30,6 @@ fun TabHostScreen(
 
     // Render content
     TabHostContent(
-        state = state,
-        onEvent = viewModel::setEvent,
         onBack = onBack,
         onNavigateToSettings = onNavigateToSettings,
         onNavigateToAnalyticsDetails = onNavigateToAnalyticsDetails,

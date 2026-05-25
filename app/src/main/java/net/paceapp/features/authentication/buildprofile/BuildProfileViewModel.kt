@@ -4,6 +4,13 @@ import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
+import com.wvelabs.core_network.utils.AppLogger
+import com.wvelabs.core_ui.alerts.MessageType
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.enums.GenderTypes
 import net.paceapp.core.domain.models.GaitPace
@@ -18,11 +25,6 @@ import net.paceapp.features.authentication.buildprofile.BuildProfileContract.Eve
 import net.paceapp.features.authentication.buildprofile.BuildProfileContract.State
 import net.paceapp.features.authentication.buildprofile.domain.ValidateBuildProfileUseCase
 import net.paceapp.features.authentication.buildprofile.models.ProfileStep
-import com.wvelabs.core_network.utils.AppLogger
-import com.wvelabs.core_ui.alerts.MessageType
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
@@ -32,6 +34,7 @@ class BuildProfileViewModel @Inject constructor(
     private val validationUseCase: ValidateBuildProfileUseCase,
     private val garminManager: GarminDeviceManager,
 ) : BaseViewModel<State, Event, Effect>() {
+
     override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
@@ -46,25 +49,25 @@ class BuildProfileViewModel @Inject constructor(
             is Event.OnSkipClick -> handleOnSkipClicked()
             is Event.OnGarminDialogRetry -> handleGarminDialogRetry(event.context)
             is Event.OnGarminDialogSkip -> handleGarminDialogSkip()
-
         }
     }
-
 
     private fun initData() {
         if (currentState.isInitialized) return
         if (isDebugMode) {
-            setDummyData() //TODO:Replace with garmin watch list
+            setDummyData()
         }
 
         val (defaultWalk, defaultRun) = currentState.selectedGender.getDefaultGaits()
         setState { copy(runningGait = defaultRun, walkingGait = defaultWalk) }
+
         observeFields()
         observeGarminState()
         observeWatchStatus()
+        observeConnectionErrors()
+
         setState { copy(isInitialized = true) }
     }
-
 
     private fun setDummyData() {
         setState {
@@ -119,12 +122,41 @@ class BuildProfileViewModel @Inject constructor(
     }
 
     private fun observeWatchStatus() {
-        viewModelScope.launch {
-            garminManager.activeDevice.collectLatest { watch ->
-                AppLogger.e("WATCH - $watch")
-                updateState { copy(selectedWatch = watch) }
+        garminManager.activeDevice.onEach { watch ->
+
+            if (watch != null) {
+                userRepository.savePairedWatchId(watch.id)
+                setState {
+                    copy(
+                        selectedWatch = watch,
+                        isLoading = false
+                    )
+                }
+                if (currentState.currentStep == ProfileStep.SelectModel) {
+                    AppLogger.i("Successfully connected to: ${watch.name}")
+                    navigateTo(currentState.currentStep.nextStep)
+                }
+            } else {
+                setState { copy(selectedWatch = null) }
             }
-        }
+        }.launchIn(viewModelScope)
+    }
+
+    private fun observeConnectionErrors() {
+        garminManager.connectionErrors.onEach { errorMessage ->
+            AppLogger.e("Failed to connect to watch.")
+            userRepository.clearPairedWatchId()
+
+            setState {
+                copy(
+                    selectedWatch = null,
+                    isLoading = false
+                )
+            }
+
+            setEffect { Effect.ShowToast(errorMessage, MessageType.Error) }
+
+        }.launchIn(viewModelScope)
     }
 
     private fun updateState(reducer: State.() -> State) {
@@ -165,6 +197,8 @@ class BuildProfileViewModel @Inject constructor(
     }
 
     private fun handleNextButtonClicked(context: Context) {
+        if (currentState.isLoading) return
+
         val currentStep = currentState.currentStep
         when (currentStep) {
             ProfileStep.PairWatchInit -> {
@@ -174,32 +208,8 @@ class BuildProfileViewModel @Inject constructor(
             ProfileStep.SelectModel -> {
                 val watchToConnect = currentState.selectedWatch ?: return
 
-                safeLaunch(
-                    onLoading = { setState { copy(isLoading = it) } },
-                    block = {
-                        // This will suspend and wait for CONNECTED or NOT_CONNECTED
-                        garminManager.connectAndWait(watchToConnect)
-                    },
-                    onSuccess = { connectedWatch ->
-                        if (connectedWatch.status == WatchConnectionState.CONNECTED) {
-                            AppLogger.i("Successfully connected to: ${connectedWatch.name}")
-                            viewModelScope.launch {
-                                // Persist explicit choice
-                                userRepository.savePairedWatchId(connectedWatch.id)
-                                navigateTo(currentStep.nextStep)
-                            }
-                        } else {
-                            AppLogger.e("Failed to connect to watch.")
-                            // Optional: Show a toast/error effect here
-                            setEffect {
-                                Effect.ShowToast(
-                                    "Could not connect to watch",
-                                    MessageType.Error
-                                )
-                            }
-                        }
-                    }
-                )
+                setState { copy(isLoading = true) }
+                garminManager.connectDevice(watchToConnect)
             }
 
             else -> {
@@ -207,41 +217,32 @@ class BuildProfileViewModel @Inject constructor(
                 navigateTo(targetStep)
 
                 if (targetStep == ProfileStep.PairWatchInit) {
-                    // Background initialize SDK so it's ready when they click next
-                    safeLaunch(block = { garminManager.initializeGarminService(context) })
+                    runTask(block = { garminManager.initializeGarminService(context) })
                 }
             }
         }
     }
 
     private fun initializeGarminSdk(context: Context) {
-        setState { copy(isLoading = true) }
-        viewModelScope.launch {
-            val sdkState = garminManager.initializeGarminService(context)
-            AppLogger.i("SDK_STATE - $sdkState")
-            updateState { copy(isLoading = false, garminState = sdkState) }
-        }
+        runTask(
+            onLoading = { loading -> setState { copy(isLoading = loading) } },
+            block = {
+                val sdkState = garminManager.initializeGarminService(context)
+                AppLogger.i("SDK_STATE - $sdkState")
+                updateState { copy(garminState = sdkState) }
+            }
+        )
     }
 
     private fun fetchDevicesAndProceed() {
-        //Safety check
         if (currentState.garminState != GarminSdkState.Ready) {
             updateState { copy(showGarminSetupDialog = true) }
             return
         }
-
-
-        safeLaunch(
-            onLoading = { loading -> setState { copy(isLoading = loading) } },
-            block = { garminManager.getKnownDevices() },
-            onSuccess = { devices ->
-                setState {
-                    copy(watchList = devices, selectedWatch = devices.firstOrNull())
-                }
-                // Move to the Selection screen
-                navigateTo(currentState.currentStep.nextStep)
-            },
-        )
+        val devices = garminManager.getKnownDevices()
+        setState {
+            copy(watchList = devices, selectedWatch = devices.firstOrNull())
+        }
     }
 
     private fun handleOnBackClicked() {
@@ -258,7 +259,7 @@ class BuildProfileViewModel @Inject constructor(
             if (currentState.currentStep == ProfileStep.PairWatchInit) {
                 updateState { copy(selectedWatch = null) }
                 viewModelScope.launch {
-                    garminManager.disconnectDevice()
+                    garminManager.disconnect()
                     userRepository.clearPairedWatchId()
                 }
             }
@@ -267,18 +268,15 @@ class BuildProfileViewModel @Inject constructor(
     }
 
     private fun handleGarminDialogSkip() {
-        // Hide dialog and execute the normal skip logic
         updateState { copy(showGarminSetupDialog = false) }
         handleOnSkipClicked()
     }
 
     private fun handleGarminDialogRetry(context: Context) {
-        // Hide dialog and re-trigger the Garmin SDK prompt
         updateState { copy(showGarminSetupDialog = false) }
         initializeGarminSdk(context)
     }
 
-    // Navigation
     private fun navigateTo(targetStep: ProfileStep?) {
         if (targetStep == null) {
             saveUserDetails()
@@ -288,32 +286,29 @@ class BuildProfileViewModel @Inject constructor(
     }
 
     private fun saveUserDetails() {
-        safeLaunch({
-            val existingData = userRepository.getUserDetails()
-                ?: throw Exception("User data not found")
+        runTask(
+            block = {
+                val existingData = userRepository.getUserDetails()
+                    ?: throw Exception("User data not found")
 
-            val updatedUserData = existingData.copy(
-                firstName = currentState.firstNameState.text.trim().toString(),
-                lastName = currentState.lastNameState.text.trim().toString(),
-                gender = currentState.selectedGender,
-                walkingGait = currentState.walkingGait,
-                runningGait = currentState.runningGait,
-                // Persist existing ID if it has one, otherwise generate
-                id = existingData.id ?: UUID.randomUUID().toString()
-            )
+                val updatedUserData = existingData.copy(
+                    firstName = currentState.firstNameState.text.trim().toString(),
+                    lastName = currentState.lastNameState.text.trim().toString(),
+                    gender = currentState.selectedGender,
+                    walkingGait = currentState.walkingGait,
+                    runningGait = currentState.runningGait,
+                    id = existingData.id ?: UUID.randomUUID().toString()
+                )
 
-            userRepository.updateUserDetails(updatedUserData)
-        }, onLoading = { loading ->
-            setState { copy(isLoading = loading) }
-        }, onSuccess = {
-            navigateToProfileSuccess()
-        }, onError = { e ->
-            AppLogger.e("UpdateProfileError: $e")
-        })
+                userRepository.updateUserDetails(updatedUserData)
+            },
+            onLoading = { loading -> setState { copy(isLoading = loading) } },
+            onSuccess = { navigateToProfileSuccess() },
+            onError = { e -> AppLogger.e("UpdateProfileError: $e") }
+        )
     }
 
     private fun navigateToProfileSuccess() {
         setEffect { Effect.NavigateToProfileCreated }
     }
 }
-

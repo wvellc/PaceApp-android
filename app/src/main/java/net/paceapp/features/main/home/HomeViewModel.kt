@@ -2,6 +2,11 @@ package net.paceapp.features.main.home
 
 import android.content.Context
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDateTime
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import net.paceapp.core.garmin.GarminDeviceManager
@@ -14,11 +19,6 @@ import net.paceapp.features.main.home.domain.models.ActivityDomainModel
 import net.paceapp.features.main.home.mappers.ActivityUiMapper
 import net.paceapp.features.main.home.models.ActivityUiModel
 import net.paceapp.features.main.home.models.WatchMetric
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateTime
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -135,10 +135,16 @@ class HomeViewModel @Inject constructor(
         if (currentState.isInitialized) return
         observeUserData()
         observeActiveWatchDevice()
+        observeGarminSdkStatus()
         fetchUpcomingActivities()
         setState { copy(isInitialized = true) }
     }
-
+    private fun observeGarminSdkStatus() {
+        garminDeviceManager.sdkStateFlow
+            .onEach { status ->
+                setState { copy(garminSdkStatus = status) }
+            }.launchIn(viewModelScope)
+    }
 
     private fun observeUserData() {
         observeUserUiModelUseCase()
@@ -204,8 +210,8 @@ class HomeViewModel @Inject constructor(
 
 
     private fun handleOnNewEventClick() {
-//        setEffect { Effect.NavigateToCreateEvent }
-        AppConstants.showComingSoonDialog()
+        setEffect { Effect.NavigateToCreateEvent }
+//        AppConstants.showComingSoonDialog()
     }
 
     private fun handleOnFavoriteClick() {

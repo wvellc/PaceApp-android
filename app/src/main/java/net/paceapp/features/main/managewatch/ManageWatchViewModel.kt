@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import net.paceapp.R
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.repositories.UserRepository
@@ -27,6 +28,7 @@ class ManageWatchViewModel @Inject constructor(
     private val garminDeviceManager: GarminDeviceManager,
     private val resourceProvider: ResourceProvider,
 ) : BaseViewModel<State, Event, Effect>() {
+    private var isActivelyPairing = false
 
     override fun setInitialState() = State()
 
@@ -44,6 +46,7 @@ class ManageWatchViewModel @Inject constructor(
     private fun initData() {
         if (currentState.isInitialized) return
         observeActiveWatchDevice()
+        observeConnectionErrors()
         observeStep()
         setState { copy(isInitialized = true) }
     }
@@ -51,16 +54,39 @@ class ManageWatchViewModel @Inject constructor(
 
     private fun observeActiveWatchDevice() {
         garminDeviceManager.activeDevice.onEach { watch ->
-            setState {
-                copy(
-                    selectedWatch = watch, currentStep = when (watch) {
-                        null -> ManageWatchStep.PairWatchInit
-                        else -> ManageWatchStep.PairWatchSuccess
-                    }
-                )
+            if (watch != null) {
+                // Prevent multiple toasts if already paired
+                if (isActivelyPairing) {
+                    userRepository.savePairedWatchId(watch.id)
+                    showToast("Watch paired successfully", MessageType.Success)
+                    // Reset the flag
+                    isActivelyPairing = false
+                }
+                setState {
+                    copy(
+                        selectedWatch = watch,
+                        currentStep = ManageWatchStep.PairWatchSuccess
+                    )
+                }
+            } else {
+                setState { copy(selectedWatch = null) }
             }
         }.launchIn(viewModelScope)
 
+    }
+
+    private fun observeConnectionErrors() {
+        garminDeviceManager.connectionErrors.onEach { errorMessage ->
+            userRepository.clearPairedWatchId()
+            showToast(errorMessage, MessageType.Error)
+
+            setState {
+                copy(
+                    selectedWatch = null,
+                    isLoading = false
+                )
+            }
+        }.launchIn(viewModelScope)
     }
 
     private fun observeStep() {
@@ -117,17 +143,19 @@ class ManageWatchViewModel @Inject constructor(
                 val devices = garminDeviceManager.getKnownDevicesAfterInit(context)
 
                 if (devices.isNullOrEmpty()) {
-                    showToast("No paired watches found in Garmin Connect.", MessageType.Info)
+                    showToast("No paired watches found in Garmin Connect.", MessageType.Error)
+                    setState { copy(isLoading = false) }
                     return@runTask
                 }
 
                 if (devices.size == 1) {
                     val watch = devices.first()
-                    pairWithWatch(watch)
                     setState { copy(selectedWatch = watch) }
+                    pairWatch(watch)
                 } else {
                     setState {
                         copy(
+                            isLoading = false,
                             isMovingForward = true,
                             watchList = devices,
                             currentStep = ManageWatchStep.SelectModel
@@ -138,37 +166,22 @@ class ManageWatchViewModel @Inject constructor(
         )
     }
 
-    private suspend fun pairWithWatch(watch: WatchModel) {
-        val connectedWatch = garminDeviceManager.connectAndWait(watch)
-        if (connectedWatch.status == WatchConnectionState.CONNECTED) {
-            userRepository.savePairedWatchId(connectedWatch.id)
-            showToast("Watch paired successfully", MessageType.Success)
-        } else {
-            userRepository.clearPairedWatchId()
-            showToast("Connection failed. Please try again.", MessageType.Error)
-        }
-    }
 
     private fun handleDisconnectWatch() {
-        runTask(
-            onLoading = { loading -> setState { copy(isLoading = loading) } },
-            block = {
-                garminDeviceManager.disconnectDevice()
-                userRepository.clearPairedWatchId()
-            },
-            onSuccess = {
-                // Update the UI state
-                setState {
-                    copy(
-                        selectedWatch = null,
-                        isMovingForward = true,
-                        currentStep = ManageWatchStep.PairWatchInit
-                    )
-                }
-            }
-        )
-    }
+        viewModelScope.launch {
+            garminDeviceManager.disconnect()
+            userRepository.clearPairedWatchId()
 
+            setState {
+                copy(
+                    selectedWatch = null,
+                    isMovingForward = true,
+                    currentStep = ManageWatchStep.PairWatchInit
+                )
+            }
+        }
+
+    }
 
     private fun handleConfirmPairingClick() {
         val selectedWatch = currentState.selectedWatch
@@ -181,15 +194,11 @@ class ManageWatchViewModel @Inject constructor(
             return
         }
 
-        runTask(
-            onLoading = { loading -> setState { copy(isLoading = loading) } },
-            showSuccessMessage = "Watch paired successfully",
-            block = {
-                val connectedWatch = garminDeviceManager.connectAndWait(selectedWatch)
-                if (connectedWatch.status != WatchConnectionState.CONNECTED) {
-                    showToast("Connection failed. Please try again.", type = MessageType.Error)
-                }
-                userRepository.savePairedWatchId(connectedWatch.id)
-            })
+        pairWatch(selectedWatch)
+    }
+
+    private fun pairWatch(watch: WatchModel) {
+        isActivelyPairing = true
+        garminDeviceManager.connectDevice(watch)
     }
 }

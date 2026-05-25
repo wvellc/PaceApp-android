@@ -1,12 +1,12 @@
 package net.paceapp.features.main.managewatch
 
 import android.content.Context
-import net.paceapp.core.garmin.models.WatchModel
-import net.paceapp.features.main.managewatch.models.ManageWatchStep
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
+import net.paceapp.core.garmin.models.WatchModel
+import net.paceapp.features.main.managewatch.models.ManageWatchStep
 
 class ManageWatchContract {
     data class State(

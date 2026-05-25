@@ -151,5 +151,6 @@
     <string name="run">Run</string>
     <string name="walk">Walk</string>
     <string name="cycling">Cycling</string>
+    <string name="event_name">Event Name</string>
 
 </resources>

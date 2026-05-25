@@ -226,10 +226,9 @@ object DateTimeHelper {
     private fun LocalDate.atStartOfDay() =
         LocalDateTime(this, MIDNIGHT)
 
-    fun getLocalDateTime(millis: Long): LocalDateTime {
-        return Instant.fromEpochSeconds(millis)
-            .toLocalDateTime(SYSTEM_TZ)
-
+    fun getUTCLocalDateTime(millis: Long): LocalDateTime {
+        return Instant.fromEpochMilliseconds(millis)
+            .toLocalDateTime(TimeZone.UTC)
     }
 }
 

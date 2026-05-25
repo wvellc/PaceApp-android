@@ -74,6 +74,7 @@ fun LiquidBottomTabs(
     containerColor: Color = Color.White.copy(alpha = 0.4f),
     selectedTabColor: Color = Color.Black,
     unselectedTabColor: Color = Color.DarkGray,
+    selectedContentColor: Color = Color.White,
     containerEffects: BackdropEffectScope.() -> Unit = {},
     tabsEffects: BackdropEffectScope.(progress: Float) -> Unit = {},
     indicatorEffects: BackdropEffectScope.(progress: Float) -> Unit = {},
@@ -81,7 +82,13 @@ fun LiquidBottomTabs(
     borderStroke: BorderStroke = BorderStroke(
         1.dp, Brush.verticalGradient(listOf(Color.White, Color.Black))
     ),
-    tabItem: @Composable RowScope.(index: Int, measurementModifier: Modifier, providedColor: Color, isBaseLayer: Boolean) -> Unit
+    tabItem: @Composable RowScope.(
+        index: Int,
+        measurementModifier: Modifier,
+        contentColor: Color,
+        indicatorColor: Color,
+        isVisuallySelected: Boolean
+    ) -> Unit
 ) {
     val tabsBackdrop = rememberLayerBackdrop()
     val tabHeight = containerHeight - (padding * 2)
@@ -137,7 +144,9 @@ fun LiquidBottomTabs(
                     animationScope.launch { offsetAnimation.snapTo(offsetAnimation.value + dragAmount.x) }
                 })
         }
-
+        val visualIndex by remember {
+            derivedStateOf { dampedDragAnimation.value.fastRoundToInt().coerceIn(0, tabsCount - 1) }
+        }
         // 🟢 Auto-Sync with Back Button / External Navigation
         LaunchedEffect(actualIndex) {
             if (actualIndex != lastHandledIndex) {
@@ -226,7 +235,13 @@ fun LiquidBottomTabs(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             for (i in 0 until tabsCount) {
-                tabItem(i, createMeasurementModifier(i), unselectedTabColor, true)
+                val isVisuallySelected = i == visualIndex
+
+                // 🟢 Calculate Base Layer Colors
+                val contentColor = if (isVisuallySelected) selectedContentColor else unselectedTabColor
+                val indicatorColor = if (isVisuallySelected) selectedTabColor else Color.Transparent
+
+                tabItem(i, createMeasurementModifier(i), contentColor, indicatorColor, isVisuallySelected)
             }
         }
 
@@ -255,7 +270,13 @@ fun LiquidBottomTabs(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 for (i in 0 until tabsCount) {
-                    tabItem(i, createMeasurementModifier(i), selectedTabColor, false)
+                    val isVisuallySelected = i == visualIndex
+
+                    // 🟢 Calculate Top Layer Colors (Uses selected color as tint, NO background)
+                    val contentColor = selectedTabColor
+                    val indicatorColor = Color.Transparent
+
+                    tabItem(i, createMeasurementModifier(i), contentColor, indicatorColor, isVisuallySelected)
                 }
             }
         }

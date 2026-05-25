@@ -1,12 +1,12 @@
 package net.paceapp.features.main.createevent
 
 import androidx.compose.foundation.text.input.TextFieldState
-import net.paceapp.core.enums.DistanceUnits
-import net.paceapp.features.main.createevent.enums.CreateRunStep
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
 import kotlinx.datetime.LocalDateTime
+import net.paceapp.core.enums.DistanceUnits
+import net.paceapp.features.main.createevent.enums.CreateRunStep
 
 class CreateEventContract {
     data class State(
@@ -17,15 +17,18 @@ class CreateEventContract {
         val distanceUnits: DistanceUnits = DistanceUnits.MILES,
         val eventNameState: TextFieldState = TextFieldState(),
         val locationState: TextFieldState = TextFieldState(),
-        val selectedDate : LocalDateTime? = null,
-        val formatedDate : String? = null,
+        val selectedDate: LocalDateTime? = null,
+        val formatedDate: String? = null,
+        val currentSegmentIndex: Int = 0,
+        val segmentList: List<String> = emptyList()
     ) : ViewState
 
     sealed class Event : ViewEvent {
-
         data object Init : Event()
         data object OnBackClick : Event()
         data class OnDateSelected(val millis: Long?) : Event()
+        data object OnNextButtonClick : Event()
+
 
     }
 

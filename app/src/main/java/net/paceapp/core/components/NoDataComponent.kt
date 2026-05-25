@@ -39,7 +39,7 @@ fun NoDataView(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(AppTheme.screenPadding),
+            .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Top padding
@@ -67,8 +67,7 @@ fun NoDataView(
         Text(
             text = title,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .fillMaxWidth(),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.semiBold.copy(
                 color = AppColors.White,
@@ -84,12 +83,11 @@ fun NoDataView(
             Text(
                 text = subtitle,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                    .fillMaxWidth(),
                 textAlign = TextAlign.Center,
                 style = AppTheme.typography.medium.copy(
-                    color = AppColors.White,
-                    fontSize = 16.sp,
+                    color = AppColors.HintGray,
+                    fontSize = 15.sp,
                 )
             )
         }

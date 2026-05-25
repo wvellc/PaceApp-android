@@ -26,11 +26,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import net.paceapp.R
 import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.capsule.ContinuousRoundedRectangle
 
 enum class IconAlignment {
     Start,
@@ -45,6 +45,7 @@ fun DatePickerField(
     title: String? = null,
     iconColor: Color? = null,
     iconAlignment: IconAlignment = IconAlignment.End,
+    textColor: Color = AppColors.DarkCharcoal,
     titleStyle: TextStyle = AppTheme.typography.semiBold.copy(
         color = AppColors.DarkCharcoal,
         fontSize = 20.sp,
@@ -53,7 +54,8 @@ fun DatePickerField(
     titleSpacing: Dp = 8.dp,
     iconSpacing: Dp = 12.dp,
     onClick: () -> Unit,
-) {
+
+    ) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(titleSpacing)
@@ -108,7 +110,7 @@ fun DatePickerField(
                     } else {
                         Text(
                             text = value,
-                            color = AppColors.DarkCharcoal,
+                            color = textColor,
                             style = textStyle
                         )
                     }

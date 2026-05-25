@@ -21,18 +21,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import net.paceapp.R
 import net.paceapp.core.components.AnimatedBellIcon
 import net.paceapp.core.components.AppBaseScreen
 import net.paceapp.core.components.CommonAppBar
 import net.paceapp.core.components.profilesteps.PairWatchInitContent
 import net.paceapp.core.garmin.enums.WatchConnectionState
+import net.paceapp.core.garmin.state.GarminSdkState
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.HomeContract.State
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
 
@@ -41,6 +42,7 @@ internal fun HomeContent(
     state: State,
     onEvent: (Event) -> Unit,
 ) {
+    val isSdkReady = state.garminSdkStatus is GarminSdkState.Ready
     val isWatchConnected = state.watchModel?.status == WatchConnectionState.CONNECTED
     val metricsBackdrop = rememberLayerBackdrop()
     val lazyListState = rememberLazyListState()
@@ -58,7 +60,7 @@ internal fun HomeContent(
     AppBaseScreen(
         modifier = Modifier.fillMaxSize(),
         backgroundModifier = Modifier.layerBackdrop(metricsBackdrop),
-        isLoading = state.isLoading,
+        isLoading = state.isLoading || !isSdkReady,
         hasPattern = true,
         appBar = {
             //App bar
@@ -74,6 +76,9 @@ internal fun HomeContent(
                     }
                 })
         }) { innerPaddings ->
+        if (!isSdkReady) {
+            return@AppBaseScreen
+        }
         if (isWatchConnected) {
             // CONNECTED STATE
             LazyColumn(
@@ -210,7 +215,8 @@ internal fun HomeContent(
                 PairWatchInitContent(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .weight(1f),
+                        .weight(1f)
+                        .padding(horizontal = AppTheme.screenPadding),
                     showButton = true,
                     onButtonClick = {
                         onEvent(Event.OnStartPairing(context))

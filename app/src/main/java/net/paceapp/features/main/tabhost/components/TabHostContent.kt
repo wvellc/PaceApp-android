@@ -28,8 +28,6 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 
 @Composable
 internal fun TabHostContent(
-    state: State,
-    onEvent: (Event) -> Unit,
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit,
     onNavigateToAnalyticsDetails: (AnalyticsMetricType) -> Unit,
