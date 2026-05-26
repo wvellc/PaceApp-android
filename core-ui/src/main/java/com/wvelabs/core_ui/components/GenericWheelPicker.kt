@@ -82,9 +82,10 @@ fun <T> GenericWheelPicker(
             .setUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
             .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
             .build()
+
         SoundPool.Builder().setMaxStreams(1).setAudioAttributes(attributes).build()
     }
-    val tickSoundId = remember { soundPool.load(context, R.raw.wheel_tick, 1) }
+    val tickSoundId = remember { soundPool.load(context, R.raw.wheel_tick_soft, 1) }
 
     var hasUserInteracted by remember { mutableStateOf(false) }
 
@@ -120,8 +121,8 @@ fun <T> GenericWheelPicker(
 
     LaunchedEffect(currentCenteredIndex) {
         if (hasUserInteracted) {
-            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            soundPool.play(tickSoundId, 0.3f, 0.3f, 1, 0, 1.0f)
+            haptic.performHapticFeedback(HapticFeedbackType.GestureEnd)
+            soundPool.play(tickSoundId, 0.5f, 0.5f, 1, 0, 1.0f)
             onItemSelected(items[currentCenteredIndex])
         }
     }

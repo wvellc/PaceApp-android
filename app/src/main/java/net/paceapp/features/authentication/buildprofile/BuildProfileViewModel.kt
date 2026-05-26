@@ -17,7 +17,6 @@ import net.paceapp.core.domain.models.GaitPace
 import net.paceapp.core.domain.repositories.UserRepository
 import net.paceapp.core.extensions.getDefaultGaits
 import net.paceapp.core.garmin.GarminDeviceManager
-import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.garmin.models.WatchModel
 import net.paceapp.core.garmin.state.GarminSdkState
 import net.paceapp.features.authentication.buildprofile.BuildProfileContract.Effect
@@ -65,7 +64,6 @@ class BuildProfileViewModel @Inject constructor(
         observeGarminState()
         observeWatchStatus()
         observeConnectionErrors()
-
         setState { copy(isInitialized = true) }
     }
 
@@ -74,26 +72,6 @@ class BuildProfileViewModel @Inject constructor(
             copy(
                 firstNameState = TextFieldState("Max"),
                 lastNameState = TextFieldState("Well"),
-                watchList = listOf(
-                    WatchModel(
-                        id = UUID.randomUUID().toString(),
-                        name = "Forerunner 245",
-                        model = "Jack’s Watch",
-                        status = WatchConnectionState.CONNECTED
-                    ),
-                    WatchModel(
-                        id = UUID.randomUUID().toString(),
-                        name = "Forerunner 165",
-                        model = null,
-                        status = WatchConnectionState.NOT_CONNECTED
-                    ),
-                    WatchModel(
-                        id = UUID.randomUUID().toString(),
-                        name = "Forerunner 265",
-                        model = "Workout Watch",
-                        status = WatchConnectionState.UNKNOWN
-                    ),
-                )
             )
         }
     }
@@ -123,7 +101,6 @@ class BuildProfileViewModel @Inject constructor(
 
     private fun observeWatchStatus() {
         garminManager.activeDevice.onEach { watch ->
-
             if (watch != null) {
                 userRepository.savePairedWatchId(watch.id)
                 setState {
@@ -203,6 +180,7 @@ class BuildProfileViewModel @Inject constructor(
         when (currentStep) {
             ProfileStep.PairWatchInit -> {
                 fetchDevicesAndProceed()
+                navigateTo(currentStep.nextStep)
             }
 
             ProfileStep.SelectModel -> {
@@ -240,8 +218,12 @@ class BuildProfileViewModel @Inject constructor(
             return
         }
         val devices = garminManager.getKnownDevices()
+        AppLogger.i("DEVICES - $devices")
         setState {
-            copy(watchList = devices, selectedWatch = devices.firstOrNull())
+            copy(
+                watchList = devices,
+                selectedWatch = devices.firstOrNull(),
+            )
         }
     }
 

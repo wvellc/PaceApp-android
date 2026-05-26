@@ -230,6 +230,13 @@ object DateTimeHelper {
         return Instant.fromEpochMilliseconds(millis)
             .toLocalDateTime(TimeZone.UTC)
     }
+
+    fun now(isUtc: Boolean = true): LocalDateTime {
+        val now = Clock.System.now()
+        val timeZone = if (isUtc) TimeZone.UTC else SYSTEM_TZ
+        return now.toLocalDateTime(timeZone)
+    }
+
 }
 
 fun LocalTime.to24hours(): String =

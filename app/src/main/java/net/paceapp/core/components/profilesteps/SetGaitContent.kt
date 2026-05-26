@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import net.paceapp.R
 import net.paceapp.core.components.AppDigitPicker
 import net.paceapp.core.components.AppSegmentedButtons
@@ -23,9 +24,9 @@ import net.paceapp.core.domain.models.GaitPace
 import net.paceapp.core.domain.models.GaitUnit
 import net.paceapp.core.extensions.g2Continuity
 import net.paceapp.core.extensions.titleRes
+import net.paceapp.core.utils.AppConstants
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.capsule.ContinuousRoundedRectangle
 
 @Composable
 fun SetGaitContent(
@@ -106,6 +107,7 @@ private fun GaitPickerView(
         //Digit picker
         AppDigitPicker(
             modifier = Modifier
+                .fillMaxWidth()
                 .border(
                     width = 1.dp,
                     color = AppColors.White,
@@ -113,13 +115,14 @@ private fun GaitPickerView(
                 )
                 .padding(horizontal = 24.dp, vertical = 8.dp),
             initialValue = gait.value.toDouble(),
-            range = 0.1..9.0,
-            itemSpacing = 4.dp,
-            padWithZero = true,
-            step = 0.1,
             onValueChange = { newValue ->
                 onGaitChanged(gait.copy(value = newValue.toFloat()))
-            }
+            },
+            range = AppConstants.defaultDigitRange,
+            step = 0.1,
+            itemSpacing = 4.dp,
+            padWithZero = true,
+            contentColor = AppColors.White
         )
     }
 }

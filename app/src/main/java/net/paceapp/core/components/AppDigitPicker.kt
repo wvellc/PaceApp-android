@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,11 +25,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlin.math.roundToInt
 
 @Composable
@@ -43,45 +46,68 @@ fun <T> AppDigitPicker(
     itemSpacing: Dp = 8.dp,
     itemHeight: Dp = 28.dp,
     padWithZero: Boolean = false,
-    selectedTextStyle: TextStyle = AppTheme.typography.medium.copy(
-        fontSize = 22.sp,
-        color = AppColors.White
-    ),
-    unselectedTextStyle: TextStyle = AppTheme.typography.regular.copy(
-        fontSize = 18.sp,
-        color = AppColors.White.copy(alpha = 0.35f)
-    )
+    selectedFontSize: TextUnit = 22.sp,
+    fontSize: TextUnit = 18.sp,
+    contentColor: Color = Color.White,
+    trailingContent: @Composable RowScope.() -> Unit = {}
 ) where T : Number, T : Comparable<T> {
-
+    val selectedTextStyle: TextStyle = AppTheme.typography.medium.copy(
+        fontSize = selectedFontSize,
+        color = contentColor
+    )
+    val unselectedTextStyle: TextStyle = AppTheme.typography.regular.copy(
+        fontSize = fontSize,
+        color = contentColor.copy(alpha = 0.35f)
+    )
     val valDouble = initialValue.toDouble()
     val stepDouble = step.toDouble()
     val startDouble = range.start.toDouble()
     val endDouble = range.endInclusive.toDouble()
-    val isDecimal = stepDouble % 1.0 != 0.0
+
+    // Safely calculate decimal precision using BigDecimal to avoid floating point quirks
+    val decimalPrecision = remember(stepDouble) {
+        val stepBigDecimal = stepDouble.toBigDecimal().stripTrailingZeros()
+        maxOf(0, stepBigDecimal.scale())
+    }
+
+    val isDecimal = decimalPrecision > 0
+
+    // Multiplier
+    val decimalMultiplier = remember(decimalPrecision) {
+        if (isDecimal) 10.0.pow(decimalPrecision).toInt() else 1
+    }
 
     val wholeNumbers = remember(range) {
         (startDouble.toInt()..endDouble.toInt()).toList()
     }
-    val decimals = remember { (0..9).toList() }
+
+    // Decimals list: 0..9 for 0.1, 0..99 for 0.01
+    val decimals = remember(decimalMultiplier) {
+        if (isDecimal) (0 until decimalMultiplier).toList() else emptyList()
+    }
 
     // --- Calculate incoming expected parts ---
     val incomingWhole = valDouble.toInt()
-    val incomingDecimal = ((valDouble - incomingWhole) * 10).roundToInt().coerceIn(0, 9)
+    val incomingDecimal = remember(valDouble, decimalMultiplier) {
+        if (isDecimal) {
+            val fraction = abs(valDouble - incomingWhole)
+            (fraction * decimalMultiplier).roundToInt().coerceIn(0, decimalMultiplier - 1)
+        } else 0
+    }
 
     // --- Internal State ---
     var currentWhole by remember { mutableIntStateOf(incomingWhole) }
     var currentDecimal by remember { mutableIntStateOf(incomingDecimal) }
 
-
     var recomposeKey by remember { mutableIntStateOf(0) }
 
     // Watch for incoming changes from the ViewModel (like when DB finishes loading)
     LaunchedEffect(initialValue) {
-        val calculatedCurrent = currentWhole.toDouble() + (currentDecimal / 10.0)
+        val calculatedCurrent =
+            currentWhole.toDouble() + (currentDecimal.toDouble() / decimalMultiplier)
 
-        // If the ViewModel sends down a value that is DIFFERENT from what the wheel is
-        // currently pointing at, it means the database just loaded!
-        if (abs(valDouble - calculatedCurrent) > 0.01) {
+        // Adjusted epsilon to support 0.01 accuracy
+        if (abs(valDouble - calculatedCurrent) > 0.0001) {
             currentWhole = incomingWhole
             currentDecimal = incomingDecimal
             // Incrementing the key forces the GenericWheelPicker to jump to the new values!
@@ -109,8 +135,7 @@ fun <T> AppDigitPicker(
                 unselectedStyle = unselectedTextStyle,
                 onItemSelected = { newWhole ->
                     currentWhole = newWhole
-                    // Tell the ViewModel the user scrolled
-                    onValueChange(currentWhole.toDouble() + (currentDecimal / 10.0))
+                    onValueChange(currentWhole.toDouble() + (currentDecimal.toDouble() / decimalMultiplier))
                 },
                 modifier = Modifier.weight(1f)
             )
@@ -121,7 +146,7 @@ fun <T> AppDigitPicker(
                     modifier = Modifier
                         .padding(horizontal = 8.dp)
                         .size(6.dp)
-                        .background(Color.White, CircleShape)
+                        .background(contentColor, CircleShape)
                 )
 
                 // --- Decimal Wheel ---
@@ -130,19 +155,21 @@ fun <T> AppDigitPicker(
                     itemHeight = itemHeight,
                     visibleItemsCount = visibleItems,
                     initialIndex = currentDecimal,
-                    itemLabel = { it.toString() },
+                    // 4. Pad strings dynamically: padStart(2) for 0.01, padStart(1) for 0.1
+                    itemLabel = { it.toString().padStart(decimalPrecision, '0') },
                     spacing = itemSpacing,
                     selectorBackground = selectedItemBackground,
                     selectedStyle = selectedTextStyle,
                     unselectedStyle = unselectedTextStyle,
                     onItemSelected = { newDecimal ->
                         currentDecimal = newDecimal
-                        // Tell the ViewModel the user scrolled
-                        onValueChange(currentWhole.toDouble() + (currentDecimal / 10.0))
+                        onValueChange(currentWhole.toDouble() + (currentDecimal.toDouble() / decimalMultiplier))
                     },
                     modifier = Modifier.weight(1f)
                 )
             }
+
+            trailingContent()
         }
     }
 }

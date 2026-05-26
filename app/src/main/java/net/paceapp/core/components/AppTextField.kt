@@ -1,6 +1,7 @@
 package net.paceapp.core.components
 
 import androidx.annotation.DimenRes
+import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
@@ -60,9 +61,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.arpitkatiyarprojects.countrypicker.models.CountryDetails
+import com.kyant.capsule.ContinuousRoundedRectangle
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.capsule.ContinuousRoundedRectangle
 
 
 @Composable
@@ -97,6 +98,7 @@ fun AppTextField(
     // Simplified Error State
     showErrorMessage: Boolean = false, // Parent can force an error state
     errorTextStyle: TextStyle = AppTheme.typography.medium.copy(fontSize = 16.sp),
+    @StringRes errorMessageRes: Int? = null,
     @DimenRes showPasswordIcon: Int? = null,
     @DimenRes hidePasswordIcon: Int? = null,
     onCountrySelected: (country: CountryDetails) -> Unit = {},
@@ -316,7 +318,7 @@ fun AppTextField(
                 }
 
                 // The Animated Error Message
-                validatorType.errorResId?.let { errorRes ->
+                (errorMessageRes ?: validatorType.errorResId)?.let { errorRes ->
                     AnimatedVisibility(
                         visible = isError && showErrorMessage,
                         enter = expandVertically() + fadeIn(),
@@ -326,7 +328,7 @@ fun AppTextField(
                             text = stringResource(errorRes),
                             color = AppColors.Error,
                             style = errorTextStyle,
-                            modifier = Modifier.padding(top = 4.dp, start = 12.dp)
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }

@@ -152,5 +152,10 @@
     <string name="walk">Walk</string>
     <string name="cycling">Cycling</string>
     <string name="event_name">Event Name</string>
+    <string name="event_name_error_message">Event name is required.</string>
+    <string name="city_error_message">Location is required.</string>
+    <string name="location_field_error">Enter a valid location (e.g. City).</string>
+    <string name="distance_error_message">Distance is required.</string>
+    <string name="goal_time_error_message">Goal time is required.</string>
 
 </resources>

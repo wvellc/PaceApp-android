@@ -97,6 +97,7 @@ fun EventDetailsContent(
         AppTextField(
             state = locationState,
             hint = stringResource(R.string.location),
+            errorMessageRes = R.string.location_field_error,
             leadingIcon = {
                 Image(
                     painter = painterResource(R.drawable.ic_location),
@@ -104,7 +105,7 @@ fun EventDetailsContent(
                 )
             },
             modifier = Modifier.fillMaxWidth(),
-            validatorType = ValidatorType.Text,
+            validatorType = ValidatorType.Name,
             imeAction = ImeAction.Done,
             hintTextColor = AppColors.FashionGray,
             showErrorMessage = true,
