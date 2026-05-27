@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -49,7 +51,8 @@ fun <T> AppDigitPicker(
     selectedFontSize: TextUnit = 22.sp,
     fontSize: TextUnit = 18.sp,
     contentColor: Color = Color.White,
-    trailingContent: @Composable RowScope.() -> Unit = {}
+    trailingContentSpacing: Dp = 16.dp,
+    trailingContent: @Composable (RowScope.() -> Unit)? = null
 ) where T : Number, T : Comparable<T> {
     val selectedTextStyle: TextStyle = AppTheme.typography.medium.copy(
         fontSize = selectedFontSize,
@@ -168,8 +171,10 @@ fun <T> AppDigitPicker(
                     modifier = Modifier.weight(1f)
                 )
             }
-
-            trailingContent()
+            if (trailingContent != null) {
+                Spacer(modifier = Modifier.width(trailingContentSpacing))
+                trailingContent()
+            }
         }
     }
 }

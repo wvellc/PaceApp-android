@@ -171,12 +171,12 @@ internal fun BuildProfileContent(
             }
             //Next button
             AppButton(
-                enabled = state.isNextButtonEnabled,
-                title = stringResource(state.currentStep.buttonLabelRes),
                 modifier = Modifier
                     .fillMaxWidth()
                     .safeContentPadding()
                     .padding(bottom = AppTheme.screenPadding),
+                title = stringResource(state.currentStep.buttonLabelRes),
+                enabled = state.isNextButtonEnabled,
                 onClick = {
                     onEvent(Event.OnNextClick(context = context))
                 }

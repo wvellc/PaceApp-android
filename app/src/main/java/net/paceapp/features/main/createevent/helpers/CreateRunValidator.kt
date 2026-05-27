@@ -1,4 +1,4 @@
-package net.paceapp.features.main.createevent.mangers
+package net.paceapp.features.main.createevent.helpers
 
 import com.wvelabs.core_ui.resources.ResourceProvider
 import net.paceapp.R

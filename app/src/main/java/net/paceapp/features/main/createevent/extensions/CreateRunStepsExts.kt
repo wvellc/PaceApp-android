@@ -22,3 +22,11 @@ val CreateRunStep.nextButtonRes: Int
         CreateRunStep.LookBackIntervals -> R.string.create
         else -> R.string.next
     }
+
+
+val CreateRunStep.tooltipsMessage: Int?
+    @StringRes
+    get() = when (this) {
+        CreateRunStep.SegmentChoice -> R.string.segment_choice_info_message
+        else -> null
+    }

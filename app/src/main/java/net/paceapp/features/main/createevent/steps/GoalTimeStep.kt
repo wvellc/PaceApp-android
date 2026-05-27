@@ -1,4 +1,4 @@
-package net.paceapp.features.main.createevent.components
+package net.paceapp.features.main.createevent.steps
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -12,10 +12,12 @@ import androidx.compose.ui.unit.sp
 import com.kyant.capsule.ContinuousRoundedRectangle
 import net.paceapp.R
 import net.paceapp.core.components.AppDurationPicker
+import net.paceapp.features.main.createevent.components.EventCardContainer
+import net.paceapp.features.main.createevent.components.SelectedPickerItemBg
 import net.paceapp.theme.AppColors
 
 @Composable
-fun GoalTimeContent(
+fun GoalTimeStep(
     @StringRes titleRes: Int? = null,
     duration: Long,
     onDurationChange: (Long) -> Unit
@@ -40,7 +42,7 @@ fun GoalTimeContent(
             onDurationChange = onDurationChange,
             selectedItemBackground = { SelectedPickerItemBg() },
             itemSpacing = 4.dp,
-            itemHeight = 22.dp,
+            itemHeight = 20.dp,
             selectedFontSize = 16.sp,
             fontSize = 12.sp,
             contentColor = AppColors.DarkCharcoal

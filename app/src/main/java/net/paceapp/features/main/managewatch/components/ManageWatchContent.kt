@@ -116,10 +116,10 @@ internal fun ManageWatchContent(
 
             //Next button
             AppButton(
-                enabled = state.isNextButtonEnabled,
-                title = stringResource(state.currentStep.buttonLabelRes),
                 modifier = Modifier
                     .fillMaxWidth(),
+                title = stringResource(state.currentStep.buttonLabelRes),
+                enabled = state.isNextButtonEnabled,
                 onClick = {
                     onEvent(Event.OnNextButtonClick(context = context))
                 }

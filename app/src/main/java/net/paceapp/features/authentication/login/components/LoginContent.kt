@@ -165,8 +165,8 @@ internal fun LoginContent(
                     modifier = Modifier
                         .fillMaxWidth(),
                     title = stringResource(R.string.send_otp),
-                    enabled = state.isSendOTPEnabled
-                ) { onEvent(Event.OnLoginClick) }
+                    enabled = state.isSendOTPEnabled,
+                ){ onEvent(Event.OnLoginClick) }
 
                 //Terms condition style
                 val spanStyle = SpanStyle(

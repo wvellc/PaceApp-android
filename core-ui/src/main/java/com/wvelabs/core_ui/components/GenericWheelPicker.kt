@@ -142,7 +142,10 @@ fun <T> GenericWheelPicker(
             .fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
-        selectorBackground()
+        Box(
+            modifier = Modifier.height(spacing + itemHeight),
+            content = { selectorBackground() }
+        )
 
         LazyColumn(
             state = listState,

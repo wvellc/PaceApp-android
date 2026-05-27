@@ -22,18 +22,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyant.capsule.ContinuousRoundedRectangle
 import net.paceapp.R
 import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.capsule.ContinuousRoundedRectangle
-import kotlinx.datetime.format.Padding
 
 enum class AppButtonStyle {
     OUTLINED_GRADIENT, // Your original style
@@ -54,6 +53,11 @@ fun AppButton(
     contentColor: Color = AppColors.White,
     enabled: Boolean = true,
     padding: PaddingValues = PaddingValues(15.dp),
+    textStyle: TextStyle = AppTheme.typography.medium.copy(
+        fontSize =  16.sp,
+        color = contentColor,
+        lineHeight = 24.sp
+    ),
     onClick: () -> Unit = {},
 ) {
 
@@ -109,11 +113,7 @@ fun AppButton(
                     start = if (trailingIconRes != null) 32.dp else 0.dp,
                     end = if (trailingIconRes != null) 32.dp else 0.dp
                 ),
-            style = AppTheme.typography.medium.copy(
-                fontSize = 16.sp,
-                color = contentColor,
-                lineHeight = 24.sp
-            ),
+            style = textStyle,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -136,7 +136,5 @@ fun ButtonPreview() = AppButton(
     modifier = Modifier.fillMaxWidth(),
     title = "Lorem ipsum dolor",
     trailingIconRes = R.drawable.ic_arrow,
-    enabled = false,
-    style = AppButtonStyle.FILLED_GRADIENT,
-    iconAlignment = Alignment.CenterEnd
+    enabled = false
 )

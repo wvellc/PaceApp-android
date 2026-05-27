@@ -1,7 +1,7 @@
-package net.paceapp.features.main.createevent.mangers
+package net.paceapp.features.main.createevent.helpers
 
-import net.paceapp.features.main.createevent.enums.CreateRunStep
 import net.paceapp.features.main.createevent.CreateEventContract.State
+import net.paceapp.features.main.createevent.enums.CreateRunStep
 import javax.inject.Inject
 
 class CreateRunStepManager @Inject constructor(
@@ -17,7 +17,11 @@ class CreateRunStepManager @Inject constructor(
         val currentStep = state.currentStep
 
         // If we are on Segments and haven't reached the last one, stay on this step
-        if (currentStep == CreateRunStep.SegmentDetails) {
+        if (currentStep == CreateRunStep.SegmentChoice) {
+            // Skip segments if they selected "No"
+            if (!state.hasSegments) return CreateRunStep.LookBackIntervals
+
+        } else if (currentStep == CreateRunStep.SegmentDetails) {
             if (state.currentSegmentIndex < state.segmentList.lastIndex) {
                 return CreateRunStep.SegmentDetails
             }
@@ -32,9 +36,13 @@ class CreateRunStepManager @Inject constructor(
         val currentStep = state.currentStep
 
         // If we are on Segments and aren't at the first one, stay on this step
-        if (currentStep == CreateRunStep.SegmentDetails) {
+        if (currentStep == CreateRunStep.LookBackIntervals) {
+            // If they previously selected "No" to segments, skip backward over the segment steps
+            if (!state.hasSegments) return CreateRunStep.SegmentChoice
+
+        } else if (currentStep == CreateRunStep.SegmentDetails) {
             if (state.currentSegmentIndex > 0) {
-                return CreateRunStep.SegmentDetails 
+                return CreateRunStep.SegmentDetails
             }
         }
 

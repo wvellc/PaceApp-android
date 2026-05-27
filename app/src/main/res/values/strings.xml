@@ -147,7 +147,7 @@
     <string name="step_segment_choice_title">Do you want to run with segments?</string>
     <string name="step_segment_count_title">Great! How many segments would you like for this run?</string>
     <string name="step_look_back_title">Look-Back Intervals</string>
-    <string name="step_segment_details_title">%s Estimated Goal Finish Time</string>
+    <string name="step_segment_details_title">S%d Estimated Goal Finish Time</string>
     <string name="run">Run</string>
     <string name="walk">Walk</string>
     <string name="cycling">Cycling</string>
@@ -157,5 +157,7 @@
     <string name="location_field_error">Enter a valid location (e.g. City).</string>
     <string name="distance_error_message">Distance is required.</string>
     <string name="goal_time_error_message">Goal time is required.</string>
+    <string name="segment_distance_title">S%d Distance</string>
+    <string name="segment_choice_info_message">Segment can divide your run into parts with different distance</string>
 
 </resources>

@@ -2,6 +2,7 @@ package net.paceapp.features.main.createevent
 
 import androidx.lifecycle.viewModelScope
 import com.wvelabs.core_ui.alerts.MessageType
+import com.wvelabs.core_ui.resources.ResourceProvider
 import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -12,7 +13,10 @@ import net.paceapp.features.main.createevent.CreateEventContract.Effect
 import net.paceapp.features.main.createevent.CreateEventContract.Event
 import net.paceapp.features.main.createevent.CreateEventContract.State
 import net.paceapp.features.main.createevent.enums.CreateRunStep
-import net.paceapp.features.main.createevent.mangers.CreateRunStepManager
+import net.paceapp.features.main.createevent.extensions.tooltipsMessage
+import net.paceapp.features.main.createevent.helpers.CreateRunStepManager
+import net.paceapp.features.main.createevent.helpers.RunSegmentHelper
+import net.paceapp.features.main.createevent.models.RunSegment
 import net.paceapp.session.AppSessionManager
 import javax.inject.Inject
 
@@ -20,9 +24,9 @@ import javax.inject.Inject
 class CreateEventViewModel @Inject constructor(
     private val sessionManager: AppSessionManager,
     private val stepManager: CreateRunStepManager,
+    private val resourceProvider: ResourceProvider,
+    private val runSegmentHelper: RunSegmentHelper,
 ) : BaseViewModel<State, Event, Effect>() {
-    private val stepList by lazy { CreateRunStep.entries.toMutableList() }
-
     override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
@@ -33,6 +37,10 @@ class CreateEventViewModel @Inject constructor(
             is Event.OnDateSelected -> handleDateSelected(event.millis)
             is Event.OnDistanceUpdated -> handleOnDistanceUpdated(event.distance)
             is Event.OnDurationUpdated -> handleOnDurationUpdated(event.duration)
+            is Event.OnSegmentChoiceUpdated -> handleOnSegmentChoiceUpdated(event.hasSegments)
+            is Event.OnSegmentCountChange -> handleSegmentCountUpdated(event.count)
+            is Event.OnSegmentUpdated -> handleSegmentUpdated(event.segment)
+            is Event.OnStepInfoClick -> showStepInfoToast()
         }
     }
 
@@ -48,11 +56,7 @@ class CreateEventViewModel @Inject constructor(
             val userDetails = sessionManager.getUserDetails()
             val units = userDetails?.distanceUnits ?: DistanceUnits.MILES
             setState {
-                copy(
-                    selectedDistance = selectedDistance.copy(
-                        unit = units,
-                    )
-                )
+                copy(selectedDistance = selectedDistance.copy(unit = units))
             }
         }
     }
@@ -64,7 +68,7 @@ class CreateEventViewModel @Inject constructor(
         when {
             prevStep == null -> setEffect { Effect.NavigateBack }
             prevStep == CreateRunStep.SegmentDetails && state.currentStep == CreateRunStep.SegmentDetails -> setState {
-                copy(currentSegmentIndex = currentSegmentIndex - 1)
+                copy(currentSegmentIndex = currentSegmentIndex - 1, segmentError = null)
             }
 
             else -> setState { copy(currentStep = prevStep) }
@@ -73,22 +77,88 @@ class CreateEventViewModel @Inject constructor(
 
     private fun handleNextButtonClick() {
         val state = currentState
+
         val errorMessage = stepManager.validateStep(state.currentStep, state)
         if (errorMessage != null) {
             showToast(text = errorMessage, type = MessageType.Warning)
             return
         }
 
+        when (state.currentStep) {
+            CreateRunStep.SegmentCount -> handleNextFromSegmentCount(state)
+            CreateRunStep.SegmentDetails -> handleNextFromSegmentDetails(state)
+            else -> proceedToNextStep(state, state.segmentList)
+        }
+    }
+
+    private fun handleNextFromSegmentCount(state: State) {
+        val initialSegments = runSegmentHelper.generateEqualSegments(
+            totalDistance = state.selectedDistance.value,
+            totalDurationSeconds = state.goalTimeInSeconds,
+            segmentCount = state.segmentCount
+        )
+
+        // Calculate next step
         val nextStep = stepManager.getNextStep(state)
 
-        when {
-            nextStep == null -> createEventApi()
+        setState {
+            copy(
+                segmentList = initialSegments,
+                currentStep = nextStep ?: currentStep,
+                currentSegmentIndex = 0
+            )
+        }
 
-            nextStep == CreateRunStep.SegmentDetails && state.currentStep == CreateRunStep.SegmentDetails -> setState {
-                copy(currentSegmentIndex = currentSegmentIndex + 1)
+        if (nextStep == null) createEventApi()
+    }
+
+    private fun handleNextFromSegmentDetails(state: State) {
+        val (newSegments, segmentError) = runSegmentHelper.updateSegmentValues(
+            segments = state.segmentList,
+            segmentIndex = state.currentSegmentIndex,
+            totalDistance = state.selectedDistance.value,
+            totalDurationSeconds = state.goalTimeInSeconds,
+        )
+
+        if (segmentError != null) {
+            setState { copy(segmentError = segmentError) }
+            return
+        }
+
+        // Calculate next step
+        val nextStep = stepManager.getNextStep(state)
+
+        if (nextStep == CreateRunStep.SegmentDetails) {
+            setState {
+                copy(
+                    currentSegmentIndex = currentSegmentIndex + 1,
+                    segmentError = null,
+                    segmentList = newSegments
+                )
             }
+        } else {
+            // Pass the already calculated nextStep
+            proceedToNextStep(state, newSegments, nextStep)
+        }
+    }
 
-            else -> setState { copy(currentStep = nextStep) }
+    private fun proceedToNextStep(
+        state: State,
+        updatedSegments: List<RunSegment>,
+        preCalculatedNextStep: CreateRunStep? = null
+    ) {
+        val nextStep = preCalculatedNextStep ?: stepManager.getNextStep(state)
+
+        setState {
+            copy(
+                currentStep = nextStep ?: currentStep,
+                segmentList = updatedSegments,
+                segmentError = null
+            )
+        }
+
+        if (nextStep == null) {
+            createEventApi()
         }
     }
 
@@ -114,4 +184,32 @@ class CreateEventViewModel @Inject constructor(
     }
 
 
+    private fun handleOnSegmentChoiceUpdated(hasSegments: Boolean) {
+        setState { copy(hasSegments = hasSegments) }
+    }
+
+    private fun handleSegmentCountUpdated(count: Int) {
+        setState { copy(segmentCount = count) }
+    }
+
+    private fun handleSegmentUpdated(segment: RunSegment) {
+        val state = currentState
+
+        val updatedList = state.segmentList.map { existingSegment ->
+            if (existingSegment.id == segment.id) segment else existingSegment
+        }
+        setState {
+            copy(
+                segmentList = updatedList,
+                segmentError = null
+            )
+        }
+    }
+
+    private fun showStepInfoToast() {
+        val messageRes = currentState.currentStep.tooltipsMessage
+        if (messageRes != null) {
+            showToast(resourceProvider.getString(messageRes), type = MessageType.Info)
+        }
+    }
 }

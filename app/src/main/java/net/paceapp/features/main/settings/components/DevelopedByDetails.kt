@@ -21,7 +21,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import net.paceapp.R
 import net.paceapp.core.components.AppButton
-import net.paceapp.core.components.AppButtonStyle
 import net.paceapp.theme.AppColors
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
 
@@ -61,11 +60,6 @@ fun DevelopedByDetails(
 
             // Visit Website Button
             AppButton(
-                onClick = onDevButtonTap,
-                height = 40.dp,
-                padding = PaddingValues(vertical = 8.dp),
-                style = AppButtonStyle.FILLED_GRADIENT,
-                title = stringResource(R.string.visit_website),
                 modifier = Modifier
                     .width(150.dp)
                     .animateEnterExit(
@@ -78,6 +72,10 @@ fun DevelopedByDetails(
                             )
                         ) + fadeIn(defaultAnimSpec(500, 200))
                     ),
+                title = stringResource(R.string.visit_website),
+                height = 40.dp,
+                padding = PaddingValues(vertical = 8.dp),
+                onClick = onDevButtonTap,
             )
         }
     }

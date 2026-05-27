@@ -17,8 +17,6 @@ import java.util.UUID
  */
 enum class MessageType {
     Loading, Success, Error, Warning, Info
-
-
 }
 
 

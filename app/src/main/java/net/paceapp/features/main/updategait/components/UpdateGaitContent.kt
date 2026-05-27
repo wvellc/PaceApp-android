@@ -57,8 +57,8 @@ internal fun UpdateGaitContent(
 
             //Close
             AppButton(
-                title = stringResource(R.string.close),
                 modifier = Modifier.fillMaxWidth(),
+                title = stringResource(R.string.close),
                 onClick = {
                     onEvent(Event.OnBackClick)
                 }

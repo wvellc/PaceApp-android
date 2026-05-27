@@ -178,11 +178,6 @@ fun WatchMetricsInfoDialog(
                             val microStepWeight =
                                 if (animationProgress > 0.01f) animationProgress else 0.001f
                             AppButton(
-                                title = stringResource(R.string.previous),
-                                onClick = onPrevClick,
-                                backgroundColor = AppColors.HintGray,
-                                contentColor = AppColors.Error,
-                                style = AppButtonStyle.NONE,
                                 modifier = Modifier
                                     .weight(microStepWeight)
                                     .graphicsLayer {
@@ -191,19 +186,22 @@ fun WatchMetricsInfoDialog(
                                         scaleX = currentScale      // Shrinks horizontally
                                         scaleY = currentScale      // Shrinks vertically
                                     }
-                                    .clipToBounds()
+                                    .clipToBounds(),
+                                title = stringResource(R.string.previous),
+                                style = AppButtonStyle.NONE,
+                                contentColor = AppColors.Error,
+                                onClick = onPrevClick
                             )
                         }
                         //Next or Done button
                         AppButton(
+                            modifier = Modifier
+                                .weight(1f),
                             title = when {
                                 currentIndex == totalSteps - 1 -> stringResource(R.string.done)
                                 else -> stringResource(R.string.next)
                             },
-                            onClick = onNextClick,
-                            style = AppButtonStyle.FILLED_GRADIENT,
-                            modifier = Modifier
-                                .weight(1f)
+                            onClick = onNextClick
                         )
                     }
                 }

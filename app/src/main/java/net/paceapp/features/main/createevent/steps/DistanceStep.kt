@@ -1,4 +1,4 @@
-package net.paceapp.features.main.createevent.components
+package net.paceapp.features.main.createevent.steps
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
@@ -17,16 +17,18 @@ import net.paceapp.core.components.AppSegmentedButtons
 import net.paceapp.core.domain.models.DistanceModel
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.core.extensions.g2Continuity
+import net.paceapp.features.main.createevent.components.EventCardContainer
+import net.paceapp.features.main.createevent.components.SelectedPickerItemBg
 import net.paceapp.theme.AppColors
 
 @Composable
-internal fun DistanceContent(
+internal fun DistanceStep(
     @StringRes titleRes: Int? = null,
     distance: DistanceModel,
     onDistanceChanged: (DistanceModel) -> Unit
 ) {
     //Card container
-    EventCardContainer(titleRes = titleRes) {
+    EventCardContainer(titleRes = titleRes,) {
         //Distance units
         AppSegmentedButtons(
             modifier = Modifier
@@ -46,6 +48,7 @@ internal fun DistanceContent(
                 )
             },
         )
+
         //Digit picker
         AppDigitPicker(
             modifier = Modifier
@@ -63,7 +66,7 @@ internal fun DistanceContent(
             step = 0.01,
             selectedItemBackground = { SelectedPickerItemBg() },
             itemSpacing = 4.dp,
-            itemHeight = 22.dp,
+            itemHeight = 20.dp,
             padWithZero = true,
             selectedFontSize = 16.sp,
             fontSize = 12.sp,

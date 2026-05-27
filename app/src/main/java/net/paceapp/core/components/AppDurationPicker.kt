@@ -45,7 +45,7 @@ fun AppDurationPicker(
     selectedFontSize: TextUnit = 22.sp,
     fontSize: TextUnit = 18.sp,
     contentColor: Color = Color.White,
-    iconSpacing: Dp = 16.dp, // Spacing between the picker and the trailing icon
+    trailingIconSpacing: Dp = 16.dp, // Spacing between the picker and the trailing icon
     trailingIcon: @Composable (RowScope.() -> Unit)? = null
 ) {
     val selectedTextStyle: TextStyle = AppTheme.typography.medium.copy(
@@ -164,7 +164,7 @@ fun AppDurationPicker(
 
             // --- Trailing Icon with Spacing ---
             if (trailingIcon != null) {
-                Spacer(modifier = Modifier.width(iconSpacing))
+                Spacer(modifier = Modifier.width(trailingIconSpacing))
                 trailingIcon()
             }
         }

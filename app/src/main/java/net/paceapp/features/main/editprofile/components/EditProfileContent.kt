@@ -115,12 +115,12 @@ internal fun EditProfileContent(
 
             //Next button
             AppButton(
-                enabled = state.isNextButtonEnabled,
-                title = stringResource(R.string.update_profile),
                 modifier = Modifier
                     .fillMaxWidth()
                     .safeContentPadding()
                     .padding(bottom = AppTheme.screenPadding),
+                title = stringResource(R.string.update_profile),
+                enabled = state.isNextButtonEnabled,
                 onClick = {
                     focusManager.clearFocus(force = true)
                     onEvent(Event.OnUpdateProfileClick)

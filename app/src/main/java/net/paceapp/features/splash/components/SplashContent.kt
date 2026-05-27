@@ -105,9 +105,9 @@ internal fun SplashContent(
                                 .animateEnterExit(
                                     enter = fadeInUpTransition()
                                 ),
-                            style = AppButtonStyle.OUTLINED_GRADIENT,
                             title = stringResource(R.string.get_started),
                             trailingIconRes = R.drawable.ic_arrow,
+                            style = AppButtonStyle.OUTLINED_GRADIENT,
                             onClick = { onEvent(Event.OnGetStarted) }
                         )
                         //Bottom inset paddings

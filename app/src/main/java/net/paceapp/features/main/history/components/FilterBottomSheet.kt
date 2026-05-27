@@ -264,19 +264,17 @@ private fun FilterSheetContent(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AppButton(
+                modifier = Modifier.weight(1f),
                 title = "Clear All",
-                onClick = onClearAllClick,
-                backgroundColor = AppColors.HintGray,
-                contentColor = AppColors.Error,
                 style = AppButtonStyle.NONE,
-                modifier = Modifier.weight(1f)
+                contentColor = AppColors.Error,
+                onClick = onClearAllClick
             )
 
             AppButton(
+                modifier = Modifier.weight(1f),
                 title = "Show Result",
-                onClick = onShowResultClick,
-                style = AppButtonStyle.FILLED_GRADIENT,
-                modifier = Modifier.weight(1f)
+                onClick = onShowResultClick
             )
         }
     }

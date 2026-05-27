@@ -3,16 +3,15 @@ package net.paceapp.features.main.createevent.steps
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
@@ -32,11 +31,10 @@ import net.paceapp.core.components.DatePickerField
 import net.paceapp.core.components.IconAlignment
 import net.paceapp.core.components.ValidatorType
 import net.paceapp.core.components.rememberFutureOnlySelectableDates
-import net.paceapp.core.extensions.verticalScrollOnIme
 import net.paceapp.theme.AppColors
 
 @Composable
-fun EventDetailsContent(
+fun EventDetailsStep(
     eventNameState: TextFieldState,
     locationState: TextFieldState,
     selectedDate: LocalDateTime?,
@@ -61,12 +59,8 @@ fun EventDetailsContent(
             ?.toInstant(TimeZone.UTC)
             ?.toEpochMilliseconds()
     }
-    val scrollState = rememberScrollState()
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScrollOnIme(scrollState, 200),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Top)
     ) {
 
         //Event name

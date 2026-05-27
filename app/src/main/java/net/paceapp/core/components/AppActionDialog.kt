@@ -104,26 +104,24 @@ fun AppActionDialog(
             ) {
                 if (alert.dismissText != null) {
                     AppButton(
+                        modifier = Modifier.weight(1f),
                         title = alert.dismissText?.asString() ?: "",
+                        style = AppButtonStyle.NONE,
+                        contentColor = AppColors.Error,
                         onClick = {
                             alert.onDismiss?.invoke()
                             dismiss()
-                        },
-                        backgroundColor = AppColors.HintGray,
-                        contentColor = AppColors.Error,
-                        style = AppButtonStyle.NONE,
-                        modifier = Modifier.weight(1f)
+                        }
                     )
                 }
 
                 AppButton(
+                    modifier = Modifier.weight(1f),
                     title = alert.confirmText.asString(),
                     onClick = {
                         alert.onConfirm.invoke()
                         dismiss()
-                    },
-                    style = AppButtonStyle.FILLED_GRADIENT,
-                    modifier = Modifier.weight(1f)
+                    }
                 )
             }
         }
