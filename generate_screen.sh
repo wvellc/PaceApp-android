@@ -6,11 +6,22 @@
 
 # 1. Configuration (Set these once per project!)
 APP_PACKAGE_NAME="net.paceapp"
-APP_FOLDER_PATH="app/src/main/java/com/example/paceapp"
+APP_FOLDER_PATH="app/src/main/java/net/paceapp"
 
 # 2. Core Library Namespaces (These NEVER change across projects!)
 CORE_UI_PACKAGE="com.wvelabs.core_ui"
 CORE_NETWORK_PACKAGE="com.wvelabs.core_network"
+
+# =====================================================================
+# Pre-Flight: Verify Project Configuration
+# =====================================================================
+if [ ! -d "$APP_FOLDER_PATH" ]; then
+    echo "❌ ERROR: Target directory not found!"
+    echo "   Looked for: $APP_FOLDER_PATH"
+    echo "   It seems your project's package name or folder path has changed."
+    echo "💡 FIX: Open 'generate_screen.sh' and update APP_PACKAGE_NAME and APP_FOLDER_PATH to match your current project."
+    exit 1
+fi
 
 # 3. Validate Input
 if [ -z "$1" ]; then

@@ -1,17 +1,29 @@
 package net.paceapp.features.main.createevent.steps
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,14 +45,17 @@ internal fun SegmentDetailsStep(
     segment: RunSegment,
     segmentError: String? = null,
     onSegmentUpdated: (RunSegment) -> Unit,
-
-    ) {
-    EventCardContainer(
-    ) {
+) {
+    var displayedError by remember { mutableStateOf("") }
+    if (segmentError != null) {
+        displayedError = segmentError
+    }
+    EventCardContainer {
+        //Segment distance
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            //Distance title
             Text(
                 text = stringResource(R.string.segment_distance_title, segment.id),
                 style = AppTheme.typography.semiBold.copy(
@@ -67,8 +82,7 @@ internal fun SegmentDetailsStep(
                     Text(
                         text = stringResource(id = distanceUnitRes),
                         style = AppTheme.typography.medium.copy(
-                            fontSize = 16.sp,
-                            color = AppColors.DarkCharcoal
+                            fontSize = 16.sp, color = AppColors.DarkCharcoal
                         )
                     )
                     Spacer(modifier = Modifier.weight(1f))
@@ -88,12 +102,11 @@ internal fun SegmentDetailsStep(
                 contentColor = AppColors.DarkCharcoal
             )
         }
-
+        //Segment duration
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-
+            //Duration title
             if (titleRes != null) {
                 Text(
                     text = stringResource(titleRes, segment.id),
@@ -132,17 +145,28 @@ internal fun SegmentDetailsStep(
             )
         }
 
-        AnimatedContent(
-            targetState = segmentError != null
-        ) { showError ->
-            if (showError) {
+        //Animated error
+        AnimatedVisibility(
+            visible = segmentError != null,
+            enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
+            exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.ic_info),
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    colorFilter = ColorFilter.tint(AppColors.Error)
+                )
                 Text(
-                    segmentError!!, style = AppTheme.typography.medium.copy(
-                        fontSize = 14.sp,
-                        color = AppColors.Error
+                    text = displayedError,
+                    style = AppTheme.typography.medium.copy(
+                        fontSize = 14.sp, color = AppColors.Error
                     )
                 )
-
             }
         }
     }

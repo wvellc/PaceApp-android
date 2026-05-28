@@ -9,11 +9,13 @@ import net.paceapp.features.main.history.HistoryScreen
 data object HistoryRoute
 
 fun NavGraphBuilder.historyScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToEventDetails: () -> Unit
 ) {
     composable<HistoryRoute> {
         HistoryScreen(
-            onBack = onBack
+            onBack = onBack,
+            onNavigateToEventDetails = onNavigateToEventDetails
         )
     }
 }

@@ -36,6 +36,7 @@ import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun HomeContent(
@@ -43,7 +44,7 @@ internal fun HomeContent(
     onEvent: (Event) -> Unit,
 ) {
     val isSdkReady = state.garminSdkStatus is GarminSdkState.Ready
-    val isWatchConnected = state.watchModel?.status == WatchConnectionState.CONNECTED
+    val isWatchConnected = true/*state.watchModel?.status == WatchConnectionState.CONNECTED*/
     val metricsBackdrop = rememberLayerBackdrop()
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
@@ -53,7 +54,7 @@ internal fun HomeContent(
     val animatedColor = rememberPulsingColor(
         initialColor = AppColors.FluorescentMint,
         targetColor = AppColors.InfernoRed,
-        holdDuration = 5.minutes,
+        holdDuration = 30.seconds,
         transitionDuration = 600.milliseconds
     )
 

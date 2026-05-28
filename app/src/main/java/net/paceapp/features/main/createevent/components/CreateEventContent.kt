@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,6 +30,7 @@ import net.paceapp.features.main.createevent.extensions.titleRes
 import net.paceapp.features.main.createevent.steps.DistanceStep
 import net.paceapp.features.main.createevent.steps.EventDetailsStep
 import net.paceapp.features.main.createevent.steps.GoalTimeStep
+import net.paceapp.features.main.createevent.steps.LookBackIntervalStep
 import net.paceapp.features.main.createevent.steps.SegmentChoiceStep
 import net.paceapp.features.main.createevent.steps.SegmentCountStep
 import net.paceapp.features.main.createevent.steps.SegmentDetailsStep
@@ -38,7 +38,8 @@ import net.paceapp.theme.AppTheme
 
 @Composable
 internal fun CreateEventContent(
-    state: State, onEvent: (Event) -> Unit
+    state: State,
+    onEvent: (Event) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     val coroutineScope = rememberCoroutineScope()
@@ -64,6 +65,7 @@ internal fun CreateEventContent(
             )
         },
     ) { innerPaddings ->
+        //Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -72,6 +74,7 @@ internal fun CreateEventContent(
                 .padding(AppTheme.screenPadding),
             verticalArrangement = Arrangement.Top
         ) {
+            //Animated steps
             AnimatedContent(
                 modifier = Modifier.weight(1f),
                 targetState = state.currentStep,
@@ -80,12 +83,11 @@ internal fun CreateEventContent(
                 },
                 label = "StepTransition",
             ) { step ->
-                val scrollState = rememberScrollState()
+                //Step container
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScrollOnIme(scrollState, 200),
+                    modifier = Modifier.fillMaxSize(),
                 ) {
+                    //Step content
                     when (step) {
                         CreateRunStep.EventDetails -> EventDetailsStep(
                             eventNameState = state.eventNameState,
@@ -100,8 +102,7 @@ internal fun CreateEventContent(
                             distance = state.selectedDistance,
                             onDistanceChanged = {
                                 onEvent(Event.OnDistanceUpdated(it))
-                            }
-                        )
+                            })
 
                         CreateRunStep.GoalTime -> GoalTimeStep(
                             titleRes = step.titleRes,
@@ -121,9 +122,7 @@ internal fun CreateEventContent(
                             })
 
                         CreateRunStep.SegmentCount -> SegmentCountStep(
-                            titleRes = step.titleRes,
-                            count = state.segmentCount,
-                            onCountChange = {
+                            titleRes = step.titleRes, count = state.segmentCount, onCountChange = {
                                 onEvent(Event.OnSegmentCountChange(it.toInt()))
                             })
 
@@ -149,10 +148,18 @@ internal fun CreateEventContent(
                             }
                         }
 
-                        CreateRunStep.LookBackIntervals -> EventCardContainer()
+                        CreateRunStep.LookBackIntervals -> LookBackIntervalStep(
+                            titleRes = step.titleRes,
+                            lookBackInterval = state.lookBackInterval,
+                            maxInterval = state.selectedDistance.value.toInt(),
+                            eventType = state.eventType,
+                            onEventTypeUpdated = { onEvent(Event.OnEventTypeUpdated(it)) },
+                            onIntervalUpdated = { onEvent(Event.OnLookBackIntervalUpdated(it)) },
+                        )
                     }
                 }
             }
+
             //Next button
             AppButton(
                 modifier = Modifier

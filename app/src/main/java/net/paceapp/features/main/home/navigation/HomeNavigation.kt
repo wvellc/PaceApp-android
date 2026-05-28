@@ -2,8 +2,8 @@ package net.paceapp.features.main.home.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import net.paceapp.features.main.home.HomeScreen
 import kotlinx.serialization.Serializable
+import net.paceapp.features.main.home.HomeScreen
 
 @Serializable
 data object HomeRoute
@@ -13,13 +13,15 @@ fun NavGraphBuilder.homeScreen(
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
+    onNavigateToEventDetails: () -> Unit,
 ) {
     composable<HomeRoute> {
         HomeScreen(
             onBack = onBack,
             onNavigateToNotifications = onNavigateToNotifications,
             onNavigateToCreateEvent = onNavigateToCreateEvent,
-            onNavigateToManageWatch = onNavigateToManageWatch
+            onNavigateToManageWatch = onNavigateToManageWatch,
+            onNavigateToEventDetails = onNavigateToEventDetails
         )
     }
 }

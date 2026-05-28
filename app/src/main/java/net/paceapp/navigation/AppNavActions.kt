@@ -11,6 +11,7 @@ import net.paceapp.features.common.webview.navigation.WebviewRoute
 import net.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
 import net.paceapp.features.main.createevent.navigation.CreateEventRoute
 import net.paceapp.features.main.editprofile.navigation.EditProfileRoute
+import net.paceapp.features.main.eventdetails.navigation.EventDetailsRoute
 import net.paceapp.features.main.managewatch.navigation.ManageWatchRoute
 import net.paceapp.features.main.notifications.navigation.NotificationsRoute
 import net.paceapp.features.main.settings.navigation.SettingsRoute
@@ -128,6 +129,12 @@ class AppNavActions(
 
     fun toCreateEvent() {
         navController.navigate(CreateEventRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toEventDetails() {
+        navController.navigate(EventDetailsRoute) {
             launchSingleTop = true
         }
     }

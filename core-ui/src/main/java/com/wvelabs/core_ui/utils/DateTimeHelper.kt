@@ -37,12 +37,22 @@ object DateTimeHelper {
 
     private val MIDNIGHT = LocalTime(0, 0)
 
-    fun formatDuration(duration: Duration): String {
+
+    fun formatDuration(duration: Duration, forceShowHours: Boolean = true): String {
         return duration.toComponents { hours, minutes, seconds, _ ->
-            val totalMinutes = hours * 60 + minutes
             val sign = if (duration.isNegative()) "-" else ""
-            "$sign${abs(totalMinutes).toString().padStart(2, '0')}:" +
-                    abs(seconds).toString().padStart(2, '0')
+
+            val h = abs(hours)
+            val m = abs(minutes)
+            val s = abs(seconds)
+
+            val minPadded = m.toString().padStart(2, '0')
+            val secPadded = s.toString().padStart(2, '0')
+
+            when {
+                h > 0 || forceShowHours -> "$sign$h:$minPadded:$secPadded"
+                else -> "$sign$minPadded:$secPadded"
+            }
         }
     }
 

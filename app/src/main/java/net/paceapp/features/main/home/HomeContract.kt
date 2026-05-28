@@ -39,5 +39,6 @@ class HomeContract {
         data object NavigateToNotifications : Effect()
         data object NavigateToCreateEvent : Effect()
         data object NavigateToManageWatch : Effect()
+        data object NavigateToEventDetails : Effect()
     }
 }

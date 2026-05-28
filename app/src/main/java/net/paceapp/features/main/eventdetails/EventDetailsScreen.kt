@@ -1,25 +1,25 @@
-package net.paceapp.features.main.history
+package net.paceapp.features.main.eventdetails
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import net.paceapp.features.main.history.HistoryContract.Effect
-import net.paceapp.features.main.history.HistoryContract.Event
-import net.paceapp.features.main.history.components.HistoryContent
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+
+import net.paceapp.features.main.eventdetails.EventDetailsContract.Effect
+import net.paceapp.features.main.eventdetails.EventDetailsContract.Event
+import net.paceapp.features.main.eventdetails.components.EventDetailsContent
 
 @Composable
-fun HistoryScreen(
-    viewModel: HistoryViewModel = hiltViewModel(),
-    onBack: () -> Unit,
-    onNavigateToEventDetails: () -> Unit,
+fun EventDetailsScreen(
+    viewModel: EventDetailsViewModel = hiltViewModel(),
+    onBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     // Init view model
     LaunchedEffect(key1 = Unit) {
-        viewModel.setEvent(Event.Init)
+          viewModel.setEvent(Event.Init)
     }
 
     // Handle one-time effects
@@ -27,13 +27,12 @@ fun HistoryScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
-                is Effect.NavigateToEventDetails -> onNavigateToEventDetails()
             }
         }
     }
 
     // Render content
-    HistoryContent(
+    EventDetailsContent(
         state = state,
         onEvent = viewModel::setEvent
     )

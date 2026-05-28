@@ -2,10 +2,7 @@ package net.paceapp.features.main.tabhost
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.paceapp.core.enums.AnalyticsMetricType
 import net.paceapp.features.main.tabhost.TabHostContract.Event
 import net.paceapp.features.main.tabhost.components.TabHostContent
@@ -21,6 +18,7 @@ fun TabHostScreen(
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
+    onNavigateToEventDetails: () -> Unit,
 ) {
     // Init view model
     LaunchedEffect(key1 = Unit) {
@@ -38,5 +36,6 @@ fun TabHostScreen(
         onNavigateToManageWatch = onNavigateToManageWatch,
         onNavigateToNotifications = onNavigateToNotifications,
         onNavigateToCreateEvent = onNavigateToCreateEvent,
+        onNavigateToEventDetails = onNavigateToEventDetails,
     )
 }

@@ -20,16 +20,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kyant.backdrop.Backdrop
+import com.kyant.capsule.ContinuousRoundedRectangle
+import com.wvelabs.core_ui.components.LiquidGlassButton
 import net.paceapp.features.main.home.models.WatchMetric
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.backdrop.backdrops.LayerBackdrop
-import com.kyant.capsule.ContinuousRoundedRectangle
-import com.wvelabs.core_ui.components.LiquidGlassButton
 
 @Composable
 fun WatchMetricsButton(
-    backdrop: LayerBackdrop,
+    backdrop: Backdrop,
     metric: WatchMetric,
     shape: Shape = ContinuousRoundedRectangle(96.dp),
     tintColor: Color = AppColors.FluorescentMint,

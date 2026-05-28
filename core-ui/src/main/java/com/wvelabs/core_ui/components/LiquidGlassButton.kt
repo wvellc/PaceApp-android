@@ -12,7 +12,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,23 +30,20 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.kyant.backdrop.backdrops.LayerBackdrop
+import com.kyant.backdrop.Backdrop
 import com.kyant.backdrop.drawBackdrop
 import com.kyant.backdrop.effects.blur
 import com.kyant.backdrop.effects.lens
 import com.kyant.backdrop.effects.opacity
 import com.kyant.backdrop.effects.vibrancy
 import com.kyant.backdrop.highlight.Highlight
-import com.kyant.backdrop.shadow.InnerShadow
 import com.kyant.backdrop.shadow.Shadow
 import com.kyant.capsule.ContinuousRoundedRectangle
-import kotlin.math.cos
-import kotlin.math.sin
 
 @Composable
 fun LiquidGlassButton(
     onClick: () -> Unit,
-    backdrop: LayerBackdrop,
+    backdrop: Backdrop,
     modifier: Modifier = Modifier,
     shape: Shape = ContinuousRoundedRectangle(24.dp),
     lightAngle: Float = -45f,
@@ -57,12 +53,13 @@ fun LiquidGlassButton(
     frost: Float = 42f,
     splay: Float = 48f,
     dispersion: Boolean = true,
+    maxScale: Float = 1.15f,
     content: @Composable BoxScope.() -> Unit
 ) {
     var isPressed by remember { mutableStateOf(false) }
 
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 1.15f else 1f,
+        targetValue = if (isPressed) maxScale else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
@@ -94,7 +91,7 @@ fun LiquidGlassButton(
         Box(
             modifier = Modifier
                 .clearAndSetSemantics {}
-                .fillMaxSize()
+                .matchParentSize()
                 .graphicsLayer {
                     this.scaleX = scale
                     this.scaleY = scale

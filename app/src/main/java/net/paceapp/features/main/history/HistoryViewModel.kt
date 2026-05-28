@@ -158,7 +158,7 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun handleOnHistoryClick(history: HistoryUiModel) {
-        AppConstants.showComingSoonDialog()
+        setEffect { Effect.NavigateToEventDetails}
     }
 
     private fun handleOnDuplicateHistoryClick(history: HistoryUiModel) {

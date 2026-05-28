@@ -150,7 +150,8 @@
     <string name="step_segment_details_title">S%d Estimated Goal Finish Time</string>
     <string name="run">Run</string>
     <string name="walk">Walk</string>
-    <string name="cycling">Cycling</string>
+    <string name="cycle">Cycle</string>
+
     <string name="event_name">Event Name</string>
     <string name="event_name_error_message">Event name is required.</string>
     <string name="city_error_message">Location is required.</string>
@@ -159,5 +160,12 @@
     <string name="goal_time_error_message">Goal time is required.</string>
     <string name="segment_distance_title">S%d Distance</string>
     <string name="segment_choice_info_message">Segment can divide your run into parts with different distance</string>
-
+    <string name="error_invalid_segment_config">Invalid segment configuration.</string>
+    <string name="error_segment_zero_distance">Segments can not have 0 distance</string>
+    <string name="error_segment_zero_eta">Segments can not have 0 ETA</string>
+    <string name="error_segment_dist_below">Combined segment distance (%1$s) is below total distance (%2$s)</string>
+    <string name="error_segment_dist_exceeds">Combined segment distance (%1$s) exceeds total distance (%2$s)</string>
+    <string name="error_segment_eta_below">Combined segment ETA (%1$s) is below total ETA (%2$s)</string>
+    <string name="error_segment_eta_exceeds">Combined segment ETA (%1$s) exceeds total ETA (%2$s)</string>
+    <string name="event_type">Event Type</string>
 </resources>

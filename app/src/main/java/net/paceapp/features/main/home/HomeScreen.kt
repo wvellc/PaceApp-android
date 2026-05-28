@@ -16,6 +16,7 @@ fun HomeScreen(
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
+    onNavigateToEventDetails: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -32,6 +33,7 @@ fun HomeScreen(
                 is Effect.NavigateToNotifications -> onNavigateToNotifications()
                 is Effect.NavigateToCreateEvent -> onNavigateToCreateEvent()
                 is Effect.NavigateToManageWatch -> onNavigateToManageWatch()
+                is Effect.NavigateToEventDetails -> onNavigateToEventDetails()
             }
         }
     }

@@ -205,7 +205,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handleOnActivityClick(activity: ActivityUiModel) {
-        AppConstants.showComingSoonDialog()
+        setEffect { Effect.NavigateToEventDetails }
     }
 
 

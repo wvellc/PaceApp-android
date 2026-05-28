@@ -1,5 +1,6 @@
 package net.paceapp.features.main.createevent
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.resources.ResourceProvider
@@ -12,6 +13,7 @@ import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.features.main.createevent.CreateEventContract.Effect
 import net.paceapp.features.main.createevent.CreateEventContract.Event
 import net.paceapp.features.main.createevent.CreateEventContract.State
+import net.paceapp.features.main.createevent.enums.EventType
 import net.paceapp.features.main.createevent.enums.CreateRunStep
 import net.paceapp.features.main.createevent.extensions.tooltipsMessage
 import net.paceapp.features.main.createevent.helpers.CreateRunStepManager
@@ -40,6 +42,8 @@ class CreateEventViewModel @Inject constructor(
             is Event.OnSegmentChoiceUpdated -> handleOnSegmentChoiceUpdated(event.hasSegments)
             is Event.OnSegmentCountChange -> handleSegmentCountUpdated(event.count)
             is Event.OnSegmentUpdated -> handleSegmentUpdated(event.segment)
+            is Event.OnLookBackIntervalUpdated -> handleLookBackIntervalUpdated(event.interval)
+            is Event.OnEventTypeUpdated -> handleEventTypeUpdated(event.type)
             is Event.OnStepInfoClick -> showStepInfoToast()
         }
     }
@@ -47,8 +51,20 @@ class CreateEventViewModel @Inject constructor(
 
     private fun initData() {
         if (currentState.isInitialized) return
+        if (isDebugMode) {
+            setDummyData()
+        }
         getDistanceUnits()
         setState { copy(isInitialized = true) }
+    }
+
+    private fun setDummyData() {
+        setState {
+            copy(
+                eventNameState = TextFieldState(initialText = "New Run"),
+                locationState = TextFieldState(initialText = "California")
+            )
+        }
     }
 
     private fun getDistanceUnits() {
@@ -105,7 +121,8 @@ class CreateEventViewModel @Inject constructor(
             copy(
                 segmentList = initialSegments,
                 currentStep = nextStep ?: currentStep,
-                currentSegmentIndex = 0
+                currentSegmentIndex = 0,
+                segmentError = null,
             )
         }
 
@@ -116,7 +133,7 @@ class CreateEventViewModel @Inject constructor(
         val (newSegments, segmentError) = runSegmentHelper.updateSegmentValues(
             segments = state.segmentList,
             segmentIndex = state.currentSegmentIndex,
-            totalDistance = state.selectedDistance.value,
+            totalDistance = state.selectedDistance,
             totalDurationSeconds = state.goalTimeInSeconds,
         )
 
@@ -163,7 +180,13 @@ class CreateEventViewModel @Inject constructor(
     }
 
     private fun createEventApi() {
+        //TODO:SAVE DATA
+        showToast(
+            "${currentState.eventNameState.text.trim()} event created",
+            type = MessageType.Success
+        )
 
+        setEffect { Effect.NavigateBack }
     }
 
 
@@ -204,6 +227,14 @@ class CreateEventViewModel @Inject constructor(
                 segmentError = null
             )
         }
+    }
+
+    private fun handleLookBackIntervalUpdated(interval: Int) {
+        setState { copy(lookBackInterval = interval) }
+    }
+
+    private fun handleEventTypeUpdated(type: EventType) {
+        setState { copy(eventType = type) }
     }
 
     private fun showStepInfoToast() {

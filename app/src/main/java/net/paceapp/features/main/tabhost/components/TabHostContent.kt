@@ -13,18 +13,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.kyant.backdrop.backdrops.layerBackdrop
+import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import net.paceapp.core.enums.AnalyticsMetricType
 import net.paceapp.features.main.analytics.navigation.analyticsScreen
 import net.paceapp.features.main.history.navigation.historyScreen
 import net.paceapp.features.main.home.navigation.homeScreen
 import net.paceapp.features.main.profile.navigation.profileScreen
-import net.paceapp.features.main.tabhost.TabHostContract.Event
-import net.paceapp.features.main.tabhost.TabHostContract.State
 import net.paceapp.features.main.tabhost.models.BottomTab
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.kyant.backdrop.backdrops.layerBackdrop
-import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 
 @Composable
 internal fun TabHostContent(
@@ -36,6 +34,7 @@ internal fun TabHostContent(
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
+    onNavigateToEventDetails: () -> Unit,
 ) {
 
     // The Local NavController for the 4 inner tabs
@@ -73,11 +72,15 @@ internal fun TabHostContent(
                 onBack = onBack,
                 onNavigateToNotifications = onNavigateToNotifications,
                 onNavigateToCreateEvent = onNavigateToCreateEvent,
-                onNavigateToManageWatch = onNavigateToManageWatch
+                onNavigateToManageWatch = onNavigateToManageWatch,
+                onNavigateToEventDetails = onNavigateToEventDetails,
             )
 
             //History
-            historyScreen(onBack = onBack)
+            historyScreen(
+                onBack = onBack,
+                onNavigateToEventDetails = onNavigateToEventDetails
+            )
 
             //Analytics
             analyticsScreen(

@@ -28,5 +28,6 @@ class HistoryContract {
 
     sealed class Effect : ViewSideEffect {
         data object NavigateBack : Effect()
+        data object NavigateToEventDetails : Effect()
     }
 }

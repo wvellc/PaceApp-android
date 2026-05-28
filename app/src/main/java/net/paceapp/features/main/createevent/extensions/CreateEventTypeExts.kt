@@ -2,13 +2,14 @@ package net.paceapp.features.main.createevent.extensions
 
 import androidx.annotation.StringRes
 import net.paceapp.R
-import net.paceapp.features.main.createevent.enums.CreateEventType
+import net.paceapp.features.main.createevent.enums.EventType
 
 
-val CreateEventType.labelRes: Int?
+val EventType.labelRes: Int
     @StringRes
     get() = when (this) {
-        CreateEventType.Run -> R.string.run
-        CreateEventType.Walk -> R.string.walk
-        CreateEventType.Cycling -> R.string.cycling
+        EventType.Run -> R.string.run
+        EventType.Walk -> R.string.walk
+        EventType.Cycling -> R.string.cycle
+        EventType.Other -> R.string.other
     }

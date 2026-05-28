@@ -1,5 +1,5 @@
 package net.paceapp.features.main.createevent.enums
 
-enum class CreateEventType {
-    Run, Walk, Cycling
+enum class EventType {
+    Run, Walk, Cycling, Other
 }

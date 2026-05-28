@@ -7,6 +7,7 @@ import com.wvelabs.core_ui.base.ViewState
 import com.wvelabs.core_ui.utils.DateTimeHelper
 import kotlinx.datetime.LocalDateTime
 import net.paceapp.core.domain.models.DistanceModel
+import net.paceapp.features.main.createevent.enums.EventType
 import net.paceapp.features.main.createevent.enums.CreateRunStep
 import net.paceapp.features.main.createevent.models.RunSegment
 import kotlin.time.Duration.Companion.hours
@@ -27,6 +28,8 @@ class CreateEventContract {
         val currentSegmentIndex: Int = 0,
         val segmentList: List<RunSegment> = emptyList(),
         val segmentError: String? = null,
+        val lookBackInterval: Int = 1,
+        val eventType: EventType = EventType.Run,
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -38,8 +41,9 @@ class CreateEventContract {
         data class OnDurationUpdated(val duration: Long) : Event()
         data class OnSegmentChoiceUpdated(val hasSegments: Boolean) : Event()
         data class OnSegmentCountChange(val count: Int) : Event()
-        class OnSegmentUpdated(val segment: RunSegment) : Event()
-
+        data class OnSegmentUpdated(val segment: RunSegment) : Event()
+        data class OnLookBackIntervalUpdated(val interval: Int) : Event()
+        data class OnEventTypeUpdated(val type: EventType) : Event()
         data object OnStepInfoClick : Event()
     }
 

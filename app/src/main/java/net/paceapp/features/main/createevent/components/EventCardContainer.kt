@@ -1,6 +1,7 @@
 package net.paceapp.features.main.createevent.components
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,7 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,14 +43,16 @@ internal fun EventCardContainer(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(AppColors.White)
-            .padding( 16.dp),
+            .animateContentSize()
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         //Top image
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(250.dp)
+                .heightIn(max = 260.dp)
+                .weight(1f, fill = false)
                 .clip(RoundedCornerShape(8.dp))
         ) {
             //Image
@@ -77,8 +80,7 @@ internal fun EventCardContainer(
         //Title
         titleRes?.let { id ->
             Text(
-                text = stringResource(id),
-                style = AppTheme.typography.semiBold.copy(
+                text = stringResource(id), style = AppTheme.typography.semiBold.copy(
                     color = AppColors.DarkCharcoal,
                     fontSize = 24.sp,
                     lineHeight = 24.sp,
