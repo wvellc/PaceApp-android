@@ -36,6 +36,10 @@ countryPicker = "3.0.1"
 backdrop = "1.0.6"
 imageCropper = "2.2.8"
 vico = "3.1.0"
+secretsGradlePlugin = "2.0.1"
+maps-compose = "8.3.0"
+play-services-maps = "20.0.0"
+androidMapsUtils = "4.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -98,6 +102,11 @@ vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.
 # The Material 3 theming extension for Vico
 vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
 
+# Google Maps
+google-maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "maps-compose" }
+google-play-services-maps = { module = "com.google.android.gms:play-services-maps", version.ref = "play-services-maps" }
+android-maps-utils = { group = "com.google.maps.android", name = "android-maps-utils", version.ref = "androidMapsUtils" }
+
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -106,3 +115,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }

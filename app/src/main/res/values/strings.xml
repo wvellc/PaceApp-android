@@ -100,7 +100,7 @@
     <string name="unit_heart_rate">bpm</string>
     <string name="unit_overall_time">hrs</string>
     <string name="unit_m_per_sec">m/sec</string>
-    <string name="unit_pace">min/mile</string>
+    <string name="unit_pace">min/mi</string>
     <string name="title_heart_rate">Welcome to your heart rate monitor!</string>
     <string name="desc_heart_rate">This tool tracks your heart rate during workouts and daily activities. Click the heart icon to view your current rate and gain insights to enhance your fitness journey. Stay informed and improve your health!</string>
     <string name="title_overall_time">Welcome to your heart rate monitor!</string>
@@ -158,6 +158,7 @@
     <string name="location_field_error">Enter a valid location (e.g. City).</string>
     <string name="distance_error_message">Distance is required.</string>
     <string name="goal_time_error_message">Goal time is required.</string>
+    <string name="segment_title">S%d</string>
     <string name="segment_distance_title">S%d Distance</string>
     <string name="segment_choice_info_message">Segment can divide your run into parts with different distance</string>
     <string name="error_invalid_segment_config">Invalid segment configuration.</string>
@@ -168,4 +169,14 @@
     <string name="error_segment_eta_below">Combined segment ETA (%1$s) is below total ETA (%2$s)</string>
     <string name="error_segment_eta_exceeds">Combined segment ETA (%1$s) exceeds total ETA (%2$s)</string>
     <string name="event_type">Event Type</string>
+    <string name="analysis">Analysis</string>
+    <string name="event_distance">Event Distance</string>
+    <string name="finished_goal_time">Finished Goal Time</string>
+    <string name="time_variance">Time Variance</string>
+    <string name="segments">Segments</string>
+    <string name="completed_distance">Completed Distance</string>
+    <string name="total_time_taken">Total Time Taken</string>
+    <string name="look_back_intervals">Look-Back Intervals</string>
+    <string name="average_heart_rate">Average Heart Rate</string>
+    <string name="intervals">Intervals</string>
 </resources>

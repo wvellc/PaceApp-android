@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -93,9 +94,10 @@ fun EventDetailsStep(
             hint = stringResource(R.string.location),
             errorMessageRes = R.string.location_field_error,
             leadingIcon = {
-                Image(
+                Icon(
                     painter = painterResource(R.drawable.ic_location),
                     contentDescription = null,
+                    tint = AppColors.White
                 )
             },
             modifier = Modifier.fillMaxWidth(),

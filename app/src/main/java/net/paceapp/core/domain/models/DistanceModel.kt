@@ -6,3 +6,4 @@ data class DistanceModel(
     val value: Float,
     val unit: DistanceUnits = DistanceUnits.KMS
 )
+

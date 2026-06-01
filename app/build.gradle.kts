@@ -9,6 +9,7 @@ plugins {
     // Hilt DI Plugins
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.secrets.gradle.plugin)
 }
 
 android {
@@ -149,10 +150,26 @@ dependencies {
     implementation(libs.vico.compose.m3)
 
     // ---------------------------------------------------------
+    // Google Maps
+    // ---------------------------------------------------------
+    implementation(libs.google.maps.compose)
+    implementation(libs.google.play.services.maps)
+    implementation(libs.android.maps.utils)
+
+    // ---------------------------------------------------------
     // LOCAL MODULES (The Core Engine)
     // ---------------------------------------------------------
     implementation(project(":core-network"))
     implementation(project(":core-ui"))
+}
+secrets {
+    // To add your Maps API key to this project:
+    // 1. If the secrets.properties file does not exist, create it in the same folder as the local.properties file.
+    // 2. Add this line, where YOUR_API_KEY is your API key:
+    //        MAPS_API_KEY=YOUR_API_KEY
+    propertiesFileName = "secrets.properties"
 
-
+    // A properties file containing default secret values. This file can be
+    // checked in version control.
+    defaultPropertiesFileName = "local.defaults.properties"
 }
