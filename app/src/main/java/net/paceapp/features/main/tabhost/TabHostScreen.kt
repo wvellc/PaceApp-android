@@ -18,7 +18,8 @@ fun TabHostScreen(
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
-    onNavigateToEventDetails: () -> Unit,
+    onNavigateToEventDetails: (String, String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
 ) {
     // Init view model
     LaunchedEffect(key1 = Unit) {
@@ -37,5 +38,6 @@ fun TabHostScreen(
         onNavigateToNotifications = onNavigateToNotifications,
         onNavigateToCreateEvent = onNavigateToCreateEvent,
         onNavigateToEventDetails = onNavigateToEventDetails,
+        onNavigateToDuplicateEvent = onNavigateToDuplicateEvent,
     )
 }

@@ -46,12 +46,9 @@ fun LiquidGlassButton(
     backdrop: Backdrop,
     modifier: Modifier = Modifier,
     shape: Shape = ContinuousRoundedRectangle(24.dp),
-    lightAngle: Float = -45f,
-    lightIntensity: Float = 80f,
     refraction: Float = 67f,
     depth: Float = 44f,
     frost: Float = 42f,
-    splay: Float = 48f,
     dispersion: Boolean = true,
     maxScale: Float = 1.15f,
     content: @Composable BoxScope.() -> Unit
@@ -84,8 +81,6 @@ fun LiquidGlassButton(
         val actualBlur = (frost / 100f) * minDimension
         val actualRefraction = (refraction / 100f) * minDimension
         val actualDepth = (depth / 100f) * minDimension
-        val actualSplay = (splay / 100f) * minDimension
-        val actualAlpha = (lightIntensity / 100f)
 
         // Apply the calculated effects to an inner Box filling the constraints
         Box(
@@ -126,20 +121,6 @@ fun LiquidGlassButton(
                             offset = DpOffset(0.dp, 8.dp) // Pushes shadow straight down
                         )
                     },
-//                    innerShadow = {
-//                        val radians = (lightAngle * -1) * (Math.PI / 180.0)
-//                        val shadowDistance = actualSplay / 3
-//
-//                        val offsetX = shadowDistance * cos(radians).toFloat()
-//                        val offsetY = shadowDistance * sin(radians).toFloat()
-//
-//                        InnerShadow(
-//                            radius = actualSplay,
-//                            alpha = actualAlpha,
-//                            offset = DpOffset(x = -offsetX, y = -offsetY),
-//                            color = Color.White.copy(alpha = 0.7f)
-//                        )
-//                    },
                     onDrawSurface = {
                         drawRect(
                             brush = Brush.linearGradient(

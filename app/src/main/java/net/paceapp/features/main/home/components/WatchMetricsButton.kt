@@ -3,6 +3,7 @@ package net.paceapp.features.main.home.components
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -59,35 +60,34 @@ fun WatchMetricsButton(
                 modifier = Modifier.size(32.dp),
                 colorFilter = ColorFilter.tint(tintColor)
             )
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(1.dp),
-            ) {
-                Text(
-                    text = metric.value,
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = AppTheme.typography.semiBold.copy(
-                        color = tintColor,
-                        fontSize = 17.sp,
-                        lineHeight = 17.sp,
-                        letterSpacing = 0.34.sp,
-                    )
+
+            Text(
+                text = metric.value,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = AppTheme.typography.semiBold.copy(
+                    color = tintColor,
+                    fontSize = 17.sp,
+                    lineHeight = 17.sp,
+                    letterSpacing = 0.34.sp,
                 )
-                Text(
-                    text = stringResource(metric.unitLabelRes),
-                    textAlign = TextAlign.Center,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = AppTheme.typography.semiBold.copy(
-                        color = tintColor,
-                        lineHeight = 10.sp,
-                        fontSize = 10.sp,
-                        letterSpacing = 0.2.sp,
-                    )
+            )
+
+            Spacer(modifier = Modifier.height(1.dp))
+
+            Text(
+                text = stringResource(metric.unitLabelRes),
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = AppTheme.typography.semiBold.copy(
+                    color = tintColor,
+                    lineHeight = 10.sp,
+                    fontSize = 10.sp,
+                    letterSpacing = 0.2.sp,
                 )
-            }
+            )
         }
     }
 }

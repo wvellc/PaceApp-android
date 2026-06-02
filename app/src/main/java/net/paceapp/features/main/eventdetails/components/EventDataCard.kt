@@ -141,7 +141,7 @@ internal fun EventDataCard(
         }
 
         DefaultDivider()
-
+        //Intervals
         EventExpandableDetails(
             title = stringResource(R.string.intervals),
             isExpanded = isIntervalsExpanded,
@@ -155,7 +155,7 @@ internal fun EventDataCard(
                 eventDetails.intervals.chunked(4).forEachIndexed { rowIndex, rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         rowItems.forEachIndexed { colIndex, item ->
                             val globalIndex = (rowIndex * 4) + colIndex
@@ -178,7 +178,7 @@ internal fun EventDataCard(
 
         }
         DefaultDivider()
-
+        //Segments
         EventExpandableDetails(
             title = stringResource(R.string.segments),
             isExpanded = isSegmentsExpanded,

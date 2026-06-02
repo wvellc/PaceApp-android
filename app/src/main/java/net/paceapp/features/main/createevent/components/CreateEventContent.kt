@@ -28,7 +28,7 @@ import net.paceapp.features.main.createevent.enums.CreateRunStep
 import net.paceapp.features.main.createevent.extensions.nextButtonRes
 import net.paceapp.features.main.createevent.extensions.titleRes
 import net.paceapp.features.main.createevent.steps.DistanceStep
-import net.paceapp.features.main.createevent.steps.EventDetailsStep
+import net.paceapp.core.components.eventsteps.EventDetailsStep
 import net.paceapp.features.main.createevent.steps.GoalTimeStep
 import net.paceapp.features.main.createevent.steps.LookBackIntervalStep
 import net.paceapp.features.main.createevent.steps.SegmentChoiceStep

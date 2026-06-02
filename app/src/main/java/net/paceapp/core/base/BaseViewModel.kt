@@ -1,8 +1,6 @@
 package net.paceapp.core.base
 
 import androidx.lifecycle.viewModelScope
-import net.paceapp.BuildConfig
-import net.paceapp.core.utils.ErrorMapper
 import com.wvelabs.core_network.utils.AppLogger
 import com.wvelabs.core_ui.alerts.AppAlerts
 import com.wvelabs.core_ui.alerts.MessageType
@@ -14,6 +12,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
+import net.paceapp.BuildConfig
+import net.paceapp.core.utils.ErrorMapper
 
 /**
  * The parent ViewModel for EVERY feature in the app.

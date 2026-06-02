@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,19 +20,18 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.paceapp.R
 import net.paceapp.core.extensions.defaultClickable
-import net.paceapp.features.main.history.models.HistoryUiModel
+import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
 @Composable
 fun HistoryItem(
     modifier: Modifier = Modifier,
-    history: HistoryUiModel,
+    history: ActivityUiModel,
     onClick: () -> Unit = {},
 ) {
 
@@ -45,7 +43,7 @@ fun HistoryItem(
             .background(
                 color = AppColors.White,
             )
-            .defaultClickable (onClick = onClick)
+            .defaultClickable(onClick = onClick)
             .padding(vertical = 8.dp, horizontal = 16.dp),
     ) {
         Row(
@@ -67,7 +65,7 @@ fun HistoryItem(
             // Run status
             RunStat(
                 paceDifference = history.paceDifference,
-                isPaceImproved = history.isPaceImproved
+                isPaceImproved = history.isAheadOfTime
             )
 
         }
@@ -84,7 +82,7 @@ fun HistoryItem(
                 )
             RunStatItem(
                 label = "Time",
-                value = history.time,
+                value = history.goalTime,
 
                 )
             RunStatItem(
@@ -160,41 +158,3 @@ private fun RowScope.RunStatItem(
     }
 }
 
-
-@Preview(showBackground = true, backgroundColor = 0xFFF0F0F0)
-@Composable
-fun RunHistoryItemPreview() {
-    MaterialTheme { // Wrap in your custom AppTheme if preferred
-        Column(
-            modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Preview 1: Improved PACE (Fluorescent Mint Badge)
-            HistoryItem(
-                history = HistoryUiModel(
-                    id = "2",
-                    title = "Saturday Run",
-                    date = "31 Jan",
-                    distance = "15.00 mi",
-                    time = "0:50",
-                    avgPace = "3:20 /mi",
-                    paceDifference = "-02:15",
-                    isPaceImproved = true
-                ),
-            )
-
-            // Preview 2: Slower PACE (Error/Red Badge)
-            HistoryItem(
-                history = HistoryUiModel(
-                    id = "1",
-                    title = "Thursday Run",
-                    date = "29 Jan",
-                    distance = "5.00 mi",
-                    time = "0:45",
-                    avgPace = "9:00 /mi",
-                    paceDifference = "+01:10",
-                    isPaceImproved = false
-                ),
-            )
-        }
-    }
-}

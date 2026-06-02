@@ -25,8 +25,11 @@ import net.paceapp.features.authentication.verifyotp.navigation.verifyOtpScreen
 import net.paceapp.features.common.webview.navigation.webviewScreen
 import net.paceapp.features.main.analyticsdetail.navigation.analyticsDetailScreen
 import net.paceapp.features.main.createevent.navigation.createEventScreen
+import net.paceapp.features.main.duplicateevent.navigation.duplicateEventScreen
+import net.paceapp.features.main.editevent.navigation.editEventScreen
 import net.paceapp.features.main.editprofile.navigation.editprofileScreen
 import net.paceapp.features.main.eventdetails.navigation.eventDetailsScreen
+import net.paceapp.features.main.eventmap.navigation.eventMapScreen
 import net.paceapp.features.main.managewatch.navigation.managewatchScreen
 import net.paceapp.features.main.notifications.navigation.notificationsScreen
 import net.paceapp.features.main.settings.navigation.settingsScreen
@@ -159,6 +162,7 @@ fun AppNavHost(
                 onNavigateToNotifications = navActions::toNotifications,
                 onNavigateToCreateEvent = navActions::toCreateEvent,
                 onNavigateToEventDetails = navActions::toEventDetails,
+                onNavigateToDuplicateEvent = navActions::toDuplicateEvent,
             )
 
             //Settings
@@ -186,7 +190,20 @@ fun AppNavHost(
             createEventScreen(onBack = navActions::goBack)
 
             //Event details
-            eventDetailsScreen(onBack = navActions::goBack)
+            eventDetailsScreen(
+                onBack = navActions::goBack,
+                onNavigateToEventMap = navActions::toEventMap,
+                onNavigateToEditEvent = navActions::toEditEvent,
+            )
+
+            //Edit event
+            editEventScreen(onBack = navActions::goBack)
+
+            //Duplicate event
+            duplicateEventScreen(onBack = navActions::goBack)
+
+            //Event map
+            eventMapScreen(onBack = navActions::goBack)
         }
     }
 }

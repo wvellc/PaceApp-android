@@ -1,7 +1,9 @@
 package net.paceapp.features.main.eventdetails.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,6 +24,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.wvelabs.core_ui.components.LiquidGlassButton
 import net.paceapp.R
@@ -42,6 +45,7 @@ internal fun EventDetailsContent(
     onEvent: (Event) -> Unit
 ) {
     val backdrop = rememberLayerBackdrop()
+    val favBackdrop = rememberLayerBackdrop()
 
     val animatedTint by animateColorAsState(
         targetValue = when {
@@ -52,12 +56,13 @@ internal fun EventDetailsContent(
     AppBaseScreen(
         modifier = Modifier
             .fillMaxSize(),
+        backgroundModifier = Modifier.layerBackdrop(backdrop),
         isLoading = state.isLoading,
         hasPattern = true,
         appBar = {
             //App bar
             CommonAppBar(
-                title = stringResource(R.string.new_event),
+                title = stringResource(R.string.event_details),
                 onBackClick = {
                     onEvent(Event.OnBackClick)
                 },
@@ -66,7 +71,7 @@ internal fun EventDetailsContent(
                         modifier = Modifier.size(32.dp),
                         shape = CircleShape,
                         onClick = { onEvent(Event.OnFavoriteToggle) },
-                        backdrop = backdrop,
+                        backdrop = favBackdrop,
                         maxScale = 1.2f
                     ) {
                         Icon(
@@ -113,7 +118,9 @@ internal fun EventDetailsContent(
                             .padding(top = 16.dp)
                             .height(185.dp) // The actual UI height
                             .clip(RoundedCornerShape(16.dp))
-                            .defaultClickable(onClick = {})
+                            .defaultClickable(onClick = {
+                                onEvent(Event.OnMapClick)
+                            })
                     )
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -133,8 +140,42 @@ internal fun EventDetailsContent(
                             onEvent(Event.OnSegmentsToggle)
                         }
                     )
+                    Spacer(modifier = Modifier.height(24.dp))
+                    //Bottom buttons
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        EventDetailButton(
+                            modifier = Modifier
+                                .weight(1f),
+                            iconRes = R.drawable.ic_delete_filled,
+                            contentColor = AppColors.Error,
+                            backdrop = backdrop,
+                            label = stringResource(R.string.delete),
+                            onClick = {
+                                onEvent(Event.OnDeleteButtonClick)
+                            }
+                        )
+                        EventDetailButton(
+                            modifier = Modifier
+                                .weight(1f),
+                            iconRes = R.drawable.ic_duplicate,
+                            contentColor = AppColors.White,
+                            backdrop = backdrop,
+                            label = stringResource(R.string.edit),
+                            onClick = {
+                                onEvent(Event.OnEditButtonClick)
+                            }
+                        )
+
+                    }
+
                 } ?: NoDataView(title = "Unable to fetch event details. Contact support team.")
             }
         }
     }
 }
+

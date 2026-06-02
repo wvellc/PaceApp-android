@@ -13,7 +13,7 @@ fun NavGraphBuilder.homeScreen(
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
-    onNavigateToEventDetails: () -> Unit,
+    onNavigateToEventDetails: (String, String, String, String) -> Unit,
 ) {
     composable<HomeRoute> {
         HomeScreen(

@@ -1,12 +1,16 @@
-package net.paceapp.features.main.home.formatters
+package net.paceapp.core.formatters
 
+import com.wvelabs.core_ui.resources.ResourceProvider
 import com.wvelabs.core_ui.utils.AppDateFormat
 import com.wvelabs.core_ui.utils.DateTimeHelper
 import kotlinx.datetime.LocalDateTime
+import net.paceapp.core.domain.models.DistanceModel
 import javax.inject.Inject
 import kotlin.time.Duration
 
-class ActivityFormatter @Inject constructor() {
+class ActivityFormatter @Inject constructor(
+    private val resourceProvider: ResourceProvider
+) {
 
     fun formatDate(date: LocalDateTime): String {
         return DateTimeHelper.formatDateTime(
@@ -17,18 +21,10 @@ class ActivityFormatter @Inject constructor() {
     }
 
     fun formatGoalTime(duration: Duration): String {
-        val hours = duration.inWholeHours
-        val minutes = duration.inWholeMinutes % 60
-        val seconds = duration.inWholeSeconds % 60
-
-        return "%02d:%02d:%02d".format(
-            hours,
-            minutes,
-            seconds
-        )
+        return DateTimeHelper.formatDuration(duration)
     }
 
-    fun formatDistance(distanceMiles: Double): String {
-        return "%.2f mi".format(distanceMiles)
+    fun formatDistance(distance: DistanceModel): String {
+        return "%.2f %s".format(distance.value, resourceProvider.getString(distance.unit.titleRes))
     }
 }

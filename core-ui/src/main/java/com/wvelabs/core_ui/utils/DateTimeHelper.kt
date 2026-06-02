@@ -345,7 +345,9 @@ private inline fun String.parseDateWithSeparator(
 }
 
 private fun String.parseTime24(): LocalTime? {
-    val parts = split(':')
+    val cleanTime = this.substringBefore('.').removeSuffix("Z")
+
+    val parts = cleanTime.split(':')
     if (parts.size !in 2..3) return null
 
     val hour = parts[0].toIntOrNull() ?: return null

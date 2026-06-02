@@ -15,7 +15,7 @@ import kotlin.random.Random
 object EventDummyData {
 
     // Exact coordinates for a 3-mile loop around Lady Bird Lake in Downtown Austin, TX
-    private val mockCoordinates = listOf(
+     val mockCoordinates = listOf(
         CoordinateUiModel(30.2746, -97.7404),
         CoordinateUiModel(30.2634, -97.7443),
         CoordinateUiModel(30.2671, -97.7549),

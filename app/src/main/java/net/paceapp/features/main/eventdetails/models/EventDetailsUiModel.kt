@@ -7,8 +7,8 @@ import net.paceapp.core.domain.models.DistanceModel
 
 data class EventDetailsUiModel(
     val id: String,
-    val title: String, // "Thursday Run"
-    val location: String, // "Austin"
+    val title: String,
+    val location: String,
     val dateTime: LocalDateTime,
 
     @param:StringRes val eventTypeRes: Int,

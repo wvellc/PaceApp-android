@@ -13,5 +13,5 @@ val DistanceModel.displayValue: String
             String.format(Locale.getDefault(), "%.2f", value)
         }
 
-        return "$formattedValue ${stringResource(unit.titleRes)}"
+        return "$formattedValue ${stringResource(unit.unitNameRes)}"
     }

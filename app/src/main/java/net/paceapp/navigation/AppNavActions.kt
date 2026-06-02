@@ -10,8 +10,11 @@ import net.paceapp.features.authentication.verifyotp.navigation.VerifyOtpRoute
 import net.paceapp.features.common.webview.navigation.WebviewRoute
 import net.paceapp.features.main.analyticsdetail.navigation.AnalyticsDetailRoute
 import net.paceapp.features.main.createevent.navigation.CreateEventRoute
+import net.paceapp.features.main.duplicateevent.navigation.DuplicateEventRoute
+import net.paceapp.features.main.editevent.navigation.EditEventRoute
 import net.paceapp.features.main.editprofile.navigation.EditProfileRoute
 import net.paceapp.features.main.eventdetails.navigation.EventDetailsRoute
+import net.paceapp.features.main.eventmap.navigation.EventMapRoute
 import net.paceapp.features.main.managewatch.navigation.ManageWatchRoute
 import net.paceapp.features.main.notifications.navigation.NotificationsRoute
 import net.paceapp.features.main.settings.navigation.SettingsRoute
@@ -28,6 +31,15 @@ class AppNavActions(
             navController.previousBackStackEntry != null -> navController.popBackStack()
             else -> onRootExit()
         }
+    }
+
+    // BACK WITH RESULT
+    fun <T> goBackWithResult(key: String, result: T) {
+        navController.previousBackStackEntry
+            ?.savedStateHandle
+            ?.set(key, result)
+
+        goBack()
     }
 
     fun toLogin() {
@@ -133,8 +145,51 @@ class AppNavActions(
         }
     }
 
-    fun toEventDetails() {
-        navController.navigate(EventDetailsRoute) {
+    fun toEventDetails(
+        id: String,
+        eventName: String,
+        location: String,
+        date: String,
+    ) {
+        navController.navigate(
+            EventDetailsRoute(
+                id = id,
+                eventName = eventName,
+                location = location,
+                date = date
+            )
+        ) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toEditEvent(id: String, eventName: String, location: String) {
+        navController.navigate(
+            EditEventRoute(
+                id = id,
+                eventName = eventName,
+                location = location
+            )
+        ) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toDuplicateEvent( id: String,eventName: String, location: String, date: String) {
+        navController.navigate(
+            DuplicateEventRoute(
+                id = id,
+                eventName = eventName,
+                location = location,
+                date = date
+            )
+        ) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toEventMap() {
+        navController.navigate(EventMapRoute) {
             launchSingleTop = true
         }
     }

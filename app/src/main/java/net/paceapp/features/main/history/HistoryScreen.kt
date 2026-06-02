@@ -13,7 +13,8 @@ import net.paceapp.features.main.history.components.HistoryContent
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToEventDetails: () -> Unit,
+    onNavigateToEventDetails: (String, String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -27,7 +28,19 @@ fun HistoryScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
-                is Effect.NavigateToEventDetails -> onNavigateToEventDetails()
+                is Effect.NavigateToEventDetails -> onNavigateToEventDetails(
+                    effect.id,
+                    effect.eventName,
+                    effect.location,
+                    effect.date
+                )
+
+                is Effect.NavigateToDuplicateEvent -> onNavigateToDuplicateEvent(
+                    effect.id,
+                    effect.eventName,
+                    effect.location,
+                    effect.date
+                )
             }
         }
     }

@@ -1,4 +1,4 @@
-package net.paceapp.features.main.createevent.steps
+package net.paceapp.core.components.eventsteps
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -36,10 +36,14 @@ import net.paceapp.theme.AppColors
 
 @Composable
 fun EventDetailsStep(
+    modifier: Modifier = Modifier,
     eventNameState: TextFieldState,
     locationState: TextFieldState,
-    selectedDate: LocalDateTime?,
-    onDateSelected: (Long?) -> Unit,
+    eventHint: String? = null,
+    locationHint: String? = null,
+    selectedDate: LocalDateTime? = null,
+    showDatePickerField: Boolean = true,
+    onDateSelected: (Long?) -> Unit = {},
 ) {
     val eventNameFocus = remember { FocusRequester() }
     val locationFocus = remember { FocusRequester() }
@@ -61,13 +65,14 @@ fun EventDetailsStep(
             ?.toEpochMilliseconds()
     }
     Column(
+        modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(16.dp, alignment = Alignment.Top)
     ) {
 
         //Event name
         AppTextField(
             state = eventNameState,
-            hint = stringResource(R.string.event_name),
+            hint = eventHint ?: stringResource(R.string.event_name),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 20.dp),
@@ -91,7 +96,7 @@ fun EventDetailsStep(
         //Location
         AppTextField(
             state = locationState,
-            hint = stringResource(R.string.location),
+            hint = locationHint ?: stringResource(R.string.location),
             errorMessageRes = R.string.location_field_error,
             leadingIcon = {
                 Icon(
@@ -111,17 +116,18 @@ fun EventDetailsStep(
             focusRequester = locationFocus,
         )
 
-
-        //Date picker field
-        DatePickerField(
-            modifier = Modifier.fillMaxWidth(),
-            value = formattedDate,
-            iconColor = AppColors.White,
-            textColor = AppColors.White,
-            iconAlignment = IconAlignment.Start,
-            borderColor = AppColors.HintGray,
-            onClick = { showDatePicker = true }
-        )
+        if (showDatePickerField) {
+            //Date picker field
+            DatePickerField(
+                modifier = Modifier.fillMaxWidth(),
+                value = formattedDate,
+                iconColor = AppColors.White,
+                textColor = AppColors.White,
+                iconAlignment = IconAlignment.Start,
+                borderColor = AppColors.HintGray,
+                onClick = { showDatePicker = true }
+            )
+        }
 
         // --- Date Picker Dialog ---
         if (showDatePicker) {

@@ -179,4 +179,13 @@
     <string name="look_back_intervals">Look-Back Intervals</string>
     <string name="average_heart_rate">Average Heart Rate</string>
     <string name="intervals">Intervals</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="delete_event_title">Delete Event?</string>
+    <string name="delete_event_message">Are you sure you want to delete this event?</string>
+    <string name="km_unit">km</string>
+    <string name="mi_unit">mi</string>
+    <string name="save">Save</string>
+    <string name="edit_event">Edit Event</string>
+    <string name="event_details">Event details</string>
 </resources>

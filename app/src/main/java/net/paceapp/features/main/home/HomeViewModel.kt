@@ -6,28 +6,25 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDateTime
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.garmin.enums.WatchConnectionState
+import net.paceapp.core.mappers.ActivityToUiModelMapper
+import net.paceapp.core.models.ActivityDummyData
+import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.core.utils.AppConstants
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.HomeContract.State
-import net.paceapp.features.main.home.domain.models.ActivityDomainModel
-import net.paceapp.features.main.home.mappers.ActivityUiMapper
-import net.paceapp.features.main.home.models.ActivityUiModel
 import net.paceapp.features.main.home.models.WatchMetric
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.hours
-import kotlin.time.Duration.Companion.minutes
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val observeUserUiModelUseCase: ObserveUserUiModelUseCase,
     private val garminDeviceManager: GarminDeviceManager,
-    private val activityUiMapper: ActivityUiMapper
+    private val activityToUiModelMapper: ActivityToUiModelMapper
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -48,89 +45,6 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    val dummyActivities = listOf(
-        ActivityDomainModel(
-            id = "act_001",
-            name = "Zilker Park Run",
-            date = LocalDateTime(
-                year = 2026,
-                month = 1,
-                day = 31,
-                hour = 7,
-                minute = 30,
-                second = 0,
-                nanosecond = 0
-            ),
-            distanceMiles = 5.00,
-            location = "Austin, TX",
-            goalTime = 1.hours + 45.minutes // 01:45:00
-        ),
-        ActivityDomainModel(
-            id = "act_002",
-            name = "Sculpture Falls Hike",
-            date = LocalDateTime(
-                year = 2026,
-                month = 2,
-                day = 2,
-                hour = 9,
-                minute = 0,
-                second = 0,
-                nanosecond = 0
-            ),
-            distanceMiles = 4.00,
-            location = "Twin Falls",
-            goalTime = 35.minutes // 00:35:00
-        ),
-        ActivityDomainModel(
-            id = "act_003",
-            name = "Downtown Tempo Push",
-            date = LocalDateTime(
-                year = 2026,
-                month = 2,
-                day = 5,
-                hour = 18,
-                minute = 15,
-                second = 0,
-                nanosecond = 0
-            ),
-            distanceMiles = 3.10, // 5K
-            location = "New York City",
-            goalTime = 25.minutes // 00:25:00
-        ),
-        ActivityDomainModel(
-            id = "act_004",
-            name = "Weekend Long Ride",
-            date = LocalDateTime(
-                year = 2026,
-                month = 2,
-                day = 8,
-                hour = 6,
-                minute = 0,
-                second = 0,
-                nanosecond = 0
-            ),
-            distanceMiles = 25.50,
-            location = "Pacific Coast Highway",
-            goalTime = 2.hours + 10.minutes // 02:10:00
-        ),
-        ActivityDomainModel(
-            id = "act_005",
-            name = "Recovery Jog",
-            date = LocalDateTime(
-                year = 2026,
-                month = 2,
-                day = 10,
-                hour = 17,
-                minute = 30,
-                second = 0,
-                nanosecond = 0
-            ),
-            distanceMiles = 2.00,
-            location = "Local Track",
-            goalTime = 20.minutes // 00:20:00
-        )
-    )
-
     private fun initData() {
         if (currentState.isInitialized) return
         observeUserData()
@@ -139,6 +53,7 @@ class HomeViewModel @Inject constructor(
         fetchUpcomingActivities()
         setState { copy(isInitialized = true) }
     }
+
     private fun observeGarminSdkStatus() {
         garminDeviceManager.sdkStateFlow
             .onEach { status ->
@@ -183,7 +98,8 @@ class HomeViewModel @Inject constructor(
     private fun fetchUpcomingActivities() {
         viewModelScope.launch {
             //TODO:Call API
-            val activities = dummyActivities.take(2).map { activityUiMapper.map(it) }
+            val activities = ActivityDummyData.getDummyActivities().take(2)
+                .map { activityToUiModelMapper.map(it) }
 
             setState {
                 copy(upcomingActivities = activities)
@@ -205,13 +121,19 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handleOnActivityClick(activity: ActivityUiModel) {
-        setEffect { Effect.NavigateToEventDetails }
+        setEffect {
+            Effect.NavigateToEventDetails(
+                id = activity.id,
+                eventName = activity.title,
+                location = activity.location,
+                date = activity.date
+            )
+        }
     }
 
 
     private fun handleOnNewEventClick() {
         setEffect { Effect.NavigateToCreateEvent }
-//        AppConstants.showComingSoonDialog()
     }
 
     private fun handleOnFavoriteClick() {

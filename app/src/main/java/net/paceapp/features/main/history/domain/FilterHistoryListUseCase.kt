@@ -1,10 +1,10 @@
 package net.paceapp.features.main.history.domain
 
 import net.paceapp.features.main.history.models.HistoryFilterModel
-import net.paceapp.features.main.history.models.HistoryUiModel
 import com.wvelabs.core_network.di.DefaultDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
+import net.paceapp.core.models.ActivityUiModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -14,10 +14,10 @@ class FilterHistoryListUseCase @Inject constructor(
     @param:DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) {
     suspend operator fun invoke(
-        activities: List<HistoryUiModel>,
+        activities: List<ActivityUiModel>,
         filter: HistoryFilterModel?,
         searchQuery: String?,
-    ): List<HistoryUiModel> = withContext(defaultDispatcher) {
+    ): List<ActivityUiModel> = withContext(defaultDispatcher) {
 
         // If filter is null and search both are null/empty return the original list
         if (filter == null && searchQuery.isNullOrBlank()) {

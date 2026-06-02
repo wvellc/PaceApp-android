@@ -10,12 +10,14 @@ data object HistoryRoute
 
 fun NavGraphBuilder.historyScreen(
     onBack: () -> Unit,
-    onNavigateToEventDetails: () -> Unit
+    onNavigateToEventDetails: (String, String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
 ) {
     composable<HistoryRoute> {
         HistoryScreen(
             onBack = onBack,
-            onNavigateToEventDetails = onNavigateToEventDetails
+            onNavigateToEventDetails = onNavigateToEventDetails,
+            onNavigateToDuplicateEvent = onNavigateToDuplicateEvent
         )
     }
 }

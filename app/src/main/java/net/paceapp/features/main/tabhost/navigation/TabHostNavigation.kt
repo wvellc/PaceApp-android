@@ -2,9 +2,9 @@ package net.paceapp.features.main.tabhost.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import kotlinx.serialization.Serializable
 import net.paceapp.core.enums.AnalyticsMetricType
 import net.paceapp.features.main.tabhost.TabHostScreen
-import kotlinx.serialization.Serializable
 
 @Serializable
 data object TabHostRoute
@@ -18,7 +18,8 @@ fun NavGraphBuilder.tabHostScreen(
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
-    onNavigateToEventDetails: () -> Unit
+    onNavigateToEventDetails: (String, String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
 ) {
     composable<TabHostRoute> {
         TabHostScreen(
@@ -30,7 +31,8 @@ fun NavGraphBuilder.tabHostScreen(
             onNavigateToManageWatch = onNavigateToManageWatch,
             onNavigateToNotifications = onNavigateToNotifications,
             onNavigateToCreateEvent = onNavigateToCreateEvent,
-            onNavigateToEventDetails= onNavigateToEventDetails
+            onNavigateToEventDetails = onNavigateToEventDetails,
+            onNavigateToDuplicateEvent = onNavigateToDuplicateEvent
         )
     }
 }

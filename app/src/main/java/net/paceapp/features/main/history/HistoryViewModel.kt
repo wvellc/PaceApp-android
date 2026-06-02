@@ -2,23 +2,25 @@ package net.paceapp.features.main.history
 
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
+import com.wvelabs.core_ui.extensions.debounceInput
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import net.paceapp.core.base.BaseViewModel
-import net.paceapp.core.utils.AppConstants
+import net.paceapp.core.mappers.ActivityToUiModelMapper
+import net.paceapp.core.models.ActivityDummyData
+import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.features.main.history.HistoryContract.Effect
 import net.paceapp.features.main.history.HistoryContract.Event
 import net.paceapp.features.main.history.HistoryContract.State
 import net.paceapp.features.main.history.domain.FilterHistoryListUseCase
 import net.paceapp.features.main.history.models.HistoryFilterModel
-import net.paceapp.features.main.history.models.HistoryUiModel
-import com.wvelabs.core_ui.extensions.debounceInput
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val filterHistoryListUseCase: FilterHistoryListUseCase
+    private val filterHistoryListUseCase: FilterHistoryListUseCase,
+    private val activityToUiModelMapper: ActivityToUiModelMapper
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -61,65 +63,9 @@ class HistoryViewModel @Inject constructor(
         )
     }
 
-    fun getDummyHistoryList(): List<HistoryUiModel> = listOf(
-        HistoryUiModel(
-            id = "1",
-            title = "Thursday Run",
-            date = "29 Jan",
-            distance = "5.00 mi",
-            time = "0:45",
-            avgPace = "9:00 /mi",
-            paceDifference = "+01:10",
-            isPaceImproved = false
-        ), HistoryUiModel(
-            id = "2",
-            title = "Saturday Run",
-            date = "31 Jan",
-            distance = "15.00 mi",
-            time = "0:50",
-            avgPace = "3:20 /mi",
-            paceDifference = "-02:15",
-            isPaceImproved = true
-        ), HistoryUiModel(
-            id = "3",
-            title = "Saturday Run",
-            date = "31 Jan",
-            distance = "15.00 mi",
-            time = "0:50",
-            avgPace = "3:20 /mi",
-            paceDifference = "-02:15",
-            isPaceImproved = true
-        ), HistoryUiModel(
-            id = "4",
-            title = "Saturday Run",
-            date = "31 Jan",
-            distance = "15.00 mi",
-            time = "0:50",
-            avgPace = "3:20 /mi",
-            paceDifference = "-02:15",
-            isPaceImproved = true
-        ), HistoryUiModel(
-            id = "5",
-            title = "Monday Run",
-            date = "02 Feb",
-            distance = "3.10 mi",
-            time = "0:25",
-            avgPace = "8:03 /mi",
-            paceDifference = "-00:45",
-            isPaceImproved = true
-        ), HistoryUiModel(
-            id = "6",
-            title = "Wednesday Run",
-            date = "04 Feb",
-            distance = "7.50 mi",
-            time = "1:15",
-            avgPace = "10:00 /mi",
-            paceDifference = "+00:30",
-            isPaceImproved = false
-        )
-    )
 
     private fun observeSearchField() {
+
         val searchFlow = snapshotFlow { currentState.searchTextState.text }
             .debounceInput()
             .map { query ->
@@ -134,6 +80,10 @@ class HistoryViewModel @Inject constructor(
         observeState(searchFlow) { filteredList ->
             copy(historyList = filteredList)
         }
+    }
+
+    private fun getDummyHistoryList(): List<ActivityUiModel> {
+        return ActivityDummyData.getDummyActivities().map { activityToUiModelMapper.map(it) }
     }
 
 
@@ -157,16 +107,30 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    private fun handleOnHistoryClick(history: HistoryUiModel) {
-        setEffect { Effect.NavigateToEventDetails}
+    private fun handleOnHistoryClick(history: ActivityUiModel) {
+        setEffect {
+            Effect.NavigateToEventDetails(
+                id = history.id,
+                eventName = history.title,
+                location = history.location,
+                date = history.date
+            )
+        }
     }
 
-    private fun handleOnDuplicateHistoryClick(history: HistoryUiModel) {
-        AppConstants.showComingSoonDialog()
+    private fun handleOnDuplicateHistoryClick(history: ActivityUiModel) {
+        setEffect {
+            Effect.NavigateToDuplicateEvent(
+                id = history.id,
+                eventName = history.title,
+                location = history.location,
+                date = history.date
+            )
+        }
 
     }
 
-    private fun handleOnDeleteHistoryClick(history: HistoryUiModel) {
+    private fun handleOnDeleteHistoryClick(history: ActivityUiModel) {
         setState { copy(historyList = historyList - history) }
     }
 

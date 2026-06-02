@@ -34,8 +34,9 @@ internal fun TabHostContent(
     onNavigateToManageWatch: () -> Unit,
     onNavigateToNotifications: () -> Unit,
     onNavigateToCreateEvent: () -> Unit,
-    onNavigateToEventDetails: () -> Unit,
-) {
+    onNavigateToEventDetails: (String, String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
+    ) {
 
     // The Local NavController for the 4 inner tabs
     val tabNavController = rememberNavController()
@@ -79,7 +80,8 @@ internal fun TabHostContent(
             //History
             historyScreen(
                 onBack = onBack,
-                onNavigateToEventDetails = onNavigateToEventDetails
+                onNavigateToEventDetails = onNavigateToEventDetails,
+                onNavigateToDuplicateEvent = onNavigateToDuplicateEvent
             )
 
             //Analytics

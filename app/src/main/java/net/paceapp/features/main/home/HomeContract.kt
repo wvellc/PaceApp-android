@@ -1,14 +1,14 @@
 package net.paceapp.features.main.home
 
 import android.content.Context
-import net.paceapp.core.garmin.models.WatchModel
-import net.paceapp.core.garmin.state.GarminSdkState
-import net.paceapp.core.models.UserUiModel
-import net.paceapp.features.main.home.models.ActivityUiModel
-import net.paceapp.features.main.home.models.WatchMetric
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
 import com.wvelabs.core_ui.base.ViewState
+import net.paceapp.core.garmin.models.WatchModel
+import net.paceapp.core.garmin.state.GarminSdkState
+import net.paceapp.core.models.ActivityUiModel
+import net.paceapp.core.models.UserUiModel
+import net.paceapp.features.main.home.models.WatchMetric
 
 class HomeContract {
     data class State(
@@ -39,6 +39,11 @@ class HomeContract {
         data object NavigateToNotifications : Effect()
         data object NavigateToCreateEvent : Effect()
         data object NavigateToManageWatch : Effect()
-        data object NavigateToEventDetails : Effect()
+        data class NavigateToEventDetails(
+            val id: String,
+            val eventName: String,
+            val location: String,
+            val date: String
+        ) : Effect()
     }
 }

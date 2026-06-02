@@ -6,14 +6,23 @@ import kotlinx.serialization.Serializable
 import net.paceapp.features.main.eventdetails.EventDetailsScreen
 
 @Serializable
-data object EventDetailsRoute
+data class EventDetailsRoute(
+    val id: String,
+    val eventName: String,
+    val location: String,
+    val date: String,
+)
 
 fun NavGraphBuilder.eventDetailsScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToEventMap: () -> Unit,
+    onNavigateToEditEvent: (String, String, String) -> Unit,
 ) {
     composable<EventDetailsRoute> {
         EventDetailsScreen(
-            onBack = onBack
+            onBack = onBack,
+            onNavigateToEventMap = onNavigateToEventMap,
+            onNavigateToEditEvent = onNavigateToEditEvent
         )
     }
 }
