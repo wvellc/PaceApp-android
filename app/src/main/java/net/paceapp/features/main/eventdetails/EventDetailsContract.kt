@@ -26,6 +26,7 @@ class EventDetailsContract {
         data object OnEditButtonClick : Event()
         data object OnDeleteButtonClick : Event()
         data object OnDeleteEventConfirmation : Event()
+        data object OnMapClick : Event()
     }
 
     sealed class Effect : ViewSideEffect {
@@ -36,6 +37,7 @@ class EventDetailsContract {
             val location: String
         ) : Effect()
 
+        data object NavigateToEventMap : Effect()
         data object ShowDeleteEventDialog : Effect()
     }
 }
