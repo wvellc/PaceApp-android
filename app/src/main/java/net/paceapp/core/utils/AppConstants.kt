@@ -10,7 +10,7 @@ object AppConstants {
     }
 
     val defaultDigitRange: ClosedRange<Double> = 0.1..999.0
-    const val WATCH_APP_UUID = "7243fd4e-7a56-485b-8a27-7eb3e43638fc"
+    const val WATCH_APP_UUID = "bec1b23d90564b958370b9ded9266942"
     const val WATCH_STORE_UUID = "7243fd4e-7a56-485b-8a27-7eb3e43638fc"
     const val OTP_LENGTH = 6
     const val DUMMY_TOKEN =

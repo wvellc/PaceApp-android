@@ -13,7 +13,6 @@ import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.mappers.ActivityToUiModelMapper
 import net.paceapp.core.models.ActivityDummyData
 import net.paceapp.core.models.ActivityUiModel
-import net.paceapp.core.utils.AppConstants
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.HomeContract.State
@@ -57,7 +56,9 @@ class HomeViewModel @Inject constructor(
     private fun observeGarminSdkStatus() {
         garminDeviceManager.sdkStateFlow
             .onEach { status ->
-                setState { copy(garminSdkStatus = status) }
+                setState {
+                    copy(garminSdkStatus = status)
+                }
             }.launchIn(viewModelScope)
     }
 
@@ -71,6 +72,9 @@ class HomeViewModel @Inject constructor(
 
     private fun observeActiveWatchDevice() {
         garminDeviceManager.activeDevice.onEach { watch ->
+            if (watch != null && watch.status == WatchConnectionState.CONNECTED) {
+                requestSyncWatch()
+            }
             setState {
                 copy(
                     watchModel = watch,
@@ -141,4 +145,25 @@ class HomeViewModel @Inject constructor(
     }
 
 
+    private fun requestSyncWatch() {
+        viewModelScope.launch {
+
+            try {
+                val payload = mapOf(
+                    "command" to "sync_request",
+                    "source" to "phone",
+                    "is_force_update" to true,
+                    "activeEvents" to emptyList<Any>(),
+                    "completedEvents" to emptyList<Any>(),
+                    "deletedEventIds" to emptyList<String>(),
+                    "settings" to emptyMap<String, Any>()
+                )
+                garminDeviceManager.sendMessageToWatch(listOf(payload))
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
+

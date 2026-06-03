@@ -81,7 +81,7 @@ class BuildProfileViewModel @Inject constructor(
             listOf(
                 currentState.firstNameState.text.toString(),
                 currentState.lastNameState.text.toString(),
-                currentState.stravaLinkState.text.toString()
+                currentState.stravaLinkState.text.toString(),
             )
         }
 
@@ -103,7 +103,7 @@ class BuildProfileViewModel @Inject constructor(
         garminManager.activeDevice.onEach { watch ->
             if (watch != null) {
                 userRepository.savePairedWatchId(watch.id)
-                setState {
+                updateState {
                     copy(
                         selectedWatch = watch,
                         isLoading = false
@@ -114,7 +114,7 @@ class BuildProfileViewModel @Inject constructor(
                     navigateTo(currentState.currentStep.nextStep)
                 }
             } else {
-                setState { copy(selectedWatch = null) }
+                updateState { copy(selectedWatch = null) }
             }
         }.launchIn(viewModelScope)
     }
@@ -124,7 +124,7 @@ class BuildProfileViewModel @Inject constructor(
             AppLogger.e("Failed to connect to watch.")
             userRepository.clearPairedWatchId()
 
-            setState {
+            updateState {
                 copy(
                     selectedWatch = null,
                     isLoading = false
