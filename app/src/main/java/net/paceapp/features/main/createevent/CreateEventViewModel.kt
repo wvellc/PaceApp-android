@@ -4,24 +4,28 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.viewModelScope
 import com.wvelabs.core_ui.alerts.MessageType
 import com.wvelabs.core_ui.resources.ResourceProvider
+import com.wvelabs.core_ui.utils.AppDateFormat
 import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.paceapp.core.base.BaseViewModel
-import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.core.domain.models.DistanceModel
 import net.paceapp.core.enums.DistanceUnits
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.features.main.createevent.CreateEventContract.Effect
 import net.paceapp.features.main.createevent.CreateEventContract.Event
 import net.paceapp.features.main.createevent.CreateEventContract.State
-import net.paceapp.features.main.createevent.enums.EventType
 import net.paceapp.features.main.createevent.enums.CreateRunStep
+import net.paceapp.features.main.createevent.enums.EventType
+import net.paceapp.features.main.createevent.extensions.labelRes
 import net.paceapp.features.main.createevent.extensions.tooltipsMessage
 import net.paceapp.features.main.createevent.helpers.CreateRunStepManager
 import net.paceapp.features.main.createevent.helpers.RunSegmentHelper
 import net.paceapp.features.main.createevent.models.RunSegment
 import net.paceapp.session.AppSessionManager
+import java.util.Locale
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 
 @HiltViewModel
 class CreateEventViewModel @Inject constructor(
@@ -197,40 +201,25 @@ class CreateEventViewModel @Inject constructor(
     }
 
     private fun buildEventPayload(state: State): Map<String, Any?> {
-        val measure = if (state.selectedDistance.unit == DistanceUnits.MILES) "Miles" else "Kilometers"
-        val activity = when (state.eventType) {
-            EventType.Run -> "Run"
-            EventType.Walk -> "Walk"
-            EventType.Cycle -> "Cycle"
-        }
-        val goalSecs = state.goalTimeInSeconds
-        val hours = goalSecs / 3600
-        val mins = (goalSecs % 3600) / 60
-        val secs = goalSecs % 60
-        val goalStr = String.format("%02d:%02d:%02d", hours, mins, secs)
-
-        val date = state.selectedDate
-        val months = arrayOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
-        val dateStr = "${months[date.monthNumber - 1]}/${date.dayOfMonth}/${date.year}"
-
+        val measure = resourceProvider.getString(state.selectedDistance.unit.titleRes)
+        val activity = resourceProvider.getString(state.eventType.labelRes)
+        val goalStr = DateTimeHelper.formatDuration(state.goalTimeInSeconds.seconds)
+        val dateStr = DateTimeHelper.formatDateTime(state.selectedDate, AppDateFormat.DATE_FULL_MDY)
         return mapOf(
             "id" to (System.currentTimeMillis() / 1000).toInt(),
             "name" to state.eventNameState.text.toString().trim(),
             "location" to state.locationState.text.toString().trim(),
             "date" to dateStr,
-            "distance" to String.format("%.2f", state.selectedDistance.value),
+            "distance" to String.format(Locale.getDefault(), "%.2f", state.selectedDistance.value),
             "measure" to measure,
             "intervals" to state.lookBackInterval.toString(),
             "goal" to goalStr,
             "activity" to activity,
             "segmentCount" to if (state.hasSegments) state.segmentCount else 1,
             "segments" to state.segmentList.map { segment ->
-                val segHrs = segment.durationInSeconds / 3600
-                val segMins = (segment.durationInSeconds % 3600) / 60
-                val segSecs = segment.durationInSeconds % 60
                 mapOf(
-                    "distance" to String.format("%.2f", segment.distance),
-                    "eta" to String.format("%02d:%02d:%02d", segHrs, segMins, segSecs)
+                    "distance" to String.format(Locale.getDefault(), "%.2f", segment.distance),
+                    "eta" to DateTimeHelper.formatDuration(segment.durationInSeconds.seconds)
                 )
             },
             "completedSegments" to emptyList<Any>()

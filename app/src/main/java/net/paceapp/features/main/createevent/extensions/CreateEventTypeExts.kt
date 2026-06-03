@@ -10,6 +10,6 @@ val EventType.labelRes: Int
     get() = when (this) {
         EventType.Run -> R.string.run
         EventType.Walk -> R.string.walk
-        EventType.Cycling -> R.string.cycle
+        EventType.Cycle -> R.string.cycle
         EventType.Other -> R.string.other
     }

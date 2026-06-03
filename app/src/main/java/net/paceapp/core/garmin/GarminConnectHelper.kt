@@ -51,6 +51,10 @@ class GarminConnectHelper @Inject constructor(
         MutableSharedFlow<Pair<List<Any>?, ConnectIQ.IQMessageStatus>>(extraBufferCapacity = 10)
     val appMessageFlow = _appMessageFlow.asSharedFlow()
 
+    private val _sendMessageStatusFlow =
+        MutableSharedFlow<ConnectIQ.IQMessageStatus>(extraBufferCapacity = 10)
+    val sendMessageStatusFlow = _sendMessageStatusFlow.asSharedFlow()
+
     // --- Global Memory-Safe Listeners ---
     private val deviceListener = ConnectIQ.IQDeviceEventListener { iqDevice, status ->
         AppLogger.d("Garmin SDK Fired: ${iqDevice.friendlyName} -> $status")
@@ -75,7 +79,8 @@ class GarminConnectHelper @Inject constructor(
         }
 
     private val sendMessageListener = ConnectIQ.IQSendMessageListener { _, _, status ->
-        AppLogger.e("Message Sent: $status")
+        AppLogger.d("Garmin message send status: $status")
+        _sendMessageStatusFlow.tryEmit(status)
     }
 
     // ==========================================
@@ -132,18 +137,22 @@ class GarminConnectHelper @Inject constructor(
     }
 
     fun registerForDeviceEvents(device: IQDevice) {
-        try {
-            connectIQ.registerForDeviceEvents(device, deviceListener)
-        } catch (e: Exception) {
-            AppLogger.e("Failed to register master listener", e)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                connectIQ.registerForDeviceEvents(device, deviceListener)
+            } catch (e: Exception) {
+                AppLogger.e("Failed to register master listener", e)
+            }
         }
     }
 
     fun unregisterForDeviceEvents(device: IQDevice) {
-        try {
-            connectIQ.unregisterForDeviceEvents(device)
-        } catch (e: Exception) {
-            AppLogger.e("Failed to unregister master listener", e)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                connectIQ.unregisterForDeviceEvents(device)
+            } catch (e: Exception) {
+                AppLogger.e("Failed to unregister master listener", e)
+            }
         }
     }
 
@@ -171,18 +180,23 @@ class GarminConnectHelper @Inject constructor(
     }
 
     fun registerForAppEvents(device: IQDevice, app: IQApp) {
-        try {
-            connectIQ.registerForAppEvents(device, app, appEventListener)
-        } catch (e: Exception) {
-            AppLogger.e("Failed to register for Garmin app events", e)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                connectIQ.registerForAppEvents(device, app, appEventListener)
+                AppLogger.d("Registered Garmin app event listener for ${device.friendlyName}.")
+            } catch (e: Exception) {
+                AppLogger.e("Failed to register for Garmin app events", e)
+            }
         }
     }
 
     fun unregisterForAppEvents(device: IQDevice, app: IQApp) {
-        try {
-            connectIQ.unregisterForApplicationEvents(device, app)
-        } catch (e: Exception) {
-            AppLogger.e("Failed to unregister Garmin app events", e)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                connectIQ.unregisterForApplicationEvents(device, app)
+            } catch (e: Exception) {
+                AppLogger.e("Failed to unregister Garmin app events", e)
+            }
         }
     }
 
@@ -207,10 +221,12 @@ class GarminConnectHelper @Inject constructor(
         }
 
     fun sendMessage(device: IQDevice, app: IQApp, message: Any) {
-        try {
-            connectIQ.sendMessage(device, app, message, sendMessageListener)
-        } catch (e: Exception) {
-            AppLogger.e("Failed to send message to Garmin app", e)
+        Handler(Looper.getMainLooper()).post {
+            try {
+                connectIQ.sendMessage(device, app, message, sendMessageListener)
+            } catch (e: Exception) {
+                AppLogger.e("Failed to send message to Garmin app", e)
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package net.paceapp.core.garmin
 
 import android.content.Context
+import com.garmin.android.connectiq.ConnectIQ
 import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
 import com.wvelabs.core_network.di.ApplicationScope
@@ -37,10 +38,15 @@ class GarminDeviceManager @Inject constructor(
     private val _incomingMessages = MutableSharedFlow<List<Any>>(extraBufferCapacity = 64)
     val incomingMessages = _incomingMessages.asSharedFlow()
 
+    private val _sendMessageStatuses =
+        MutableSharedFlow<ConnectIQ.IQMessageStatus>(extraBufferCapacity = 10)
+    val sendMessageStatuses = _sendMessageStatuses.asSharedFlow()
+
     var onWatchConnected: (() -> Unit)? = null
 
     // --- Internal State Tracking ---
-    private var activeIqApp: IQApp? = IQApp(AppConstants.WATCH_APP_UUID)
+    private var activeIqApp: IQApp? = null
+    private var registeredAppDeviceId: String? = null
 
     init {
         // 1. Observe Device Connection State
@@ -61,14 +67,8 @@ class GarminDeviceManager @Inject constructor(
             .onEach { iqApp ->
                 if (iqApp != null) {
                     activeIqApp = iqApp
-                    AppLogger.i("Companion App found! Attaching real-time stream listener...")
-
-                    val currentDevice = garminHelper.getKnownDevices().find {
-                        it.deviceIdentifier.toString() == _activeDevice.value?.id
-                    }
-                    currentDevice?.let { device ->
-                        garminHelper.registerForAppEvents(device, iqApp)
-                    }
+                    AppLogger.i("Companion App found. Attaching real-time stream listener...")
+                    registerActiveAppEventsIfReady()
                 } else {
                     AppLogger.w("Garmin Device Connected but Companion App is not installed.")
                     _connectionErrors.tryEmit("PaceApp is not installed on your Garmin watch.")
@@ -86,6 +86,13 @@ class GarminDeviceManager @Inject constructor(
                 }
             }
             .launchIn(appScope)
+
+        garminHelper.sendMessageStatusFlow
+            .onEach { status ->
+                AppLogger.d("Pushing Garmin message send status to application stream: $status")
+                _sendMessageStatuses.tryEmit(status)
+            }
+            .launchIn(appScope)
     }
 
     // =====================================================================
@@ -93,23 +100,25 @@ class GarminDeviceManager @Inject constructor(
     // =====================================================================
 
     private fun handleDeviceConnected(device: IQDevice) {
-        if (_activeDevice.value?.id == device.deviceIdentifier.toString() &&
-            _activeDevice.value?.status == WatchConnectionState.CONNECTED
-        ) {
-            return
-        }
-
         garminHelper.registerForDeviceEvents(device)
+
+        val wasAlreadyConnected = _activeDevice.value?.id == device.deviceIdentifier.toString() &&
+            _activeDevice.value?.status == WatchConnectionState.CONNECTED
 
         _activeDevice.value = device.toWatchModel().copy(
             status = WatchConnectionState.CONNECTED
         )
 
-        AppLogger.d("Querying companion watch application meta-data layout...")
-        garminHelper.getApplicationInfo(AppConstants.WATCH_APP_UUID, device)
+        if (activeIqApp != null) {
+            registerActiveAppEventsIfReady()
+        } else {
+            AppLogger.d("Querying companion watch application meta-data layout...")
+            garminHelper.getApplicationInfo(AppConstants.WATCH_APP_UUID, device)
+        }
 
-        onWatchConnected?.invoke()
-
+        if (!wasAlreadyConnected) {
+            onWatchConnected?.invoke()
+        }
     }
 
     private fun handleDeviceDisconnected(device: IQDevice) {
@@ -118,8 +127,8 @@ class GarminDeviceManager @Inject constructor(
         // 1. Unregister App Messaging Hook
         activeIqApp?.let { app ->
             garminHelper.unregisterForAppEvents(device, app)
-            activeIqApp = null
         }
+        registeredAppDeviceId = null
 
         // 2. Unregister Device Event System Hook
         garminHelper.unregisterForDeviceEvents(device)
@@ -226,6 +235,7 @@ class GarminDeviceManager @Inject constructor(
         }
 
         AppLogger.d("Attempting to send message payload: $payload")
+        registerActiveAppEventsIfReady()
 
         // Dispatch via the Helper
         garminHelper.sendMessage(rawDevice, app, payload)
@@ -238,5 +248,18 @@ class GarminDeviceManager @Inject constructor(
             }
             rawDevice?.let { handleDeviceDisconnected(it) }
         }
+    }
+
+    private fun registerActiveAppEventsIfReady() {
+        val currentWatchId = _activeDevice.value?.id ?: return
+        val app = activeIqApp ?: return
+        val rawDevice = garminHelper.getKnownDevices().find {
+            it.deviceIdentifier.toString() == currentWatchId
+        } ?: return
+
+        if (registeredAppDeviceId == currentWatchId) return
+
+        garminHelper.registerForAppEvents(rawDevice, app)
+        registeredAppDeviceId = currentWatchId
     }
 }
