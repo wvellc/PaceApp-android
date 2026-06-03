@@ -16,6 +16,7 @@ import net.paceapp.features.main.eventdetails.EventDetailsContract.Event
 import net.paceapp.features.main.eventdetails.EventDetailsContract.State
 import net.paceapp.features.main.eventdetails.models.EventDummyData
 import net.paceapp.features.main.eventdetails.navigation.EventDetailsRoute
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.session.AppSessionManager
 import javax.inject.Inject
 
@@ -23,6 +24,7 @@ import javax.inject.Inject
 class EventDetailsViewModel @Inject constructor(
     private val appSession: AppSessionManager,
     private val savedStateHandle: SavedStateHandle,
+    private val eventSyncManager: EventSyncManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -118,7 +120,13 @@ class EventDetailsViewModel @Inject constructor(
     }
 
     private fun handleOnDeleteEventConfirmation() {
-        //TODO:Call delete API or Remove from Firebase DB
+        val event = currentState.eventDetails
+        if (event != null) {
+            // Sync delete to watch
+            event.id.toIntOrNull()?.let { syncId ->
+                eventSyncManager.deleteEvent(syncId)
+            }
+        }
         showToast("Event deleted successfully", type = MessageType.Success)
         setEffect { Effect.NavigateBack }
     }

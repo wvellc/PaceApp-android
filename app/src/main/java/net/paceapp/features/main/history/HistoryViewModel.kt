@@ -14,13 +14,15 @@ import net.paceapp.features.main.history.HistoryContract.Effect
 import net.paceapp.features.main.history.HistoryContract.Event
 import net.paceapp.features.main.history.HistoryContract.State
 import net.paceapp.features.main.history.domain.FilterHistoryListUseCase
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.features.main.history.models.HistoryFilterModel
 import javax.inject.Inject
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
     private val filterHistoryListUseCase: FilterHistoryListUseCase,
-    private val activityToUiModelMapper: ActivityToUiModelMapper
+    private val activityToUiModelMapper: ActivityToUiModelMapper,
+    private val eventSyncManager: EventSyncManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -131,6 +133,10 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun handleOnDeleteHistoryClick(history: ActivityUiModel) {
+        // Sync delete to watch
+        history.id.toIntOrNull()?.let { syncId ->
+            eventSyncManager.deleteEvent(syncId)
+        }
         setState { copy(historyList = historyList - history) }
     }
 

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.mappers.ActivityToUiModelMapper
@@ -23,7 +24,8 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val observeUserUiModelUseCase: ObserveUserUiModelUseCase,
     private val garminDeviceManager: GarminDeviceManager,
-    private val activityToUiModelMapper: ActivityToUiModelMapper
+    private val activityToUiModelMapper: ActivityToUiModelMapper,
+    private val eventSyncManager: EventSyncManager
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -146,24 +148,7 @@ class HomeViewModel @Inject constructor(
 
 
     private fun requestSyncWatch() {
-        viewModelScope.launch {
-
-            try {
-                val payload = mapOf(
-                    "command" to "sync_request",
-                    "source" to "phone",
-                    "is_force_update" to true,
-                    "activeEvents" to emptyList<Any>(),
-                    "completedEvents" to emptyList<Any>(),
-                    "deletedEventIds" to emptyList<String>(),
-                    "settings" to emptyMap<String, Any>()
-                )
-                garminDeviceManager.sendMessageToWatch(listOf(payload))
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        eventSyncManager.requestFullSync()
     }
 }
 

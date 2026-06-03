@@ -37,6 +37,8 @@ class GarminDeviceManager @Inject constructor(
     private val _incomingMessages = MutableSharedFlow<List<Any>>(extraBufferCapacity = 64)
     val incomingMessages = _incomingMessages.asSharedFlow()
 
+    var onWatchConnected: (() -> Unit)? = null
+
     // --- Internal State Tracking ---
     private var activeIqApp: IQApp? = IQApp(AppConstants.WATCH_APP_UUID)
 
@@ -105,6 +107,8 @@ class GarminDeviceManager @Inject constructor(
 
         AppLogger.d("Querying companion watch application meta-data layout...")
         garminHelper.getApplicationInfo(AppConstants.WATCH_APP_UUID, device)
+
+        onWatchConnected?.invoke()
 
     }
 

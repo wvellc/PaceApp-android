@@ -8,6 +8,7 @@ import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.core.domain.models.DistanceModel
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.features.main.createevent.CreateEventContract.Effect
@@ -28,6 +29,7 @@ class CreateEventViewModel @Inject constructor(
     private val stepManager: CreateRunStepManager,
     private val resourceProvider: ResourceProvider,
     private val runSegmentHelper: RunSegmentHelper,
+    private val eventSyncManager: EventSyncManager,
 ) : BaseViewModel<State, Event, Effect>() {
     override fun setInitialState() = State()
 
@@ -180,13 +182,59 @@ class CreateEventViewModel @Inject constructor(
     }
 
     private fun createEventApi() {
-        //TODO:SAVE DATA
+        val state = currentState
+        val eventPayload = buildEventPayload(state)
+
+        // Save locally + send create_event to watch
+        eventSyncManager.createEvent(eventPayload)
+
         showToast(
-            "${currentState.eventNameState.text.trim()} event created",
+            "${state.eventNameState.text.trim()} event created",
             type = MessageType.Success
         )
 
         setEffect { Effect.NavigateBack }
+    }
+
+    private fun buildEventPayload(state: State): Map<String, Any?> {
+        val measure = if (state.selectedDistance.unit == DistanceUnits.MILES) "Miles" else "Kilometers"
+        val activity = when (state.eventType) {
+            EventType.Run -> "Run"
+            EventType.Walk -> "Walk"
+            EventType.Cycle -> "Cycle"
+        }
+        val goalSecs = state.goalTimeInSeconds
+        val hours = goalSecs / 3600
+        val mins = (goalSecs % 3600) / 60
+        val secs = goalSecs % 60
+        val goalStr = String.format("%02d:%02d:%02d", hours, mins, secs)
+
+        val date = state.selectedDate
+        val months = arrayOf("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+        val dateStr = "${months[date.monthNumber - 1]}/${date.dayOfMonth}/${date.year}"
+
+        return mapOf(
+            "id" to (System.currentTimeMillis() / 1000).toInt(),
+            "name" to state.eventNameState.text.toString().trim(),
+            "location" to state.locationState.text.toString().trim(),
+            "date" to dateStr,
+            "distance" to String.format("%.2f", state.selectedDistance.value),
+            "measure" to measure,
+            "intervals" to state.lookBackInterval.toString(),
+            "goal" to goalStr,
+            "activity" to activity,
+            "segmentCount" to if (state.hasSegments) state.segmentCount else 1,
+            "segments" to state.segmentList.map { segment ->
+                val segHrs = segment.durationInSeconds / 3600
+                val segMins = (segment.durationInSeconds % 3600) / 60
+                val segSecs = segment.durationInSeconds % 60
+                mapOf(
+                    "distance" to String.format("%.2f", segment.distance),
+                    "eta" to String.format("%02d:%02d:%02d", segHrs, segMins, segSecs)
+                )
+            },
+            "completedSegments" to emptyList<Any>()
+        )
     }
 
 
