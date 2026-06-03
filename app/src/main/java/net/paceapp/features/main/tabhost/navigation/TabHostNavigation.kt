@@ -20,6 +20,7 @@ fun NavGraphBuilder.tabHostScreen(
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToEventDetails: (String, String, String, String) -> Unit,
     onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
+    onNavigateToFavorites: () -> Unit,
 ) {
     composable<TabHostRoute> {
         TabHostScreen(
@@ -32,7 +33,8 @@ fun NavGraphBuilder.tabHostScreen(
             onNavigateToNotifications = onNavigateToNotifications,
             onNavigateToCreateEvent = onNavigateToCreateEvent,
             onNavigateToEventDetails = onNavigateToEventDetails,
-            onNavigateToDuplicateEvent = onNavigateToDuplicateEvent
+            onNavigateToDuplicateEvent = onNavigateToDuplicateEvent,
+            onNavigateToFavorites = onNavigateToFavorites
         )
     }
 }

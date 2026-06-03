@@ -36,7 +36,11 @@ class EventMapViewModel @Inject constructor() : BaseViewModel<State, Event, Effe
         val points = EventDummyData.mockCoordinates.map {
             LatLng(it.latitude, it.longitude)
         }
-        setState { copy(routePoints = points, startLocation = points.firstOrNull()) }
+        val centerLat = points.map { it.latitude }.average()
+        val centerLng = points.map { it.longitude }.average()
+
+        val centerPoint = LatLng(centerLat, centerLng)
+        setState { copy(routePoints = points, startLocation = centerPoint) }
     }
 
 

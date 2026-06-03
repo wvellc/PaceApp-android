@@ -15,6 +15,7 @@ import net.paceapp.features.main.editevent.navigation.EditEventRoute
 import net.paceapp.features.main.editprofile.navigation.EditProfileRoute
 import net.paceapp.features.main.eventdetails.navigation.EventDetailsRoute
 import net.paceapp.features.main.eventmap.navigation.EventMapRoute
+import net.paceapp.features.main.favoriteactivities.navigation.FavoriteActivitiesRoute
 import net.paceapp.features.main.managewatch.navigation.ManageWatchRoute
 import net.paceapp.features.main.notifications.navigation.NotificationsRoute
 import net.paceapp.features.main.settings.navigation.SettingsRoute
@@ -175,7 +176,7 @@ class AppNavActions(
         }
     }
 
-    fun toDuplicateEvent( id: String,eventName: String, location: String, date: String) {
+    fun toDuplicateEvent(id: String, eventName: String, location: String, date: String) {
         navController.navigate(
             DuplicateEventRoute(
                 id = id,
@@ -190,6 +191,12 @@ class AppNavActions(
 
     fun toEventMap() {
         navController.navigate(EventMapRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toFavorites() {
+        navController.navigate(FavoriteActivitiesRoute) {
             launchSingleTop = true
         }
     }

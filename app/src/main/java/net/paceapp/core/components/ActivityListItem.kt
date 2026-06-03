@@ -1,4 +1,4 @@
-package net.paceapp.features.main.history.components
+package net.paceapp.core.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -29,12 +29,11 @@ import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
 @Composable
-fun HistoryItem(
+fun ActivityListItem(
     modifier: Modifier = Modifier,
     history: ActivityUiModel,
     onClick: () -> Unit = {},
 ) {
-
 
     Column(
         modifier = modifier

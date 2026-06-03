@@ -30,6 +30,7 @@ import net.paceapp.features.main.editevent.navigation.editEventScreen
 import net.paceapp.features.main.editprofile.navigation.editprofileScreen
 import net.paceapp.features.main.eventdetails.navigation.eventDetailsScreen
 import net.paceapp.features.main.eventmap.navigation.eventMapScreen
+import net.paceapp.features.main.favoriteactivities.navigation.favoriteActivitiesScreen
 import net.paceapp.features.main.managewatch.navigation.managewatchScreen
 import net.paceapp.features.main.notifications.navigation.notificationsScreen
 import net.paceapp.features.main.settings.navigation.settingsScreen
@@ -163,6 +164,7 @@ fun AppNavHost(
                 onNavigateToCreateEvent = navActions::toCreateEvent,
                 onNavigateToEventDetails = navActions::toEventDetails,
                 onNavigateToDuplicateEvent = navActions::toDuplicateEvent,
+                onNavigateToFavorites = navActions::toFavorites,
             )
 
             //Settings
@@ -204,6 +206,12 @@ fun AppNavHost(
 
             //Event map
             eventMapScreen(onBack = navActions::goBack)
+
+            //Favorites
+            favoriteActivitiesScreen(
+                onBack = navActions::goBack,
+                onNavigateToEventDetails = navActions::toEventDetails
+            )
         }
     }
 }

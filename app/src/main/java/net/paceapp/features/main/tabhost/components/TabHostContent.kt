@@ -36,6 +36,7 @@ internal fun TabHostContent(
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToEventDetails: (String, String, String, String) -> Unit,
     onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
+    onNavigateToFavorites: () -> Unit,
     ) {
 
     // The Local NavController for the 4 inner tabs
@@ -75,6 +76,7 @@ internal fun TabHostContent(
                 onNavigateToCreateEvent = onNavigateToCreateEvent,
                 onNavigateToManageWatch = onNavigateToManageWatch,
                 onNavigateToEventDetails = onNavigateToEventDetails,
+                onNavigateToFavorites = onNavigateToFavorites,
             )
 
             //History

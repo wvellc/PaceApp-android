@@ -25,7 +25,7 @@ import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
 @Composable
-fun UpcomingActivityItem(
+fun UpcomingActivityListItem(
     modifier: Modifier = Modifier,
     model: ActivityUiModel,
     onClick: () -> Unit

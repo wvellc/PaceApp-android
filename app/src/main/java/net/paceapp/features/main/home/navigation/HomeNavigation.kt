@@ -14,6 +14,7 @@ fun NavGraphBuilder.homeScreen(
     onNavigateToCreateEvent: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
     onNavigateToEventDetails: (String, String, String, String) -> Unit,
+    onNavigateToFavorites: () -> Unit,
 ) {
     composable<HomeRoute> {
         HomeScreen(
@@ -21,7 +22,8 @@ fun NavGraphBuilder.homeScreen(
             onNavigateToNotifications = onNavigateToNotifications,
             onNavigateToCreateEvent = onNavigateToCreateEvent,
             onNavigateToManageWatch = onNavigateToManageWatch,
-            onNavigateToEventDetails = onNavigateToEventDetails
+            onNavigateToEventDetails = onNavigateToEventDetails,
+            onNavigateToFavorites = onNavigateToFavorites
         )
     }
 }

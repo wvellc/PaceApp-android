@@ -117,7 +117,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun handleLogout() {
-        safeLaunch(
+        runTask(
             block = {
                 //TODO : CallAPI
                 clearSessionData()
@@ -129,7 +129,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     private fun handleDeleteAccount() {
-        safeLaunch(
+        runTask(
             block = {
                 //TODO : CallAPI
                 clearSessionData()

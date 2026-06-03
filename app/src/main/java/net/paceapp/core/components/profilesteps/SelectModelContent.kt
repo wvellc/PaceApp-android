@@ -30,14 +30,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.wvelabs.core_ui.components.AppNetworkImage
+import com.wvelabs.core_ui.extensions.advancedShadow
 import net.paceapp.R
 import net.paceapp.core.components.NoDataView
 import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.core.garmin.models.WatchModel
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
-import com.wvelabs.core_ui.components.AppNetworkImage
-import com.wvelabs.core_ui.extensions.advancedShadow
 
 @Composable
 fun SelectModelContent(
@@ -48,7 +48,7 @@ fun SelectModelContent(
 
     if (watchList.isEmpty()) {
         NoDataView(
-            title = "No deices found"
+            title = "No devices found"
         )
         return
     }

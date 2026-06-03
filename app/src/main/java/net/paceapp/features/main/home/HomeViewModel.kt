@@ -137,7 +137,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun handleOnFavoriteClick() {
-        AppConstants.showComingSoonDialog()
+        setEffect { Effect.NavigateToFavorites }
     }
 
 

@@ -1,29 +1,27 @@
-package net.paceapp.features.main.home
+package net.paceapp.features.main.favoriteactivities
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import net.paceapp.features.main.home.HomeContract.Effect
-import net.paceapp.features.main.home.HomeContract.Event
-import net.paceapp.features.main.home.components.HomeContent
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+
+import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Effect
+import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Event
+import net.paceapp.features.main.favoriteactivities.components.FavoriteActivitiesContent
+import net.paceapp.features.main.history.HistoryContract
 
 @Composable
-fun HomeScreen(
-    viewModel: HomeViewModel = hiltViewModel(),
+fun FavoriteActivitiesScreen(
+    viewModel: FavoriteActivitiesViewModel = hiltViewModel(),
     onBack: () -> Unit,
-    onNavigateToNotifications: () -> Unit,
-    onNavigateToCreateEvent: () -> Unit,
-    onNavigateToManageWatch: () -> Unit,
     onNavigateToEventDetails: (String, String, String, String) -> Unit,
-    onNavigateToFavorites: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     // Init view model
     LaunchedEffect(key1 = Unit) {
-        viewModel.setEvent(Event.Init)
+          viewModel.setEvent(Event.Init)
     }
 
     // Handle one-time effects
@@ -31,23 +29,18 @@ fun HomeScreen(
         viewModel.effect.collect { effect ->
             when (effect) {
                 is Effect.NavigateBack -> onBack()
-                is Effect.NavigateToNotifications -> onNavigateToNotifications()
-                is Effect.NavigateToCreateEvent -> onNavigateToCreateEvent()
-                is Effect.NavigateToManageWatch -> onNavigateToManageWatch()
                 is Effect.NavigateToEventDetails -> onNavigateToEventDetails(
                     effect.id,
                     effect.eventName,
                     effect.location,
                     effect.date
                 )
-
-                is Effect.NavigateToFavorites -> onNavigateToFavorites()
             }
         }
     }
 
     // Render content
-    HomeContent(
+    FavoriteActivitiesContent(
         state = state,
         onEvent = viewModel::setEvent
     )

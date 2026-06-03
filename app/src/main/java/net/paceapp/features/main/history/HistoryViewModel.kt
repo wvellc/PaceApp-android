@@ -50,7 +50,7 @@ class HistoryViewModel @Inject constructor(
 
 
     private fun fetchHistoryList() {
-        safeLaunch(
+        runTask(
             block = {
                 getDummyHistoryList()
             },

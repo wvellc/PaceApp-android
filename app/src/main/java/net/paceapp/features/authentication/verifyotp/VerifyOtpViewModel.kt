@@ -113,7 +113,7 @@ class VerifyOtpViewModel @Inject constructor(
             },
         )
 
-        safeLaunch(
+        runTask(
             block = {
                 sessionManager.saveToken(AppConstants.DUMMY_TOKEN)
                 sessionManager.setUserDetails(userData)

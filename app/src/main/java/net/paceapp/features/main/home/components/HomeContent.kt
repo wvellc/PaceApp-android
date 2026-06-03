@@ -35,7 +35,6 @@ import net.paceapp.features.main.home.HomeContract.State
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -44,7 +43,7 @@ internal fun HomeContent(
     onEvent: (Event) -> Unit,
 ) {
     val isSdkReady = state.garminSdkStatus is GarminSdkState.Ready
-    val isWatchConnected = true/*state.watchModel?.status == WatchConnectionState.CONNECTED*/
+    val isWatchConnected = state.watchModel?.status == WatchConnectionState.CONNECTED
     val metricsBackdrop = rememberLayerBackdrop()
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
@@ -158,7 +157,7 @@ internal fun HomeContent(
                 itemsIndexed(
                     items = state.upcomingActivities,
                     key = { index, item -> item.id }) { index, activity ->
-                    UpcomingActivityItem(
+                    UpcomingActivityListItem(
                         modifier = Modifier.fillMaxWidth(), model = activity, onClick = {
                             onEvent(Event.OnActivityClick(activity))
                         })

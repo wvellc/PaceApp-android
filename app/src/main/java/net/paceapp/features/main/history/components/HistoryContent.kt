@@ -35,6 +35,7 @@ import com.wvelabs.core_ui.components.SwipeDirection
 import com.wvelabs.core_ui.components.SwipeToActionBox
 import com.wvelabs.core_ui.components.rememberSwipeActionState
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
+import net.paceapp.core.components.ActivityListItem
 
 @Composable
 internal fun HistoryContent(
@@ -142,7 +143,7 @@ internal fun HistoryContent(
                                 },
                                 content = {
                                     //History item UI
-                                    HistoryItem(history = history, onClick = {
+                                    ActivityListItem(history = history, onClick = {
                                         onEvent(Event.OnHistoryClick(history))
                                     })
                                 }

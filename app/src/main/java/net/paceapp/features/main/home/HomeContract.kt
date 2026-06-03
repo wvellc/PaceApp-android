@@ -39,6 +39,8 @@ class HomeContract {
         data object NavigateToNotifications : Effect()
         data object NavigateToCreateEvent : Effect()
         data object NavigateToManageWatch : Effect()
+        data object NavigateToFavorites : Effect()
+
         data class NavigateToEventDetails(
             val id: String,
             val eventName: String,
