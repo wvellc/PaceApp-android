@@ -75,7 +75,7 @@ class HomeViewModel @Inject constructor(
     private fun observeActiveWatchDevice() {
         garminDeviceManager.activeDevice.onEach { watch ->
             if (watch != null && watch.status == WatchConnectionState.CONNECTED) {
-                requestSyncWatch()
+
             }
             setState {
                 copy(
@@ -146,9 +146,5 @@ class HomeViewModel @Inject constructor(
         setEffect { Effect.NavigateToFavorites }
     }
 
-
-    private fun requestSyncWatch() {
-        eventSyncManager.requestFullSync()
-    }
 }
 

@@ -27,7 +27,7 @@ datastore = "1.2.1"
 
 # Image Loading & SDKs
 coil = "3.0.0" # Coil 3.0 is optimized for Kotlin 2.0+ & KMP
-ciqCompanionAppSdk = "2.2.0"
+ciqCompanionAppSdk = "2.4.0"
 capsuleVersion = "2.1.1"
 
 # Testing / UI Support

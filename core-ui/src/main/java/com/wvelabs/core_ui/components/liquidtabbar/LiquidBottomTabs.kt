@@ -206,7 +206,7 @@ fun LiquidBottomTabs(
                 })
         }
 
-        // 1. Visible Glass Container
+        // Visible Glass Container
         Row(
             Modifier
                 .graphicsLayer { translationX = panelOffset }

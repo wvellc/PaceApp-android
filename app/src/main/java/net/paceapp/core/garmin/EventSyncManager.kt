@@ -9,7 +9,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
@@ -99,7 +98,7 @@ class EventSyncManager @Inject constructor(
             .launchIn(appScope)
 
         // Auto-trigger full sync when watch connects
-        deviceManager.onWatchConnected = {
+        deviceManager.onAppReady = {
             AppLogger.d("[$TAG] Watch connected — triggering full sync")
             requestFullSync()
         }

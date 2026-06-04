@@ -6,20 +6,22 @@ import android.os.Looper
 import com.garmin.android.connectiq.ConnectIQ
 import com.garmin.android.connectiq.IQApp
 import com.garmin.android.connectiq.IQDevice
+import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
+import com.wvelabs.core_ui.alerts.AppAlerts
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonObject
+import kotlinx.coroutines.withContext
 import net.paceapp.core.garmin.state.GarminSdkState
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,12 +29,13 @@ import kotlin.coroutines.resume
 
 /**
  * Handles initialization and direct communication with the Garmin Connect IQ SDK.
- * Refactored to use purely reactive SharedFlows for asynchronous Garmin callbacks.
+ * All SDK calls are now strictly dispatched to the IO thread to prevent MainThread network crashes.
  */
 @Singleton
 class GarminConnectHelper @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    private val connectIQ: ConnectIQ
+    private val connectIQ: ConnectIQ,
+    @param:ApplicationScope private val appScope: CoroutineScope // Added AppScope for IO threading
 ) {
     // --- SDK State ---
     private val _sdkState = MutableStateFlow<GarminSdkState>(GarminSdkState.Uninitialized)
@@ -69,9 +72,11 @@ class GarminConnectHelper @Inject constructor(
 
         override fun onApplicationNotInstalled(appId: String?) {
             AppLogger.w("Garmin APP_NOT_INSTALLED: $appId")
-            _appInfoFlow.tryEmit(null)
+            AppAlerts.showToast("App Not Installed")
+//            _appInfoFlow.tryEmit(null)
         }
     }
+
     private val appEventListener =
         ConnectIQ.IQApplicationEventListener { device, _, messageData, status ->
             AppLogger.d("Garmin App Message from ${device.friendlyName}. Status: $status, Data: $messageData")
@@ -137,7 +142,7 @@ class GarminConnectHelper @Inject constructor(
     }
 
     fun registerForDeviceEvents(device: IQDevice) {
-        Handler(Looper.getMainLooper()).post {
+        appScope.launch(Dispatchers.IO) {
             try {
                 connectIQ.registerForDeviceEvents(device, deviceListener)
             } catch (e: Exception) {
@@ -147,7 +152,7 @@ class GarminConnectHelper @Inject constructor(
     }
 
     fun unregisterForDeviceEvents(device: IQDevice) {
-        Handler(Looper.getMainLooper()).post {
+        appScope.launch(Dispatchers.IO) {
             try {
                 connectIQ.unregisterForDeviceEvents(device)
             } catch (e: Exception) {
@@ -156,31 +161,31 @@ class GarminConnectHelper @Inject constructor(
         }
     }
 
-    fun getLiveDeviceStatus(device: IQDevice): IQDevice.IQDeviceStatus =
-        try {
-            connectIQ.getDeviceStatus(device)
-        } catch (e: Exception) {
-            IQDevice.IQDeviceStatus.UNKNOWN
-        }
+    fun getLiveDeviceStatus(device: IQDevice): IQDevice.IQDeviceStatus = try {
+        connectIQ.getDeviceStatus(device)
+    } catch (e: Exception) {
+        IQDevice.IQDeviceStatus.UNKNOWN
+    }
 
     // ==========================================
     // APPLICATION & MESSAGING
     // ==========================================
     fun getApplicationInfo(applicationId: String, device: IQDevice) {
-        AppLogger.e("Querying application info for $applicationId")
-//        _appInfoFlow.tryEmit(IQApp(applicationId))
-        Handler(Looper.getMainLooper()).post {
+        AppLogger.d("Querying application info for $applicationId   ")
+        appScope.launch(Dispatchers.IO) {
             try {
-                connectIQ.getApplicationInfo(applicationId, device, appInfoListener)
+                Handler(Looper.getMainLooper()).post {
+                    connectIQ.getApplicationInfo(applicationId, device, appInfoListener)
+                }
             } catch (e: Exception) {
                 AppLogger.e("Failed to query Garmin application info", e)
-                _appInfoFlow.tryEmit(null)
+//                _appInfoFlow.tryEmit(null)
             }
         }
     }
 
     fun registerForAppEvents(device: IQDevice, app: IQApp) {
-        Handler(Looper.getMainLooper()).post {
+        appScope.launch(Dispatchers.IO) {
             try {
                 connectIQ.registerForAppEvents(device, app, appEventListener)
                 AppLogger.d("Registered Garmin app event listener for ${device.friendlyName}.")
@@ -191,7 +196,7 @@ class GarminConnectHelper @Inject constructor(
     }
 
     fun unregisterForAppEvents(device: IQDevice, app: IQApp) {
-        Handler(Looper.getMainLooper()).post {
+        appScope.launch(Dispatchers.IO) {
             try {
                 connectIQ.unregisterForApplicationEvents(device, app)
             } catch (e: Exception) {
@@ -201,27 +206,31 @@ class GarminConnectHelper @Inject constructor(
     }
 
     fun openStore(storeId: String) {
-        try {
-            connectIQ.openStore(storeId)
-        } catch (e: Exception) {
-            AppLogger.e("Failed to open Connect IQ store", e)
+        appScope.launch(Dispatchers.IO) {
+            try {
+                connectIQ.openStore(storeId)
+            } catch (e: Exception) {
+                AppLogger.e("Failed to open Connect IQ store", e)
+            }
         }
     }
 
     suspend fun openApplication(device: IQDevice, app: IQApp): ConnectIQ.IQOpenApplicationStatus? =
-        suspendCancellableCoroutine { cont ->
-            try {
-                connectIQ.openApplication(device, app) { _, _, status ->
-                    if (cont.isActive) cont.resume(status)
+        withContext(Dispatchers.IO) {
+            suspendCancellableCoroutine { cont ->
+                try {
+                    connectIQ.openApplication(device, app) { _, _, status ->
+                        if (cont.isActive) cont.resume(status)
+                    }
+                } catch (e: Exception) {
+                    AppLogger.e("Failed to prompt Garmin device to open application", e)
+                    if (cont.isActive) cont.resume(null)
                 }
-            } catch (e: Exception) {
-                AppLogger.e("Failed to prompt Garmin device to open application", e)
-                if (cont.isActive) cont.resume(null)
             }
         }
 
     fun sendMessage(device: IQDevice, app: IQApp, message: Any) {
-        Handler(Looper.getMainLooper()).post {
+        appScope.launch(Dispatchers.IO) {
             try {
                 connectIQ.sendMessage(device, app, message, sendMessageListener)
             } catch (e: Exception) {
@@ -230,5 +239,3 @@ class GarminConnectHelper @Inject constructor(
         }
     }
 }
-
-

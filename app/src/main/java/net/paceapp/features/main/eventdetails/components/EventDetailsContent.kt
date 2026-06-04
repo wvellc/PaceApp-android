@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.wvelabs.core_ui.components.LiquidGlassButton
 import net.paceapp.R
@@ -56,7 +55,7 @@ internal fun EventDetailsContent(
     AppBaseScreen(
         modifier = Modifier
             .fillMaxSize(),
-        backgroundModifier = Modifier.layerBackdrop(backdrop),
+//        backgroundModifier = Modifier.layerBackdrop(backdrop),
         isLoading = state.isLoading,
         hasPattern = true,
         appBar = {
@@ -148,9 +147,9 @@ internal fun EventDetailsContent(
 
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
+
                         EventDetailButton(
-                            modifier = Modifier
-                                .weight(1f),
+                            modifier = Modifier.weight(1f),
                             iconRes = R.drawable.ic_delete_filled,
                             contentColor = AppColors.Error,
                             backdrop = backdrop,
@@ -159,9 +158,9 @@ internal fun EventDetailsContent(
                                 onEvent(Event.OnDeleteButtonClick)
                             }
                         )
+
                         EventDetailButton(
-                            modifier = Modifier
-                                .weight(1f),
+                            modifier = Modifier.weight(1f),
                             iconRes = R.drawable.ic_duplicate,
                             contentColor = AppColors.White,
                             backdrop = backdrop,
@@ -172,6 +171,7 @@ internal fun EventDetailsContent(
                         )
 
                     }
+
 
                 } ?: NoDataView(title = "Unable to fetch event details. Contact support team.")
             }
