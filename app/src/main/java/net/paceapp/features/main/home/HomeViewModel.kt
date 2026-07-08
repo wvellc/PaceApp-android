@@ -6,13 +6,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
-import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.mappers.ActivityToUiModelMapper
-import net.paceapp.core.models.ActivityDummyData
+import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
@@ -25,7 +26,8 @@ class HomeViewModel @Inject constructor(
     private val observeUserUiModelUseCase: ObserveUserUiModelUseCase,
     private val garminDeviceManager: GarminDeviceManager,
     private val activityToUiModelMapper: ActivityToUiModelMapper,
-    private val eventSyncManager: EventSyncManager
+    private val eventRepository: EventRepository,
+    private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -101,16 +103,17 @@ class HomeViewModel @Inject constructor(
         WatchMetric.Pace(pace)
     )
 
+    // Upcoming = active events from Firestore (shared thepaceapp backend). No date
+    // filter — overdue-but-active events stay visible (matches iOS Home).
     private fun fetchUpcomingActivities() {
-        viewModelScope.launch {
-            //TODO:Call API
-            val activities = ActivityDummyData.getDummyActivities().take(2)
-                .map { activityToUiModelMapper.map(it) }
-
-            setState {
-                copy(upcomingActivities = activities)
+        val uid = authManager.currentUid ?: return
+        eventRepository.observeActiveEvents(uid)
+            .onEach { docs ->
+                val activities = docs
+                    .map { activityToUiModelMapper.map(EventDocumentUiMapper.toActivityModel(it)) }
+                setState { copy(upcomingActivities = activities) }
             }
-        }
+            .launchIn(viewModelScope)
     }
 
 

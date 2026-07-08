@@ -1,5 +1,6 @@
 package net.paceapp.features.authentication.login.components
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.foundation.background
@@ -161,12 +162,13 @@ internal fun LoginContent(
                 }
 
                 //Send otp button
+                val activity = LocalActivity.current
                 AppButton(
                     modifier = Modifier
                         .fillMaxWidth(),
                     title = stringResource(R.string.send_otp),
                     enabled = state.isSendOTPEnabled,
-                ){ onEvent(Event.OnLoginClick) }
+                ){ onEvent(Event.OnLoginClick(activity)) }
 
                 //Terms condition style
                 val spanStyle = SpanStyle(

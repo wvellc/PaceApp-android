@@ -1,6 +1,7 @@
 package net.paceapp.features.authentication.login
 
 // Importing interfaces from your untouchable core library!
+import android.app.Activity
 import androidx.compose.foundation.text.input.TextFieldState
 import net.paceapp.core.domain.enums.LoginTypes
 import com.wvelabs.core_ui.base.ViewEvent
@@ -24,7 +25,8 @@ class LoginContract {
         data object OnBackClicked : Event()
 
         data class OnLoginTypeSelected(val loginType: LoginTypes) : Event()
-        data object OnLoginClick : Event()
+        // Carries the Activity — Firebase phone verification requires one.
+        data class OnLoginClick(val activity: Activity?) : Event()
         data class ToWebview(val url: String) : Event()
         data class OnCountrySelected(val dialCode: String) : Event()
 

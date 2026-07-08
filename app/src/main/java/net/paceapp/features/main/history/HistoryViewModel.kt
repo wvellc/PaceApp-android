@@ -4,11 +4,15 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.wvelabs.core_ui.extensions.debounceInput
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.mappers.ActivityToUiModelMapper
-import net.paceapp.core.models.ActivityDummyData
+import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.features.main.history.HistoryContract.Effect
 import net.paceapp.features.main.history.HistoryContract.Event
@@ -23,7 +27,13 @@ class HistoryViewModel @Inject constructor(
     private val filterHistoryListUseCase: FilterHistoryListUseCase,
     private val activityToUiModelMapper: ActivityToUiModelMapper,
     private val eventSyncManager: EventSyncManager,
+    private val eventRepository: EventRepository,
+    private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
+
+    // Latest completed events from Firestore (newest-first), mapped to UI models.
+    // Held so filter/search can operate against the real source without re-fetching.
+    private var completedActivities: List<ActivityUiModel> = emptyList()
 
     override fun setInitialState() = State()
 
@@ -51,18 +61,23 @@ class HistoryViewModel @Inject constructor(
     }
 
 
+    // Completed events come from Firestore (shared thepaceapp backend), ordered
+    // newest-first. On every emission we cache the raw list and re-apply the
+    // currently active filter/search so live updates respect user filtering.
     private fun fetchHistoryList() {
-        runTask(
-            block = {
-                getDummyHistoryList()
-            },
-            onLoading = { loadingState ->
-                setState { copy(isLoading = loadingState) }
-            },
-            onSuccess = { historyList ->
-                setState { copy(historyList = historyList) }
-            },
-        )
+        val uid = authManager.currentUid ?: return
+        eventRepository.observeCompletedEvents(uid)
+            .onEach { docs ->
+                completedActivities = docs
+                    .map { activityToUiModelMapper.map(EventDocumentUiMapper.toActivityModel(it)) }
+                val filtered = filterHistoryListUseCase(
+                    activities = completedActivities,
+                    filter = currentState.activeFilter,
+                    searchQuery = currentState.searchTextState.text.toString(),
+                )
+                setState { copy(historyList = filtered, isLoading = false) }
+            }
+            .launchIn(viewModelScope)
     }
 
 
@@ -71,9 +86,9 @@ class HistoryViewModel @Inject constructor(
         val searchFlow = snapshotFlow { currentState.searchTextState.text }
             .debounceInput()
             .map { query ->
-                // Execute Use Case
+                // Filter the cached Firestore list against the current query/filter
                 filterHistoryListUseCase(
-                    activities = getDummyHistoryList(),
+                    activities = completedActivities,
                     filter = currentState.activeFilter,
                     searchQuery = query.toString(),
                 )
@@ -84,18 +99,12 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
-    private fun getDummyHistoryList(): List<ActivityUiModel> {
-        return ActivityDummyData.getDummyActivities().map { activityToUiModelMapper.map(it) }
-    }
-
 
     private fun handleOnFilterChange(filter: HistoryFilterModel?) {
         viewModelScope.launch {
-            // Get your raw data
-            val allActivities = getDummyHistoryList()
-            // Pass it to your Use Case (runs safely on background thread)
+            // Filter the cached Firestore list (runs safely on background thread)
             val filteredActivities = filterHistoryListUseCase(
-                activities = allActivities,
+                activities = completedActivities,
                 filter = filter,
                 searchQuery = currentState.searchTextState.text.toString(),
             )

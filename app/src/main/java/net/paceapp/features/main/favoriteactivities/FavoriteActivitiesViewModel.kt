@@ -1,9 +1,11 @@
 package net.paceapp.features.main.favoriteactivities
 
 import dagger.hilt.android.lifecycle.HiltViewModel
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.data.firestore.FavoriteRepository
 import net.paceapp.core.mappers.ActivityToUiModelMapper
-import net.paceapp.core.models.ActivityDummyData
+import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Effect
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Event
@@ -12,7 +14,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteActivitiesViewModel @Inject constructor(
-    private val activityToUiModelMapper: ActivityToUiModelMapper
+    private val favoriteRepository: FavoriteRepository,
+    private val authManager: AuthManager,
+    private val activityToUiModelMapper: ActivityToUiModelMapper,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -50,8 +54,12 @@ class FavoriteActivitiesViewModel @Inject constructor(
         )
     }
 
-    private fun fetchFavoriteActivities(): List<ActivityUiModel> {
-        return ActivityDummyData.getDummyActivities().take(4)
+    // Hydrate favorited events from Firestore for the signed-in user, then format
+    // them into the list UI model. Empty when signed out.
+    private suspend fun fetchFavoriteActivities(): List<ActivityUiModel> {
+        val uid = authManager.currentUid ?: return emptyList()
+        return favoriteRepository.fetchFavoriteEvents(uid)
+            .map { EventDocumentUiMapper.toActivityModel(it) }
             .map { activityToUiModelMapper.map(it) }
     }
 

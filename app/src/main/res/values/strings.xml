@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">Pace App</string>
+    <string name="sign_in_link_sent">Sign-in link sent to %1$s. Check your inbox.</string>
+    <string name="something_went_wrong">Something went wrong. Please try again.</string>
     <string name="app_name_capitalize">PACE APP</string>
     <string name="get_started">Get Started</string>
     <string name="turn">Turn</string>

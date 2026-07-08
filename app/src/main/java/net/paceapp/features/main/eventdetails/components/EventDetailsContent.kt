@@ -35,6 +35,7 @@ import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.core.utils.StaticMapHelper
 import net.paceapp.features.main.eventdetails.EventDetailsContract.Event
 import net.paceapp.features.main.eventdetails.EventDetailsContract.State
+import net.paceapp.features.main.eventdetails.mappers.EventDetailsMapper
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
@@ -103,26 +104,29 @@ internal fun EventDetailsContent(
                     .padding(AppTheme.screenPadding),
             ) {
                 state.eventDetails?.let { eventDetails ->
-                    val mapUrl = StaticMapHelper.buildPolylineMapUrl(
-                        encodedPolyline = eventDetails.encodedPolyline,
-                    )
+                    // Only render the route map when there's an actual trace (mirrors iOS hasRouteData).
+                    if (EventDetailsMapper.hasRouteData(eventDetails.coordinates)) {
+                        val mapUrl = StaticMapHelper.buildPolylineMapUrl(
+                            encodedPolyline = eventDetails.encodedPolyline,
+                        )
 
-                    //Static map
-                    AsyncImage(
-                        model = mapUrl,
-                        contentDescription = "Event Route Map",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 16.dp)
-                            .height(185.dp) // The actual UI height
-                            .clip(RoundedCornerShape(16.dp))
-                            .defaultClickable(onClick = {
-                                onEvent(Event.OnMapClick)
-                            })
-                    )
+                        //Static map
+                        AsyncImage(
+                            model = mapUrl,
+                            contentDescription = "Event Route Map",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 16.dp)
+                                .height(185.dp) // The actual UI height
+                                .clip(RoundedCornerShape(16.dp))
+                                .defaultClickable(onClick = {
+                                    onEvent(Event.OnMapClick)
+                                })
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     //Event data
                     EventDataCard(
                         eventDetails = eventDetails,

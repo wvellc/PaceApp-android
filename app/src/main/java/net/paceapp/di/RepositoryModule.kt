@@ -1,5 +1,9 @@
 package net.paceapp.di
 
+import net.paceapp.core.data.firestore.EventRepository
+import net.paceapp.core.data.firestore.FirestoreEventRepository
+import net.paceapp.core.data.firestore.FirestoreUserProfileRepository
+import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.data.repository.UserRepositoryImpl
 import net.paceapp.core.domain.repositories.UserRepository
 import dagger.Binds
@@ -23,4 +27,18 @@ abstract class RepositoryModule {
     abstract fun bindUserRepository(
         userRepositoryImpl: UserRepositoryImpl
     ): UserRepository
+
+    // Firestore event store (shared thepaceapp backend, parity with iOS).
+    @Binds
+    @Singleton
+    abstract fun bindEventRepository(
+        impl: FirestoreEventRepository
+    ): EventRepository
+
+    // Firestore user profile + settings store.
+    @Binds
+    @Singleton
+    abstract fun bindUserProfileRepository(
+        impl: FirestoreUserProfileRepository
+    ): UserProfileRepository
 }

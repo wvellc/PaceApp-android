@@ -30,6 +30,10 @@ coil = "3.0.0" # Coil 3.0 is optimized for Kotlin 2.0+ & KMP
 ciqCompanionAppSdk = "2.4.0"
 capsuleVersion = "2.1.1"
 
+# Firebase (shared thepaceapp project — parity with iOS)
+firebaseBom = "33.9.0"
+googleServices = "4.4.2"
+
 # Testing / UI Support
 uiUnit = "1.10.6"
 countryPicker = "3.0.1"
@@ -81,6 +85,11 @@ androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscree
 # Garmin Connect
 ciq-companion-app-sdk = { group = "com.garmin.connectiq", name = "ciq-companion-app-sdk", version.ref = "ciqCompanionAppSdk" }
 
+# Firebase (BOM-managed; auth + firestore, matching iOS backend)
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
+firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+
 # Kotlinx DateTime
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version.ref = "kotlinxDatetime" }
 
@@ -116,3 +125,4 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }

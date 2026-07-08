@@ -9,6 +9,11 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
+import net.paceapp.core.data.firestore.EventRepository
+import net.paceapp.core.data.firestore.GaitDocument
+import net.paceapp.core.data.firestore.UserProfileRepository
 import org.json.JSONArray
 import org.json.JSONObject
 import javax.inject.Inject
@@ -44,7 +49,11 @@ import javax.inject.Singleton
 class EventSyncManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val deviceManager: GarminDeviceManager,
-    @param:ApplicationScope private val appScope: CoroutineScope
+    @param:ApplicationScope private val appScope: CoroutineScope,
+    // Firestore write-through (shared thepaceapp backend, parity with iOS).
+    private val eventRepository: EventRepository,
+    private val userProfileRepository: UserProfileRepository,
+    private val authManager: AuthManager,
 ) {
 
     companion object {
@@ -256,7 +265,7 @@ class EventSyncManager @Inject constructor(
      * Call this when the user creates a new event on the phone.
      */
     fun createEvent(eventPayload: Map<String, Any?>) {
-        upsertEventPayload(eventPayload, isCompleted = false, syncStatus = "pending")
+        upsertEventPayload(eventPayload, isCompleted = false, syncStatus = "pending", source = "phone")
         deviceManager.sendMessageToWatch(
             mapOf(
                 "command" to "create_event",
@@ -288,7 +297,7 @@ class EventSyncManager @Inject constructor(
      * Call this if the phone needs to mark an event as completed.
      */
     fun finishEvent(eventPayload: Map<String, Any?>) {
-        upsertEventPayload(eventPayload, isCompleted = true, syncStatus = "pending")
+        upsertEventPayload(eventPayload, isCompleted = true, syncStatus = "pending", source = "phone")
         deviceManager.sendMessageToWatch(
             mapOf(
                 "command" to "finish_event",
@@ -348,7 +357,8 @@ class EventSyncManager @Inject constructor(
     private fun upsertEventPayload(
         payload: Map<String, Any?>,
         isCompleted: Boolean,
-        syncStatus: String
+        syncStatus: String,
+        source: String = "watch",
     ) {
         val normalized = payload.toMutableMap()
         val id = extractEventId(normalized) ?: (System.currentTimeMillis() / 1000).toInt()
@@ -374,6 +384,10 @@ class EventSyncManager @Inject constructor(
             upsertInList(normalized, activeEventPayloads)
         }
 
+        // Mirror to Firestore so the event reaches the cloud + the other phone.
+        // The repo preserves write-once id/source/createdAt, so an echoed
+        // phone-created event stays source="phone" even when re-synced as "watch".
+        writeEventToFirestore(normalized, isCompleted, syncStatus, source)
         persistSyncState()
     }
 
@@ -411,6 +425,7 @@ class EventSyncManager @Inject constructor(
         activeEventPayloads.removeAll { extractEventId(it) == id }
         completedEventPayloads.removeAll { extractEventId(it) == id }
         rebuildObservableLists()
+        deleteEventInFirestore(id)
     }
 
     // =====================================================================
@@ -480,7 +495,76 @@ class EventSyncManager @Inject constructor(
 
         prefs.edit().putString(KEY_SETTINGS, JSONObject(localSettings).toString()).apply()
         AppLogger.d("[$TAG] Settings applied: $localSettings")
+
+        // Mirror watch settings into the Firestore user doc (parity with iOS).
+        writeSettingsToFirestore(localSettings)
     }
+
+    // =====================================================================
+    // SECTION 8B: Firestore Write-Through (shared thepaceapp backend)
+    // Every BLE mutation is mirrored to Firestore so events/settings reach the
+    // cloud and the other phone. All writes are no-ops until a user is signed in.
+    // =====================================================================
+
+    private fun writeEventToFirestore(
+        payload: Map<String, Any?>,
+        isCompleted: Boolean,
+        syncStatus: String,
+        source: String,
+    ) {
+        val userId = authManager.currentUid ?: return
+        appScope.launch {
+            runCatching {
+                eventRepository.upsert(payload, isCompleted, syncStatus, source, userId)
+            }.onFailure { AppLogger.e("[$TAG] Firestore event upsert failed", it) }
+        }
+    }
+
+    private fun deleteEventInFirestore(id: Int) {
+        val userId = authManager.currentUid ?: return
+        appScope.launch {
+            runCatching { eventRepository.softDelete(id, userId) }
+                .onFailure { AppLogger.e("[$TAG] Firestore soft delete failed", it) }
+        }
+    }
+
+    // Converts the watch settings map to the Firestore user-doc shape and writes it.
+    // Gait unit boundary: watch "ft"/"m" → Firestore "Feet"/"Meters".
+    private fun writeSettingsToFirestore(settings: Map<String, Any?>) {
+        val userId = authManager.currentUid ?: return
+        appScope.launch {
+            (settings["vibrate_alert"] as? Boolean)?.let {
+                runCatching { userProfileRepository.updateIntervalVibrate(userId, it) }
+            }
+            (settings["beep_alert"] as? Boolean)?.let {
+                runCatching { userProfileRepository.updateIntervalBeep(userId, it) }
+            }
+            val walking = settingDouble(settings["walking_gait"])
+            val running = settingDouble(settings["running_gait"])
+            if (walking != null || running != null) {
+                val gait = GaitDocument(
+                    walkingStepLength = walking ?: 0.0,
+                    walkingUnit = fullGaitUnit(settings["walking_gait_measure"]),
+                    runningStepLength = running ?: 0.0,
+                    runningUnit = fullGaitUnit(settings["running_gait_measure"]),
+                )
+                runCatching { userProfileRepository.updateGait(userId, gait) }
+                    .onFailure { AppLogger.e("[$TAG] Firestore gait update failed", it) }
+            }
+        }
+    }
+
+    // Lenient number parse for gait values arriving as Double/Number/String.
+    private fun settingDouble(value: Any?): Double? = when (value) {
+        is Double -> value
+        is Number -> value.toDouble()
+        is String -> value.toDoubleOrNull()
+        else -> null
+    }
+
+    // Watch "ft"/"m" → app/Firestore full word "Feet"/"Meters".
+    private fun fullGaitUnit(value: Any?): String =
+        if ((value as? String)?.lowercase()?.startsWith("m") == true) "Meters" else "Feet"
 
     // =====================================================================
     // SECTION 9: Persistence

@@ -6,9 +6,8 @@ package net.paceapp.features.authentication.verifyotp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
-import net.paceapp.core.domain.enums.LoginTypes
-import net.paceapp.core.domain.models.UserData
 import net.paceapp.core.domain.usecases.AuthRouteManager
 import net.paceapp.core.enums.AuthDestination
 import net.paceapp.core.utils.AppConstants
@@ -33,6 +32,7 @@ class VerifyOtpViewModel @Inject constructor(
     private val sessionManager: AppSessionManager,
     val savedStateHandle: SavedStateHandle,
     private val authRouteManager: AuthRouteManager,
+    private val authManager: AuthManager,
     timerFactory: TimerFactory,
 ) : BaseViewModel<State, Event, Effect>() {
     private val otpTimer = timerFactory.create(viewModelScope)
@@ -64,6 +64,11 @@ class VerifyOtpViewModel @Inject constructor(
                 emailPhoneValue = args.emailPhoneValue,
                 countryCode = args.countryCode
             )
+        }
+        //Auto-verified SMS may have already signed the user in — route straight on.
+        if (authManager.isSignedIn) {
+            routeToNextDestination()
+            return
         }
         //Init otp timer
         otpTimer.start(duration = 1.minutes, isCountdown = true)
@@ -97,32 +102,27 @@ class VerifyOtpViewModel @Inject constructor(
     private fun verifyOTP() {
         //Safety check
         if (currentState.otp.length < AppConstants.OTP_LENGTH) return
-        //TODO:Call verify OTP API
-        val loginType = currentState.loginType
-        //Replace with data from API
-        val userData = UserData(
-            loginType = loginType,
-            email = when (loginType) {
-                LoginTypes.EMAIL -> currentState.emailPhoneValue
-                else -> null
-            },
-            countryCode = currentState.countryCode,
-            phoneNumber = when (loginType) {
-                LoginTypes.PHONE -> currentState.emailPhoneValue
-                else -> null
-            },
-        )
 
         runTask(
             block = {
-                sessionManager.saveToken(AppConstants.DUMMY_TOKEN)
-                sessionManager.setUserDetails(userData)
+                // Firebase confirms the code + ensures users/{uid} + local session.
+                authManager.confirmOtp(currentState.otp).getOrThrow()
                 authRouteManager.getNextDestination()
             },
             onLoading = { loading -> setState { copy(isLoading = loading) } },
             onSuccess = { destination -> navigateToNextScreen(destination) },
-            onError = { AppLogger.e("VerifyOTPError: ${it.message}") },
+            onError = {
+                AppLogger.e("VerifyOTPError: ${it.message}")
+                AppAlerts.showToast(it.message.orEmpty(), type = MessageType.Error)
+            },
         )
+    }
+
+    // Resolves the session-based destination and navigates (used by auto-verify).
+    private fun routeToNextDestination() {
+        viewModelScope.launch {
+            navigateToNextScreen(authRouteManager.getNextDestination())
+        }
     }
 
     //Navigate to next destinations

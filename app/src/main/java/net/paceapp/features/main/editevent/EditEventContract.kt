@@ -9,6 +9,8 @@ class EditEventContract {
     data class State(
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
+        // Original event id — kept so the save updates the same event in place.
+        val eventId: Int = 0,
         val eventNameState: TextFieldState = TextFieldState(),
         val locationState: TextFieldState = TextFieldState(),
         val currentEventName: String? = null,

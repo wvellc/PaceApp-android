@@ -12,6 +12,9 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.secrets.gradle.plugin)
+
+    // Firebase (google-services.json processing) — shared thepaceapp backend
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -124,6 +127,13 @@ dependencies {
     // GARMIN CONNECT
     // ---------------------------------------------------------
     implementation(libs.ciq.companion.app.sdk)
+
+    // ---------------------------------------------------------
+    // FIREBASE (Auth + Firestore) — shared thepaceapp backend, parity with iOS
+    // ---------------------------------------------------------
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
 
     // ---------------------------------------------------------
     // CAPSULE - For smooth rounded corner

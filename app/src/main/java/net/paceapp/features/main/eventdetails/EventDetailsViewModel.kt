@@ -4,28 +4,31 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.wvelabs.core_ui.alerts.MessageType
-import com.wvelabs.core_ui.utils.AppDateFormat
-import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
-import net.paceapp.core.enums.DistanceUnits
+import net.paceapp.core.data.firestore.EventRepository
+import net.paceapp.core.data.firestore.FavoriteRepository
 import net.paceapp.features.main.eventdetails.EventDetailsContract.Effect
 import net.paceapp.features.main.eventdetails.EventDetailsContract.Event
 import net.paceapp.features.main.eventdetails.EventDetailsContract.State
-import net.paceapp.features.main.eventdetails.models.EventDummyData
+import net.paceapp.features.main.eventdetails.mappers.EventDetailsMapper
 import net.paceapp.features.main.eventdetails.navigation.EventDetailsRoute
 import net.paceapp.core.garmin.EventSyncManager
-import net.paceapp.session.AppSessionManager
 import javax.inject.Inject
 
 @HiltViewModel
 class EventDetailsViewModel @Inject constructor(
-    private val appSession: AppSessionManager,
     private val savedStateHandle: SavedStateHandle,
     private val eventSyncManager: EventSyncManager,
+    private val eventRepository: EventRepository,
+    private val favoriteRepository: FavoriteRepository,
+    private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
+
+    // Firestore document id of the event being viewed (String(id)) — used for favorites.
+    private var eventDocId: String? = null
 
     override fun setInitialState() = State()
 
@@ -53,40 +56,51 @@ class EventDetailsViewModel @Inject constructor(
     private fun initData() {
         if (currentState.isInitialized) return
         val args = savedStateHandle.toRoute<EventDetailsRoute>()
-        fetchEventData(args.id, args.eventName, args.location, args.date)
+        eventDocId = args.id
         setState { copy(isInitialized = true) }
+        fetchEventData(args.id)
+        fetchFavoriteStatus()
     }
 
-    private fun fetchEventData(
-        id: String,
-        eventName: String,
-        location: String,
-        date: String
-    ) {
-        val formattedDate = DateTimeHelper.getDateTime(
-            date = date,
-            format = AppDateFormat.DATE_SHORT_DM,
-            isUtc = true
-        )
+    // Initial favorite state from Firestore (mirrors iOS fetchInitialFavoriteStatus).
+    private fun fetchFavoriteStatus() {
+        val uid = authManager.currentUid ?: return
+        val eventId = eventDocId ?: return
+        viewModelScope.launch {
+            val favorited = runCatching { favoriteRepository.isFavorited(uid, eventId) }.getOrDefault(false)
+            setState { copy(isFavorite = favorited) }
+        }
+    }
+
+    // Loads the single event from Firestore (shared thepaceapp backend) and maps it
+    // to the UI model. The nav arg id is the Firestore document key (String(id)).
+    private fun fetchEventData(id: String) {
+        val eventId = id.toIntOrNull()
+        if (eventId == null || authManager.currentUid == null) {
+            setState { copy(eventDetails = null, isLoading = false) }
+            return
+        }
         viewModelScope.launch {
             setState { copy(isLoading = true) }
-            //TODO:Replace With Firebase or API call
-            val defaultUnit = appSession.getUserDetails()?.distanceUnits ?: DistanceUnits.MILES
-            delay(800)//Dummy loading
-            val eventData = EventDummyData.getMockEvent(defaultUnit).copy(
-                id = id,
-                title = eventName,
-                location = location,
-                dateTime = formattedDate ?: DateTimeHelper.now()
-
-            )
+            val document = eventRepository.getEvent(eventId)
+            val eventData = document?.let { EventDetailsMapper.toUiModel(it) }
             setState { copy(eventDetails = eventData, isLoading = false) }
         }
     }
 
 
+    // Optimistic toggle, then reconcile with the server result (rollback on failure).
+    // Mirrors iOS EventDetailsViewModel.toggleFavorite().
     private fun handleOnFavoriteToggle() {
-        setState { copy(isFavorite = isFavorite.not()) }
+        val uid = authManager.currentUid ?: return
+        val eventId = eventDocId ?: return
+        val previous = currentState.isFavorite
+        setState { copy(isFavorite = !previous) }
+        viewModelScope.launch {
+            runCatching { favoriteRepository.toggleFavorite(uid, eventId) }
+                .onSuccess { newState -> setState { copy(isFavorite = newState) } }
+                .onFailure { setState { copy(isFavorite = previous) } }
+        }
     }
 
     private fun handleOnAnalyticsToggle() {

@@ -70,10 +70,10 @@ internal fun HomeContent(
                 },
 
                 actions = {
-                    //Notifications
-                    AnimatedBellIcon {
-                        onEvent(Event.OnNotificationClick)
-                    }
+                    // Notifications entry point hidden for now — parity with iOS, whose
+                    // notifications module ships with mock data but no reachable entry.
+                    // Re-enable by restoring the AnimatedBellIcon below.
+                    // AnimatedBellIcon { onEvent(Event.OnNotificationClick) }
                 })
         }) { innerPaddings ->
         if (!isSdkReady) {

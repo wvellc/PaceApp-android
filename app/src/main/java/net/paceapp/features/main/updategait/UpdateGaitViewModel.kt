@@ -1,9 +1,14 @@
 package net.paceapp.features.main.updategait
 
 import androidx.lifecycle.viewModelScope
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.data.firestore.GaitDocument
+import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.domain.models.GaitPace
+import net.paceapp.core.domain.models.GaitUnit
 import net.paceapp.core.extensions.getDefaultGaits
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.features.main.updategait.UpdateGaitContract.Effect
 import net.paceapp.features.main.updategait.UpdateGaitContract.Event
 import net.paceapp.features.main.updategait.UpdateGaitContract.State
@@ -12,6 +17,7 @@ import com.wvelabs.core_network.di.ApplicationScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -19,6 +25,9 @@ import javax.inject.Inject
 @HiltViewModel
 class UpdateGaitViewModel @Inject constructor(
     val sessionManager: AppSessionManager,
+    private val userProfileRepository: UserProfileRepository,
+    private val authManager: AuthManager,
+    private val eventSyncManager: EventSyncManager,
     @param:ApplicationScope val appScope: CoroutineScope
 ) : BaseViewModel<State, Event, Effect>() {
 
@@ -55,6 +64,16 @@ class UpdateGaitViewModel @Inject constructor(
 
     private suspend fun getWalkingRunningGaits(
     ): Pair<GaitPace, GaitPace> = withContext(Dispatchers.Default) {
+        // Prefer the Firestore user doc (source of truth, parity with iOS).
+        val uid = authManager.currentUid
+        val remoteGait = uid?.let { userProfileRepository.observeUser(it).firstOrNull()?.gait }
+        if (remoteGait != null) {
+            return@withContext Pair(
+                GaitPace(remoteGait.walkingStepLength.toFloat(), remoteGait.walkingUnit.toGaitUnit()),
+                GaitPace(remoteGait.runningStepLength.toFloat(), remoteGait.runningUnit.toGaitUnit()),
+            )
+        }
+
         val userData = sessionManager.getUserDetails()
         when {
             userData?.walkingGait != null && userData.runningGait != null -> Pair(
@@ -90,7 +109,7 @@ class UpdateGaitViewModel @Inject constructor(
         runningToSave: GaitPace
     ) {
         appScope.launch {
-            // TODO: Add Firebase Integration
+            // Keep local session in sync (existing behaviour).
             val currentUser = sessionManager.getUserDetails()
             if (currentUser != null) {
                 val updatedUser = currentUser.copy(
@@ -99,7 +118,38 @@ class UpdateGaitViewModel @Inject constructor(
                 )
                 sessionManager.setUserDetails(updatedUser)
             }
+
+            // Persist to the Firestore user doc (units as full words "Feet"/"Meters").
+            val uid = authManager.currentUid
+            if (uid != null) {
+                val gait = GaitDocument(
+                    walkingStepLength = walkingToSave.value.toDouble(),
+                    walkingUnit = walkingToSave.unit.firestoreName(),
+                    runningStepLength = runningToSave.value.toDouble(),
+                    runningUnit = runningToSave.unit.firestoreName(),
+                )
+                runCatching { userProfileRepository.updateGait(uid, gait) }
+            }
+
+            // Push to the watch (unit boundary: full words → "ft"/"m").
+            eventSyncManager.updateSetting("walking_gait", walkingToSave.value.toDouble())
+            eventSyncManager.updateSetting("walking_gait_measure", walkingToSave.unit.watchName())
+            eventSyncManager.updateSetting("running_gait", runningToSave.value.toDouble())
+            eventSyncManager.updateSetting("running_gait_measure", runningToSave.unit.watchName())
+            eventSyncManager.sendSettings()
         }
     }
+
+    // GaitUnit → Firestore/app full word.
+    private fun GaitUnit.firestoreName(): String =
+        if (this == GaitUnit.METERS) "Meters" else "Feet"
+
+    // GaitUnit → watch BLE short form.
+    private fun GaitUnit.watchName(): String =
+        if (this == GaitUnit.METERS) "m" else "ft"
+
+    // Firestore full word → GaitUnit.
+    private fun String.toGaitUnit(): GaitUnit =
+        if (lowercase().startsWith("m")) GaitUnit.METERS else GaitUnit.FEET
 
 }
