@@ -18,10 +18,13 @@ interface UserProfileRepository {
     suspend fun getUser(uid: String): UserDocument?
     suspend fun upsertUser(user: UserDocument)
     suspend fun updateGait(uid: String, gait: GaitDocument)
+    suspend fun updateBodyMetrics(uid: String, heightCm: Double?, weightKg: Double?)
     suspend fun updateIntervalVibrate(uid: String, enabled: Boolean)
     suspend fun updateIntervalBeep(uid: String, enabled: Boolean)
     suspend fun updateDistanceUnit(uid: String, fullName: String)
     suspend fun touchLastSynced(uid: String)
+    // Delete the users/{uid} profile doc — part of full account deletion.
+    suspend fun deleteUser(uid: String)
 }
 
 private const val TAG = "FirestoreUsers"
@@ -57,6 +60,16 @@ class FirestoreUserProfileRepository @Inject constructor(
         userRef(uid).set(mapOf("gait" to gait), SetOptions.merge()).await()
     }
 
+    // Merge-write only present metrics so a missing one never clears the stored value.
+    override suspend fun updateBodyMetrics(uid: String, heightCm: Double?, weightKg: Double?) {
+        val data = buildMap<String, Any> {
+            heightCm?.let { put("heightCm", it) }
+            weightKg?.let { put("weightKg", it) }
+        }
+        if (data.isEmpty()) return
+        userRef(uid).set(data, SetOptions.merge()).await()
+    }
+
     override suspend fun updateIntervalVibrate(uid: String, enabled: Boolean) {
         userRef(uid).set(mapOf("intervalVibrate" to enabled), SetOptions.merge()).await()
     }
@@ -71,5 +84,9 @@ class FirestoreUserProfileRepository @Inject constructor(
 
     override suspend fun touchLastSynced(uid: String) {
         userRef(uid).set(mapOf("lastSyncedAt" to FieldValue.serverTimestamp()), SetOptions.merge()).await()
+    }
+
+    override suspend fun deleteUser(uid: String) {
+        userRef(uid).delete().await()
     }
 }

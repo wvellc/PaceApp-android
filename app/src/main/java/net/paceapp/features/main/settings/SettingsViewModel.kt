@@ -1,18 +1,24 @@
 package net.paceapp.features.main.settings
 
+import android.app.Activity
 import androidx.lifecycle.viewModelScope
 import net.paceapp.R
 import net.paceapp.config.AppWebUrls
 import net.paceapp.core.auth.AuthManager
+import net.paceapp.core.auth.AuthErrorMapper
+import net.paceapp.core.auth.AuthProviderKind
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.core.providers.AppResourceProvider
 import net.paceapp.features.main.settings.SettingsContract.Effect
 import net.paceapp.features.main.settings.SettingsContract.Event
+import net.paceapp.features.main.settings.SettingsContract.ReauthPhase
 import net.paceapp.features.main.settings.SettingsContract.State
 import net.paceapp.features.main.settings.enums.SettingOptions
 import net.paceapp.session.AppSessionManager
+import com.wvelabs.core_ui.alerts.AppAlerts
+import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -41,7 +47,10 @@ class SettingsViewModel @Inject constructor(
             is Event.OnLogoutClick -> handleOnLogoutClick()
             is Event.OnDeleteAccountClick -> handleOnDeleteAccountClick()
             is Event.OnLogoutConfirm -> handleLogout()
-            is Event.OnDeleteAccountConfirm -> handleDeleteAccount()
+            is Event.OnDeleteAccountConfirm -> beginReauthentication(event.activity)
+            is Event.OnReauthOtpChanged -> handleReauthOtpChanged(event.otp)
+            is Event.OnReauthOtpSubmit -> handleReauthOtpSubmit()
+            is Event.OnReauthCancel -> handleReauthCancel()
         }
     }
 
@@ -154,17 +163,99 @@ class SettingsViewModel @Inject constructor(
         )
     }
 
-    private fun handleDeleteAccount() {
-        runTask(
-            block = {
-                //TODO : CallAPI
-                clearSessionData()
-            },
-            onLoading = { loading ->
-                setState { copy(isLoading = loading) }
+    private suspend fun clearSessionData() = sessionManager.onSessionExpired()
+
+    // Confirming the delete dialog verifies it's really the user before deleting — OTP
+    // for phone, email link for email — no sign-out. Unknown provider deletes directly.
+    // Mirrors iOS SettingScreen.beginReauthentication.
+    private fun beginReauthentication(activity: Activity?) {
+        when (val kind = authManager.authProviderKind) {
+            is AuthProviderKind.Phone -> {
+                if (activity == null) {
+                    AppAlerts.showToast("Couldn't start verification. Please try again.", type = MessageType.Error)
+                    return
+                }
+                setState { copy(isDeleting = true) }
+                authManager.sendReauthOtp(
+                    activity = activity,
+                    onCodeSent = { verificationId ->
+                        setState {
+                            copy(
+                                isDeleting = false,
+                                reauthPhase = ReauthPhase.PhoneOtp(phone = kind.number, verificationId = verificationId),
+                            )
+                        }
+                    },
+                    onError = { message ->
+                        setState { copy(isDeleting = false) }
+                        AppAlerts.showToast(message, type = MessageType.Error)
+                    },
+                    // Auto-retrieval already reauthenticated — go straight to deletion.
+                    onDone = { deleteAccountAndRouteToLogin() },
+                )
             }
-        )
+
+            is AuthProviderKind.Email -> {
+                setState { copy(isDeleting = true) }
+                viewModelScope.launch {
+                    authManager.sendReauthEmailLink()
+                        .onSuccess {
+                            setState {
+                                copy(isDeleting = false, reauthPhase = ReauthPhase.EmailWait(email = kind.email))
+                            }
+                        }
+                        .onFailure {
+                            setState { copy(isDeleting = false) }
+                            AppAlerts.showToast(AuthErrorMapper.message(it), type = MessageType.Error)
+                        }
+                }
+            }
+
+            AuthProviderKind.Unknown -> deleteAccountAndRouteToLogin()
+        }
     }
 
-    private suspend fun clearSessionData() = sessionManager.onSessionExpired()
+    private fun handleReauthOtpChanged(otp: String) {
+        val phase = currentState.reauthPhase as? ReauthPhase.PhoneOtp ?: return
+        setState { copy(reauthPhase = phase.copy(otp = otp)) }
+    }
+
+    // Verify & Delete: reauthenticate with the entered OTP, then delete the account.
+    private fun handleReauthOtpSubmit() {
+        val phase = currentState.reauthPhase as? ReauthPhase.PhoneOtp ?: return
+        if (phase.otp.length < 6 || phase.isVerifying) return
+        setState { copy(reauthPhase = phase.copy(isVerifying = true)) }
+        viewModelScope.launch {
+            authManager.reauthenticateWithPhone(phase.verificationId, phase.otp)
+                .onSuccess {
+                    // Drop the OTP sheet, show the blocking overlay, then delete.
+                    setState { copy(reauthPhase = null) }
+                    deleteAccountAndRouteToLogin()
+                }
+                .onFailure {
+                    setState { copy(reauthPhase = phase.copy(otp = "", isVerifying = false)) }
+                    AppAlerts.showToast(AuthErrorMapper.message(it), type = MessageType.Error)
+                }
+        }
+    }
+
+    private fun handleReauthCancel() {
+        // Abandon an in-flight email reauth so a later link isn't treated as deletion.
+        authManager.isReauthenticatingForDeletion = false
+        setState { copy(reauthPhase = null, isDeleting = false) }
+    }
+
+    // Runs the actual deletion behind a blocking overlay, then routes to login by
+    // reusing the global session-expired path (AppNavHost → toLogin).
+    private fun deleteAccountAndRouteToLogin() {
+        setState { copy(isDeleting = true) }
+        viewModelScope.launch {
+            runCatching { authManager.deleteAccount() }
+                .onSuccess { sessionManager.onSessionExpired() }
+                .onFailure {
+                    setState { copy(isDeleting = false) }
+                    AppAlerts.showToast(AuthErrorMapper.message(it), type = MessageType.Error)
+                }
+        }
+    }
 }

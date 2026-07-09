@@ -8,7 +8,9 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import net.paceapp.core.auth.AuthErrorMapper
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.components.AppActionDialog
 import net.paceapp.core.components.CustomToast
@@ -16,7 +18,10 @@ import net.paceapp.navigation.AppNavHost
 import net.paceapp.session.AppSessionManager
 import net.paceapp.theme.PaceAppTheme
 import com.wvelabs.core_ui.alerts.AppAlertContainer
+import com.wvelabs.core_ui.alerts.AppAlerts
+import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -76,6 +81,33 @@ class MainActivity : ComponentActivity() {
     // on (Authenticating screen → dashboard/build-profile, or back to login).
     private fun handleEmailSignInLink(intent: Intent?) {
         val link = intent?.data?.toString() ?: return
+
+        // Account-deletion re-auth: a returning email link for a signed-in user who
+        // asked to delete their account. Reauthenticate then delete — do NOT run the
+        // normal fresh-sign-in path. Mirrors iOS PaceApp.onOpenURL reauth branch.
+        if (authManager.isReauthenticatingForDeletion && authManager.isSignedIn &&
+            authManager.isEmailSignInLink(link)
+        ) {
+            lifecycleScope.launch {
+                runCatching {
+                    authManager.reauthenticateWithEmailLink(link).getOrThrow()
+                    authManager.deleteAccount()
+                }
+                    .onSuccess {
+                        AppAlerts.showToast(
+                            getString(R.string.account_deleted_message),
+                            type = MessageType.Success,
+                        )
+                        sessionManager.onSessionExpired() // routes to login (AppNavHost)
+                    }
+                    .onFailure {
+                        authManager.isReauthenticatingForDeletion = false
+                        AppAlerts.showToast(AuthErrorMapper.message(it), type = MessageType.Error)
+                    }
+            }
+            return
+        }
+
         authManager.handleIncomingLinkIfEmailSignIn(link)
     }
 }

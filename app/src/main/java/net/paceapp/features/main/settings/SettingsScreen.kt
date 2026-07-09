@@ -1,5 +1,6 @@
 package net.paceapp.features.main.settings
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,6 +12,7 @@ import net.paceapp.core.extensions.openAppNotificationSettings
 import net.paceapp.core.extensions.openBrowser
 import net.paceapp.features.main.settings.SettingsContract.Effect
 import net.paceapp.features.main.settings.SettingsContract.Event
+import net.paceapp.features.main.settings.components.DeleteReauthOverlays
 import net.paceapp.features.main.settings.components.SettingsContent
 import com.wvelabs.core_ui.alerts.AppAlerts
 import com.wvelabs.core_ui.alerts.MessageType
@@ -24,6 +26,8 @@ fun SettingsScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    // Firebase phone re-verification (for account deletion) requires an Activity.
+    val activity = LocalActivity.current
     // Init view model
     LaunchedEffect(key1 = Unit) {
         viewModel.setEvent(Event.Init)
@@ -49,15 +53,17 @@ fun SettingsScreen(
                     }
                 )
 
+                // Reworded delete confirmation — the destructive "Delete" button starts
+                // re-authentication; "Cancel" keeps the account (mirrors iOS).
                 is Effect.ShowDeleteAccountDialog -> AppAlerts.showDialog(
-                    title = UiText.StringResource(R.string.delete_account_dialog_title),
-                    text = UiText.StringResource(R.string.delete_account_dialog_message),
-                    dismissText = UiText.StringResource(R.string.new_start),
-                    confirmText = UiText.StringResource(R.string.stay_with_me),
+                    title = UiText.StringResource(R.string.delete_account_reauth_title),
+                    text = UiText.StringResource(R.string.delete_account_reauth_message),
+                    dismissText = UiText.StringResource(R.string.delete),
+                    confirmText = UiText.StringResource(R.string.cancel),
                     cancelable = true,
                     type = MessageType.Warning,
                     onDismiss = {
-                        viewModel.setEvent(Event.OnDeleteAccountConfirm)
+                        viewModel.setEvent(Event.OnDeleteAccountConfirm(activity))
                     }
                 )
             }
@@ -68,5 +74,11 @@ fun SettingsScreen(
     SettingsContent(
         state = state,
         onEvent = viewModel::setEvent
+    )
+
+    // Re-auth OTP / email-wait sheets + blocking processing overlay.
+    DeleteReauthOverlays(
+        state = state,
+        onEvent = viewModel::setEvent,
     )
 }

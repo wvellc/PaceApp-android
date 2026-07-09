@@ -170,7 +170,8 @@ object AnalyticsAggregator {
                 val peak = (efforts.maxOrNull() ?: 0.0).toInt()
                 listOf(
                     AnalyticsSummaryData(
-                        title = "Avg Effort", value = "$avg", unit = "%",
+                        // Matches iOS AnalyticsMetricType.percentage ("Avg Efforts")
+                        title = "Avg Efforts", value = "$avg", unit = "%",
                         type = metric, dataPoints = points,
                     ),
                     AnalyticsSummaryData(

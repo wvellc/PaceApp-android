@@ -44,7 +44,10 @@ class FirestoreEventRepository @Inject constructor(
         val registration = eventsCollection()
             .whereEqualTo("userId", userId)
             .whereEqualTo("status", EventStatusValue.COMPLETED)
-            .orderBy("completedAt", Query.Direction.DESCENDING)
+            // Newest-activity-first: a freshly edited or synced run jumps to the top of
+            // History (mirrors iOS ea060f7). Needs composite index userId+status+updatedAt
+            // (already deployed in the shared thepaceapp project by iOS).
+            .orderBy("updatedAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     AppLogger.e("[$TAG] completed listener failed", error)
@@ -141,5 +144,14 @@ class FirestoreEventRepository @Inject constructor(
             }
         }
         return ConnectIQEventSnapshot(active, completed, deletedIds)
+    }
+
+    // Hard-delete every event doc for this user (full account deletion). Best-effort
+    // per doc so one failure doesn't strand the rest — the Auth account delete follows.
+    override suspend fun deleteAllForUser(userId: String) {
+        val snapshot = eventsCollection().whereEqualTo("userId", userId).get().await()
+        for (doc in snapshot.documents) {
+            runCatching { doc.reference.delete().await() }
+        }
     }
 }

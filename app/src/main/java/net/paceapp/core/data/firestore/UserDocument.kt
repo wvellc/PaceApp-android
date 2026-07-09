@@ -19,6 +19,9 @@ data class UserDocument(
     var intervalBeep: Boolean? = null,
     // Stored as full name ("Miles"/"Kilometers") to match iOS.
     var distanceUnit: String? = null,
+    // Body metrics sourced from the watch (metric). Firestore keys heightCm/weightKg.
+    var heightCm: Double? = null,
+    var weightKg: Double? = null,
     var lastSyncedAt: Timestamp? = null,
 )
 

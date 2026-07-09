@@ -12,7 +12,7 @@ data object LoginRoute
 fun NavGraphBuilder.loginScreen(
     onBack: () -> Unit,
     onNavigateToWebview: (String, String?) -> Unit,
-    onNavigateToVerifyOtp: (LoginTypes, String, String?) -> Unit,
+    onNavigateToVerifyOtp: (LoginTypes, String, String?, String) -> Unit,
 ) {
     composable<LoginRoute> {
         LoginScreen(

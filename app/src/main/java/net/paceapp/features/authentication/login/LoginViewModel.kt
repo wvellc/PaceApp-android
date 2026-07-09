@@ -47,7 +47,7 @@ class LoginViewModel @Inject constructor(
 
             is Event.OnLoginTypeSelected -> handleOnLoginTypeSelected(event.loginType)
             is Event.OnLoginClick -> handleOnLoginClicked(event.activity)
-            is Event.OtpNavConsumed -> setState { copy(pendingOtpPhone = null) }
+            is Event.OtpNavConsumed -> setState { copy(pendingOtpPhone = null, pendingOtpVerificationId = null) }
             is Event.ToWebview -> handleWebviewNavigation(event.url)
             is Event.OnCountrySelected -> handleOnCountrySelected(event.dialCode)
         }
@@ -154,10 +154,16 @@ class LoginViewModel @Inject constructor(
         authManager.sendPhoneOtp(
             activity = activity,
             phoneE164 = phoneE164,
-            onCodeSent = {
+            onCodeSent = { verificationId ->
                 // Drive navigation from state (not a one-shot effect): the reCAPTCHA
                 // activity round-trip can drop an effect/navigate() fired mid-resume.
-                setState { copy(isLoading = false, pendingOtpPhone = phoneE164) }
+                setState {
+                    copy(
+                        isLoading = false,
+                        pendingOtpPhone = phoneE164,
+                        pendingOtpVerificationId = verificationId,
+                    )
+                }
             },
             onError = { message ->
                 setState { copy(isLoading = false) }
@@ -166,7 +172,9 @@ class LoginViewModel @Inject constructor(
             onAutoVerified = {
                 // Instant SMS retrieval already signed the user in; the OTP screen
                 // detects the active session on Init and routes onward.
-                setState { copy(isLoading = false, pendingOtpPhone = phoneE164) }
+                setState {
+                    copy(isLoading = false, pendingOtpPhone = phoneE164, pendingOtpVerificationId = "")
+                }
             },
         )
     }

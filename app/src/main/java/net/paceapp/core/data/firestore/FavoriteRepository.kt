@@ -73,6 +73,15 @@ class FavoriteRepository @Inject constructor(
         }.filter { it.status != EventStatusValue.DELETED }
     }
 
+    // Delete every favorite doc owned by this user — part of full account deletion.
+    // Best-effort per doc; a single failure shouldn't abort the wider delete flow.
+    suspend fun deleteAllForUser(userId: String) {
+        val snapshot = favoritesCollection().whereEqualTo("userId", userId).get().await()
+        for (doc in snapshot.documents) {
+            runCatching { doc.reference.delete().await() }
+        }
+    }
+
     // Live stream of favorited eventIds for UIs that want real-time updates.
     fun observeFavoriteEventIds(userId: String): Flow<List<String>> = callbackFlow {
         val registration = favoritesCollection()

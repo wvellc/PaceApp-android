@@ -10,7 +10,9 @@ import kotlinx.serialization.Serializable
 data class VerifyOtpRoute(
     val loginType: LoginTypes,
     val emailPhoneValue: String,
-    val countryCode: String? = null
+    val countryCode: String? = null,
+    // Firebase phone verificationId carried from Login (mirrors iOS). Empty for email.
+    val verificationId: String = ""
 )
 
 fun NavGraphBuilder.verifyOtpScreen(

@@ -9,6 +9,7 @@ import net.paceapp.core.domain.models.GaitPace
 import net.paceapp.core.domain.models.GaitUnit
 import net.paceapp.core.extensions.getDefaultGaits
 import net.paceapp.core.garmin.EventSyncManager
+import net.paceapp.core.garmin.GaitStrideCalculator
 import net.paceapp.features.main.updategait.UpdateGaitContract.Effect
 import net.paceapp.features.main.updategait.UpdateGaitContract.Event
 import net.paceapp.features.main.updategait.UpdateGaitContract.State
@@ -89,11 +90,22 @@ class UpdateGaitViewModel @Inject constructor(
     }
 
     private fun handleRunningGaitChanged(gaitPace: GaitPace) {
-        setState { copy(runningGait = gaitPace) }
+        setState { copy(runningGait = applyGaitChange(runningGait, gaitPace)) }
     }
 
     private fun handleWalkingGaitChanged(gaitPace: GaitPace) {
-        setState { copy(walkingGait = gaitPace) }
+        setState { copy(walkingGait = applyGaitChange(walkingGait, gaitPace)) }
+    }
+
+    // On a unit toggle, convert the shown step-length instead of keeping the raw number (iOS SetGaitStepView onChange parity).
+    private fun applyGaitChange(current: GaitPace, incoming: GaitPace): GaitPace {
+        if (incoming.unit == current.unit) return incoming
+        val converted = GaitStrideCalculator.convert(
+            current.value.toDouble(),
+            current.unit.firestoreName(),
+            incoming.unit.firestoreName(),
+        )
+        return GaitPace(converted.toFloat(), incoming.unit)
     }
 
     private fun handleBackClick() {

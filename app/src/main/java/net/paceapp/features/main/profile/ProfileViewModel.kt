@@ -41,6 +41,8 @@ class ProfileViewModel @Inject constructor(
 
 
     private fun initData() {
+        // Ask the watch to push its settings (gait/height/weight) so the profile refreshes each visit (iOS onAppear parity).
+        eventSyncManager.requestWatchSettings()
         if (currentState.isInitialized) return
         observeUserData()
         observeIntervalSettings()

@@ -106,10 +106,12 @@ class EventSyncManager @Inject constructor(
             .onEach { messageData -> handleIncomingMessage(messageData) }
             .launchIn(appScope)
 
-        // Auto-trigger full sync when watch connects
+        // Auto-trigger full sync when watch connects, and ask the watch for its
+        // settings (height/weight/gait) so the profile stays in sync.
         deviceManager.onAppReady = {
             AppLogger.d("[$TAG] Watch connected — triggering full sync")
             requestFullSync()
+            requestWatchSettings()
         }
     }
 
@@ -455,11 +457,30 @@ class EventSyncManager @Inject constructor(
     // SECTION 8: Settings Sync
     // =====================================================================
 
-    /** Returns a map of all synced settings from SharedPreferences. */
+    /** Returns a map of all synced settings from SharedPreferences, plus computed
+     * millimeter step lengths for the watch (mirrors iOS getSettingsPayload). */
     fun getSettingsPayload(): Map<String, Any?> {
         val stored = prefs.getString(KEY_SETTINGS, null)
         val settingsMap = if (stored != null) jsonToMap(JSONObject(stored)) else emptyMap()
-        return SETTINGS_KEYS.associateWith { settingsMap[it] }
+        val payload = SETTINGS_KEYS.associateWith { settingsMap[it] }.toMutableMap()
+
+        settingDouble(settingsMap["walking_gait"])?.let {
+            payload["walking_step_length"] =
+                GaitStrideCalculator.millimeters(it, fullGaitUnit(settingsMap["walking_gait_measure"]))
+        }
+        settingDouble(settingsMap["running_gait"])?.let {
+            payload["running_step_length"] =
+                GaitStrideCalculator.millimeters(it, fullGaitUnit(settingsMap["running_gait_measure"]))
+        }
+        return payload
+    }
+
+    /** Asks the watch to send its current settings (incl. height) via a sync_settings
+     * reply. Called on watch-app-ready and on Profile entry (mirrors iOS requestSettings). */
+    fun requestWatchSettings() {
+        deviceManager.sendMessageToWatch(
+            mapOf("command" to "request_settings", "source" to "phone")
+        )
     }
 
     /** Updates a single setting and persists it. */
@@ -496,8 +517,9 @@ class EventSyncManager @Inject constructor(
         prefs.edit().putString(KEY_SETTINGS, JSONObject(localSettings).toString()).apply()
         AppLogger.d("[$TAG] Settings applied: $localSettings")
 
-        // Mirror watch settings into the Firestore user doc (parity with iOS).
-        writeSettingsToFirestore(localSettings)
+        // Mirror watch settings into the Firestore user doc (parity with iOS): alerts,
+        // body metrics, and gait re-derived from the watch's height when present.
+        applyRemoteSettingsToProfile(settingsMap)
     }
 
     // =====================================================================
@@ -528,10 +550,15 @@ class EventSyncManager @Inject constructor(
         }
     }
 
-    // Converts the watch settings map to the Firestore user-doc shape and writes it.
-    // Gait unit boundary: watch "ft"/"m" → Firestore "Feet"/"Meters".
-    private fun writeSettingsToFirestore(settings: Map<String, Any?>) {
+    // Mirrors iOS applyRemoteSettings profile write: alerts + body metrics, and gait
+    // RE-DERIVED from the watch's height when present (overwrites manual gait — accepted
+    // parity trade-off; iOS has no manual-override flag). `settings` is the raw watch map.
+    // Gait unit boundary: watch "ft"/"m" ↔ Firestore/app "Feet"/"Meters".
+    private fun applyRemoteSettingsToProfile(settings: Map<String, Any?>) {
         val userId = authManager.currentUid ?: return
+        val heightCm = settingDouble(settings["user_height"])
+        val weightKg = settingDouble(settings["user_weight"])?.let { it / 1000.0 } // grams → kg
+
         appScope.launch {
             (settings["vibrate_alert"] as? Boolean)?.let {
                 runCatching { userProfileRepository.updateIntervalVibrate(userId, it) }
@@ -539,20 +566,56 @@ class EventSyncManager @Inject constructor(
             (settings["beep_alert"] as? Boolean)?.let {
                 runCatching { userProfileRepository.updateIntervalBeep(userId, it) }
             }
-            val walking = settingDouble(settings["walking_gait"])
-            val running = settingDouble(settings["running_gait"])
-            if (walking != null || running != null) {
-                val gait = GaitDocument(
-                    walkingStepLength = walking ?: 0.0,
+            if (heightCm != null || weightKg != null) {
+                runCatching { userProfileRepository.updateBodyMetrics(userId, heightCm, weightKg) }
+            }
+
+            if (heightCm != null && heightCm > 0) {
+                // Derive gait from height, save it, and push the computed mm back to the watch.
+                val derived = GaitStrideCalculator.gait(
+                    heightCm = heightCm,
                     walkingUnit = fullGaitUnit(settings["walking_gait_measure"]),
-                    runningStepLength = running ?: 0.0,
                     runningUnit = fullGaitUnit(settings["running_gait_measure"]),
                 )
-                runCatching { userProfileRepository.updateGait(userId, gait) }
+                val gaitDoc = GaitDocument(
+                    walkingStepLength = derived.walkingStepLength,
+                    walkingUnit = derived.walkingUnit,
+                    runningStepLength = derived.runningStepLength,
+                    runningUnit = derived.runningUnit,
+                )
+                runCatching { userProfileRepository.updateGait(userId, gaitDoc) }
                     .onFailure { AppLogger.e("[$TAG] Firestore gait update failed", it) }
+                persistGaitToPrefs(derived)
+                sendSettings()
+            } else {
+                // Legacy fallback: use the watch's reported gait values directly.
+                val walking = settingDouble(settings["walking_gait"])
+                val running = settingDouble(settings["running_gait"])
+                if (walking != null || running != null) {
+                    val gait = GaitDocument(
+                        walkingStepLength = walking ?: 0.0,
+                        walkingUnit = fullGaitUnit(settings["walking_gait_measure"]),
+                        runningStepLength = running ?: 0.0,
+                        runningUnit = fullGaitUnit(settings["running_gait_measure"]),
+                    )
+                    runCatching { userProfileRepository.updateGait(userId, gait) }
+                        .onFailure { AppLogger.e("[$TAG] Firestore gait update failed", it) }
+                }
             }
         }
     }
+
+    // Writes the height-derived gait into local prefs (watch "ft"/"m" units) so the
+    // next getSettingsPayload sends the updated gait + computed mm to the watch.
+    private fun persistGaitToPrefs(derived: GaitStrideCalculator.DerivedGait) {
+        updateSetting("walking_gait", derived.walkingStepLength)
+        updateSetting("walking_gait_measure", watchGaitUnit(derived.walkingUnit))
+        updateSetting("running_gait", derived.runningStepLength)
+        updateSetting("running_gait_measure", watchGaitUnit(derived.runningUnit))
+    }
+
+    // Firestore/app "Feet"/"Meters" → watch "ft"/"m".
+    private fun watchGaitUnit(unit: String): String = if (unit.lowercase().startsWith("m")) "m" else "ft"
 
     // Lenient number parse for gait values arriving as Double/Number/String.
     private fun settingDouble(value: Any?): Double? = when (value) {

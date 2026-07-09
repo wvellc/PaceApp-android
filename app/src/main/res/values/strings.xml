@@ -97,6 +97,15 @@
     <string name="delete_account_dialog_message">Create a new Pace App experience anytime. Your next race adventure awaits!</string>
     <string name="new_start">New Start</string>
     <string name="stay_with_me">Stay With Me</string>
+    <!-- Account deletion re-authentication -->
+    <string name="delete_account_reauth_title">Delete your account?</string>
+    <string name="delete_account_reauth_message">Confirm it\'s you to permanently delete your account. This can\'t be undone.</string>
+    <string name="reauth_confirm_title">Confirm it\'s you</string>
+    <string name="reauth_otp_message">Enter the code sent to %1$s to permanently delete your account. This can\'t be undone.</string>
+    <string name="reauth_verify_and_delete">Verify &amp; Delete</string>
+    <string name="reauth_email_title">Check your email</string>
+    <string name="reauth_email_message">We sent a confirmation link to %1$s. Tap it to permanently delete your account.</string>
+    <string name="account_deleted_message">Your account has been deleted.</string>
     <string name="min">Min</string>
     <string name="max">Max</string>
     <string name="no_history_title">Let’s Get After It!\nPRs await!</string>

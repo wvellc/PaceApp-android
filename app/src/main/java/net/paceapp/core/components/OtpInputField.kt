@@ -30,7 +30,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -89,13 +92,15 @@ fun OtpField(
         // Hidden TextField to handle actual input and keyboard logic
         BasicTextField(
             value = otpValue,
-            onValueChange = {
-                if (it.length <= otpLength && it.all { char -> char.isDigit() }) {
-                    onOtpValueChange(it)
-                }
+            onValueChange = { raw ->
+                // Accept SMS autofill / pasted multi-digit codes: strip non-digits and cap at otpLength.
+                val digits = raw.filter { char -> char.isDigit() }.take(otpLength)
+                if (digits != otpValue) onOtpValueChange(digits)
             },
             modifier = Modifier
                 .focusRequester(focusRequester)
+                // Enables Android SMS one-time-code autofill for the OTP field.
+                .semantics { contentType = ContentType.SmsOtpCode }
                 .size(1.dp) // Keep it tiny but present
                 .alpha(0f),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),

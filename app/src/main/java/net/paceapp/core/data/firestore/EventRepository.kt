@@ -39,4 +39,8 @@ interface EventRepository {
 
     // One read → client-side partition, to seed the watch handshake.
     suspend fun fetchAllEventPayloads(userId: String): ConnectIQEventSnapshot
+
+    // Hard-delete every event doc owned by this user — part of full account deletion
+    // (not a soft delete; the account is going away entirely). Mirrors iOS deleteAccount.
+    suspend fun deleteAllForUser(userId: String)
 }

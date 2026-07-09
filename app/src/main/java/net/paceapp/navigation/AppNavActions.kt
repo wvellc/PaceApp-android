@@ -63,12 +63,18 @@ class AppNavActions(
         }
     }
 
-    fun toVerifyOtp(loginType: LoginTypes, value: String, countryCode: String? = null) {
+    fun toVerifyOtp(
+        loginType: LoginTypes,
+        value: String,
+        countryCode: String? = null,
+        verificationId: String = "",
+    ) {
         navController.navigate(
             VerifyOtpRoute(
                 loginType = loginType,
                 emailPhoneValue = value,
-                countryCode = countryCode
+                countryCode = countryCode,
+                verificationId = verificationId,
             )
         ) {
             launchSingleTop = true

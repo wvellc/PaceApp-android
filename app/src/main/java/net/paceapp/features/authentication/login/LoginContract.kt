@@ -22,6 +22,9 @@ class LoginContract {
         // from lifecycle-aware state (survives the reCAPTCHA activity round-trip,
         // unlike a one-shot effect which can be dropped mid-transition).
         val pendingOtpPhone: String? = null,
+        // verificationId from onCodeSent, carried to the OTP screen as a nav arg
+        // (mirrors iOS). Empty when auto-verified (already signed in).
+        val pendingOtpVerificationId: String? = null,
     ) : ViewState
 
     sealed class Event : ViewEvent {

@@ -50,20 +50,20 @@ fun SetGaitContent(
             )
         )
         Spacer(Modifier.height(16.dp))
+        //Walking gait picker (rendered above Running for iOS parity)
+        GaitPickerView(
+            modifier = Modifier.fillMaxWidth(),
+            title = stringResource(R.string.walking),
+            gait = walkingGait,
+            onGaitChanged = onWalkingChange
+        )
+        Spacer(Modifier.height(24.dp))
         //Running gait picker
         GaitPickerView(
             modifier = Modifier.fillMaxWidth(),
             title = stringResource(R.string.running),
             gait = runningGait,
             onGaitChanged = onRunningChange
-        )
-        Spacer(Modifier.height(24.dp))
-        //Walking gait picker
-        GaitPickerView(
-            modifier = Modifier.fillMaxWidth(),
-            title = stringResource(R.string.walking),
-            gait = walkingGait,
-            onGaitChanged = onWalkingChange
         )
 
     }

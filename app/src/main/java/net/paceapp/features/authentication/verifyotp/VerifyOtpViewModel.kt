@@ -6,6 +6,7 @@ package net.paceapp.features.authentication.verifyotp
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import net.paceapp.core.auth.AuthErrorMapper
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.usecases.AuthRouteManager
@@ -38,6 +39,9 @@ class VerifyOtpViewModel @Inject constructor(
     private val otpTimer = timerFactory.create(viewModelScope)
     val countDown = otpTimer.time
 
+    // verificationId carried from Login via the nav route (mirrors iOS).
+    private var verificationId: String = ""
+
     override fun setInitialState() = State()
 
     override fun handleEvents(event: Event) {
@@ -57,6 +61,7 @@ class VerifyOtpViewModel @Inject constructor(
     private fun initData() {
         if (currentState.isInitialized) return
         val args = savedStateHandle.toRoute<VerifyOtpRoute>()
+        verificationId = args.verificationId
         //Set argument data
         setState {
             copy(
@@ -106,21 +111,24 @@ class VerifyOtpViewModel @Inject constructor(
         runTask(
             block = {
                 // Firebase confirms the code + ensures users/{uid} + local session.
-                authManager.confirmOtp(currentState.otp).getOrThrow()
+                authManager.confirmOtp(verificationId, currentState.otp).getOrThrow()
                 authRouteManager.getNextDestination()
             },
             onLoading = { loading -> setState { copy(isLoading = loading) } },
             onSuccess = { destination -> navigateToNextScreen(destination) },
             onError = {
                 AppLogger.e("VerifyOTPError: ${it.message}")
-                AppAlerts.showToast(it.message.orEmpty(), type = MessageType.Error)
+                AppAlerts.showToast(AuthErrorMapper.message(it), type = MessageType.Error)
             },
         )
     }
 
     // Resolves the session-based destination and navigates (used by auto-verify).
+    // Populate the local session from the active Firebase user first, so a signed-in
+    // user is never bounced to LOGIN by a missing local token.
     private fun routeToNextDestination() {
         viewModelScope.launch {
+            authManager.syncSessionIfSignedIn()
             navigateToNextScreen(authRouteManager.getNextDestination())
         }
     }

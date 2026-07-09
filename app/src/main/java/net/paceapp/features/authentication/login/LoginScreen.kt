@@ -20,7 +20,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     onBack: () -> Unit,
     onNavigateToWebview: (String, String?) -> Unit,
-    onNavigateToVerifyOtp: (LoginTypes, String, String?) -> Unit,
+    onNavigateToVerifyOtp: (LoginTypes, String, String?, String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     BackHandler(enabled = true) {
@@ -37,7 +37,12 @@ fun LoginScreen(
     // activity, when the nav host is ready (a one-shot effect could be dropped).
     LaunchedEffect(state.pendingOtpPhone) {
         val phone = state.pendingOtpPhone ?: return@LaunchedEffect
-        onNavigateToVerifyOtp(LoginTypes.PHONE, phone, state.countryCode)
+        onNavigateToVerifyOtp(
+            LoginTypes.PHONE,
+            phone,
+            state.countryCode,
+            state.pendingOtpVerificationId.orEmpty(),
+        )
         viewModel.setEvent(Event.OtpNavConsumed)
     }
     val emailFocus = remember { FocusRequester() }
@@ -51,7 +56,8 @@ fun LoginScreen(
                 is Effect.NavigateToVerifyOtp -> onNavigateToVerifyOtp(
                     effect.loginType,
                     effect.emailPhoneValue,
-                    effect.countryCode
+                    effect.countryCode,
+                    ""
                 )
                 is Effect.RequestFocus -> {
                     // Small delay to ensure the keyboard can open after transition
