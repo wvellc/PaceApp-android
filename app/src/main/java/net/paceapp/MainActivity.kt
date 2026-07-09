@@ -62,7 +62,8 @@ class MainActivity : ComponentActivity() {
                     // The Navigation Flow
                     AppNavHost(
                         navController = navController,
-                        sessionManager = sessionManager
+                        sessionManager = sessionManager,
+                        authManager = authManager
                     )
                 }
             }

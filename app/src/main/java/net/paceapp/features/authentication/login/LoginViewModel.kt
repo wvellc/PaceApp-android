@@ -128,6 +128,7 @@ class LoginViewModel @Inject constructor(
             authManager.sendEmailLink(email)
                 .onSuccess {
                     setState { copy(isLoading = false) }
+                    currentState.emailState.clearText()
                     AppAlerts.showToast(
                         resourceProvider.getString(R.string.sign_in_link_sent, email),
                         type = MessageType.Info,

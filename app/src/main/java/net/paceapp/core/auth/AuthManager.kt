@@ -11,6 +11,9 @@ import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import net.paceapp.core.data.firestore.UserDocument
 import net.paceapp.core.data.firestore.UserProfileRepository
@@ -39,6 +42,11 @@ class AuthManager @Inject constructor(
     private var resendToken: PhoneAuthProvider.ForceResendingToken? = null
 
     private val prefs by lazy { context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE) }
+
+    // Emitted when an out-of-band sign-in completes (email link) so the nav host can
+    // route the running app onward. Phone OTP routes from the OTP screen directly.
+    private val _signInCompleted = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val signInCompleted: SharedFlow<Unit> = _signInCompleted.asSharedFlow()
 
     val currentUid: String? get() = auth.currentUser?.uid
     val isSignedIn: Boolean get() = auth.currentUser != null
@@ -118,6 +126,8 @@ class AuthManager @Inject constructor(
         auth.signInWithEmailLink(email, link).await()
         prefs.edit().remove(KEY_PENDING_EMAIL).apply()
         ensureUserAndSession()
+        // Tell the running app to re-route now that a session exists.
+        _signInCompleted.tryEmit(Unit)
     }
 
     // MARK: - Session

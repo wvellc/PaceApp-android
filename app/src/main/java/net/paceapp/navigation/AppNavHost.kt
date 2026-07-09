@@ -38,6 +38,7 @@ import net.paceapp.features.main.tabhost.navigation.tabHostScreen
 import net.paceapp.features.main.updategait.navigation.updateGaitScreen
 import net.paceapp.features.splash.navigation.SplashRoute
 import net.paceapp.features.splash.navigation.splashScreen
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.session.AppSessionManager
 
 @Composable
@@ -46,6 +47,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier,
     startDestination: Any = SplashRoute,
     sessionManager: AppSessionManager,
+    authManager: AuthManager,
 ) {
     //Nav action
     val triggerExit =
@@ -60,6 +62,16 @@ fun AppNavHost(
     LaunchedEffect(Unit) {
         sessionManager.sessionExpiredEvent.collect {
             navActions.toLogin()
+        }
+    }
+    // Email-link sign-in completes out of band (MainActivity) — reset to Splash so it
+    // re-evaluates the now-active session and routes to TabHost/BuildProfile.
+    LaunchedEffect(Unit) {
+        authManager.signInCompleted.collect {
+            navController.navigate(SplashRoute) {
+                popUpTo(0) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
     val backdrop = rememberLayerBackdrop()
