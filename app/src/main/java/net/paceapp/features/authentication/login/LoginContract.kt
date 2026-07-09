@@ -17,7 +17,11 @@ class LoginContract {
         val countryCode: String = "+1",
         val emailState: TextFieldState = TextFieldState(),
         val phoneState: TextFieldState = TextFieldState(),
-        val isSendOTPEnabled: Boolean = false
+        val isSendOTPEnabled: Boolean = false,
+        // Non-null after the SMS code is sent — drives navigation to the OTP screen
+        // from lifecycle-aware state (survives the reCAPTCHA activity round-trip,
+        // unlike a one-shot effect which can be dropped mid-transition).
+        val pendingOtpPhone: String? = null,
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -29,6 +33,8 @@ class LoginContract {
         data class OnLoginClick(val activity: Activity?) : Event()
         data class ToWebview(val url: String) : Event()
         data class OnCountrySelected(val dialCode: String) : Event()
+        // Cleared once the screen has consumed the pending OTP navigation.
+        data object OtpNavConsumed : Event()
 
     }
 

@@ -3,11 +3,11 @@ package net.paceapp.features.authentication.login
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.FocusRequester
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.paceapp.core.domain.enums.LoginTypes
 import net.paceapp.features.authentication.login.LoginContract.Effect
 import net.paceapp.features.authentication.login.LoginContract.Event
@@ -22,7 +22,7 @@ fun LoginScreen(
     onNavigateToWebview: (String, String?) -> Unit,
     onNavigateToVerifyOtp: (LoginTypes, String, String?) -> Unit,
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     BackHandler(enabled = true) {
         viewModel.setEvent(Event.OnBackClicked)
     }
@@ -30,6 +30,15 @@ fun LoginScreen(
     // Init view model
     LaunchedEffect(key1 = Unit) {
         viewModel.setEvent(Event.Init)
+    }
+
+    // Navigate to the OTP screen once the SMS code has been sent. Driven by
+    // lifecycle-aware state so it fires after the app resumes from the reCAPTCHA
+    // activity, when the nav host is ready (a one-shot effect could be dropped).
+    LaunchedEffect(state.pendingOtpPhone) {
+        val phone = state.pendingOtpPhone ?: return@LaunchedEffect
+        onNavigateToVerifyOtp(LoginTypes.PHONE, phone, state.countryCode)
+        viewModel.setEvent(Event.OtpNavConsumed)
     }
     val emailFocus = remember { FocusRequester() }
     val phoneFocus = remember { FocusRequester() }
