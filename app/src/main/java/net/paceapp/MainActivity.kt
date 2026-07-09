@@ -8,7 +8,6 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.components.AppActionDialog
@@ -17,11 +16,7 @@ import net.paceapp.navigation.AppNavHost
 import net.paceapp.session.AppSessionManager
 import net.paceapp.theme.PaceAppTheme
 import com.wvelabs.core_ui.alerts.AppAlertContainer
-import com.wvelabs.core_ui.alerts.AppAlerts
-import com.wvelabs.core_ui.alerts.MessageType
-import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -76,17 +71,11 @@ class MainActivity : ComponentActivity() {
         handleEmailSignInLink(intent)
     }
 
-    // If the launching intent is a Firebase email sign-in link, complete it. The
-    // splash screen re-evaluates the session shortly after and routes accordingly.
+    // If the launching intent is a Firebase email sign-in link, kick off completion.
+    // AuthManager emits Authenticating → Success/Failed phases which AppNavHost routes
+    // on (Authenticating screen → dashboard/build-profile, or back to login).
     private fun handleEmailSignInLink(intent: Intent?) {
         val link = intent?.data?.toString() ?: return
-        if (!authManager.isEmailSignInLink(link)) return
-        lifecycleScope.launch {
-            authManager.completeEmailLink(link)
-                .onFailure {
-                    AppLogger.e("Email link sign-in failed", it)
-                    AppAlerts.showToast(it.message.orEmpty(), type = MessageType.Error)
-                }
-        }
+        authManager.handleIncomingLinkIfEmailSignIn(link)
     }
 }

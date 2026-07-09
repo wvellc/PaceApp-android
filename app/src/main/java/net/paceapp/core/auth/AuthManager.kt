@@ -11,15 +11,16 @@ import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import net.paceapp.core.data.firestore.UserDocument
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.data.firestore.await
 import net.paceapp.core.domain.enums.LoginTypes
 import net.paceapp.core.domain.models.UserData
+import net.paceapp.core.domain.models.isProfileComplete
 import net.paceapp.session.AppSessionManager
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -43,10 +44,12 @@ class AuthManager @Inject constructor(
 
     private val prefs by lazy { context.getSharedPreferences("auth_prefs", Context.MODE_PRIVATE) }
 
-    // Emitted when an out-of-band sign-in completes (email link) so the nav host can
-    // route the running app onward. Phone OTP routes from the OTP screen directly.
-    private val _signInCompleted = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
-    val signInCompleted: SharedFlow<Unit> = _signInCompleted.asSharedFlow()
+    // Phases of the out-of-band email-link sign-in, so the nav host can show the
+    // Authenticating screen then route (mirrors iOS onOpenURL → .authenticating → root).
+    // StateFlow (not SharedFlow) so a cold-start nav host that subscribes AFTER the
+    // link is handled still receives the current phase (a SharedFlow emit would be lost).
+    private val _emailLinkPhase = MutableStateFlow<EmailLinkPhase?>(null)
+    val emailLinkPhase: StateFlow<EmailLinkPhase?> = _emailLinkPhase.asStateFlow()
 
     val currentUid: String? get() = auth.currentUser?.uid
     val isSignedIn: Boolean get() = auth.currentUser != null
@@ -109,6 +112,27 @@ class AuthManager @Inject constructor(
 
     fun isEmailSignInLink(link: String): Boolean = auth.isSignInWithEmailLink(link)
 
+    // Orchestrates email-link sign-in for MainActivity: emits Authenticating (nav host
+    // shows the loading screen), completes sign-in, then emits Success/Failed so the
+    // nav host routes to the dashboard/build-profile or back to login. Returns false
+    // (no-op) when the incoming link is not an email sign-in link.
+    fun handleIncomingLinkIfEmailSignIn(link: String): Boolean {
+        if (!isEmailSignInLink(link)) return false
+        appScope.launch {
+            _emailLinkPhase.value = EmailLinkPhase.Authenticating
+            completeEmailLink(link)
+                .onSuccess {
+                    val complete = sessionManager.getUserDetails()?.isProfileComplete == true
+                    _emailLinkPhase.value = EmailLinkPhase.Success(isProfileComplete = complete)
+                }
+                .onFailure {
+                    AppLogger.e("[Auth] email link sign-in failed", it)
+                    _emailLinkPhase.value = EmailLinkPhase.Failed
+                }
+        }
+        return true
+    }
+
     suspend fun sendEmailLink(email: String): Result<Unit> = runCatching {
         val settings = ActionCodeSettings.newBuilder()
             .setUrl(EMAIL_LINK_CONTINUE_URL)
@@ -126,8 +150,6 @@ class AuthManager @Inject constructor(
         auth.signInWithEmailLink(email, link).await()
         prefs.edit().remove(KEY_PENDING_EMAIL).apply()
         ensureUserAndSession()
-        // Tell the running app to re-route now that a session exists.
-        _signInCompleted.tryEmit(Unit)
     }
 
     // MARK: - Session
@@ -173,4 +195,11 @@ class AuthManager @Inject constructor(
         private const val EMAIL_LINK_CONTINUE_URL = "https://thepaceapp.firebaseapp.com/emailSignIn"
         private const val KEY_PENDING_EMAIL = "pending_email_for_signin"
     }
+}
+
+// Phases of an email-link sign-in, consumed by AppNavHost to drive navigation.
+sealed interface EmailLinkPhase {
+    data object Authenticating : EmailLinkPhase
+    data class Success(val isProfileComplete: Boolean) : EmailLinkPhase
+    data object Failed : EmailLinkPhase
 }

@@ -18,6 +18,8 @@ import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import com.wvelabs.core_ui.utils.LocalAppBackdrop
 import com.wvelabs.core_ui.utils.rememberGlobalExitHandler
 import net.paceapp.R
+import net.paceapp.features.authentication.authenticating.navigation.AuthenticatingRoute
+import net.paceapp.features.authentication.authenticating.navigation.authenticatingScreen
 import net.paceapp.features.authentication.buildprofile.navigation.buildProfileScreen
 import net.paceapp.features.authentication.login.navigation.loginScreen
 import net.paceapp.features.authentication.profilecreated.navigation.profileCreatedScreen
@@ -39,6 +41,7 @@ import net.paceapp.features.main.updategait.navigation.updateGaitScreen
 import net.paceapp.features.splash.navigation.SplashRoute
 import net.paceapp.features.splash.navigation.splashScreen
 import net.paceapp.core.auth.AuthManager
+import net.paceapp.core.auth.EmailLinkPhase
 import net.paceapp.session.AppSessionManager
 
 @Composable
@@ -64,13 +67,24 @@ fun AppNavHost(
             navActions.toLogin()
         }
     }
-    // Email-link sign-in completes out of band (MainActivity) — reset to Splash so it
-    // re-evaluates the now-active session and routes to TabHost/BuildProfile.
+    // Email-link sign-in (handled out of band in MainActivity) drives navigation
+    // through its phases: show the Authenticating loading screen, then route to the
+    // dashboard/build-profile on success, or back to login on failure. Mirrors iOS
+    // onOpenURL → .authenticating → setupRootNavigation.
     LaunchedEffect(Unit) {
-        authManager.signInCompleted.collect {
-            navController.navigate(SplashRoute) {
-                popUpTo(0) { inclusive = true }
-                launchSingleTop = true
+        authManager.emailLinkPhase.collect { phase ->
+            when (phase) {
+                EmailLinkPhase.Authenticating -> navController.navigate(AuthenticatingRoute) {
+                    popUpTo(navController.graph.id) { inclusive = true }
+                    launchSingleTop = true
+                }
+
+                is EmailLinkPhase.Success ->
+                    if (phase.isProfileComplete) navActions.toTabHost() else navActions.toBuildProfile()
+
+                EmailLinkPhase.Failed -> navActions.toLogin()
+
+                null -> Unit // no email-link sign-in in progress
             }
         }
     }
@@ -136,6 +150,9 @@ fun AppNavHost(
 
             //Webview
             webviewScreen()
+
+            //Authenticating (email-link sign-in loading screen)
+            authenticatingScreen()
 
             //Verify Otp
             verifyOtpScreen(
