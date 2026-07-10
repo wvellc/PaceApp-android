@@ -10,12 +10,14 @@ data object SettingsRoute
 
 fun NavGraphBuilder.settingsScreen(
     onBack: () -> Unit,
-    onNavigateToWebview: (String, String?) -> Unit
+    onNavigateToWebview: (String, String?) -> Unit,
+    onNavigateToStrava: () -> Unit,
 ) {
     composable<SettingsRoute> {
         SettingsScreen(
             onBack = onBack,
-            onNavigateToWebview = onNavigateToWebview
+            onNavigateToWebview = onNavigateToWebview,
+            onNavigateToStrava = onNavigateToStrava,
         )
     }
 }

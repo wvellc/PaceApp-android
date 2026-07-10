@@ -14,6 +14,7 @@ fun NavGraphBuilder.profileScreen(
     onNavigateToSetGait: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
+    onNavigateToStrava: () -> Unit,
 ) {
     composable<ProfileRoute> {
         ProfileScreen(
@@ -22,6 +23,7 @@ fun NavGraphBuilder.profileScreen(
             onNavigateToSetGait = onNavigateToSetGait,
             onNavigateToEditProfile = onNavigateToEditProfile,
             onNavigateToManageWatch = onNavigateToManageWatch,
+            onNavigateToStrava = onNavigateToStrava,
         )
     }
 }

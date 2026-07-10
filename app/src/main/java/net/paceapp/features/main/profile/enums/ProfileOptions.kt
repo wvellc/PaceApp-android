@@ -29,5 +29,10 @@ enum class ProfileOptions(
     SET_GAIT(
         titleRes = R.string.profile_step_set_gait_title,
         iconRes = R.drawable.ic_set_gait
+    ),
+
+    STRAVA(
+        titleRes = R.string.strava_connect,
+        iconRes = R.drawable.ic_sync
     );
 }

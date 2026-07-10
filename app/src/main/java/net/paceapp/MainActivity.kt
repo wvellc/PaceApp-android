@@ -12,6 +12,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import net.paceapp.core.auth.AuthErrorMapper
 import net.paceapp.core.auth.AuthManager
+import net.paceapp.core.strava.StravaConst
+import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.components.AppActionDialog
 import net.paceapp.core.components.CustomToast
 import net.paceapp.navigation.AppNavHost
@@ -33,10 +35,16 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var authManager: AuthManager
 
+    @Inject
+    lateinit var stravaManager: StravaManager
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-        // Complete a passwordless email-link sign-in if the app was opened via the link.
-        handleEmailSignInLink(intent)
+        // A Strava OAuth redirect takes priority; otherwise complete a passwordless
+        // email-link sign-in if the app was opened via the link.
+        if (!handleStravaCallback(intent)) {
+            handleEmailSignInLink(intent)
+        }
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT)
@@ -73,7 +81,20 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
-        handleEmailSignInLink(intent)
+        if (!handleStravaCallback(intent)) {
+            handleEmailSignInLink(intent)
+        }
+    }
+
+    // Hand a Strava OAuth redirect (paceapp://strava-callback?code=…) to StravaManager,
+    // which exchanges the code via a Cloud Function. Returns true if it was a Strava link.
+    private fun handleStravaCallback(intent: Intent?): Boolean {
+        val uri = intent?.data ?: return false
+        if (uri.scheme == StravaConst.CALLBACK_SCHEME && uri.host == StravaConst.CALLBACK_HOST) {
+            stravaManager.handleCallback(uri)
+            return true
+        }
+        return false
     }
 
     // If the launching intent is a Firebase email sign-in link, kick off completion.

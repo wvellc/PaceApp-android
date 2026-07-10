@@ -19,6 +19,7 @@ import net.paceapp.features.main.favoriteactivities.navigation.FavoriteActivitie
 import net.paceapp.features.main.managewatch.navigation.ManageWatchRoute
 import net.paceapp.features.main.notifications.navigation.NotificationsRoute
 import net.paceapp.features.main.settings.navigation.SettingsRoute
+import net.paceapp.features.main.strava.navigation.StravaConnectRoute
 import net.paceapp.features.main.tabhost.navigation.TabHostRoute
 import net.paceapp.features.main.updategait.navigation.UpdateGaitRoute
 
@@ -112,6 +113,12 @@ class AppNavActions(
 
     fun toSettings() {
         navController.navigate(SettingsRoute) {
+            launchSingleTop = true
+        }
+    }
+
+    fun toStravaConnect() {
+        navController.navigate(StravaConnectRoute) {
             launchSingleTop = true
         }
     }

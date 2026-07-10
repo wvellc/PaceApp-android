@@ -201,4 +201,17 @@
     <string name="edit_event">Edit Event</string>
     <string name="event_details">Event details</string>
     <string name="no_favorites_title">No favorite activities yet.</string>
+
+    <!-- Strava integration -->
+    <string name="strava_title">Strava</string>
+    <string name="strava_connect">Connect Strava</string>
+    <string name="strava_connected_title">Your Strava is connected</string>
+    <string name="strava_disconnected_title">Connect to Strava</string>
+    <string name="strava_connected_subtitle">New completed runs and walks are sent to Strava automatically.</string>
+    <string name="strava_disconnected_subtitle">Send your completed runs and walks straight to Strava, so all your training lives in one place.</string>
+    <string name="strava_connected_as">Connected as %1$s</string>
+    <string name="strava_connect_button">Connect with Strava</string>
+    <string name="strava_sync_recent">Sync recent activities</string>
+    <string name="strava_disconnect">Disconnect</string>
+    <string name="strava_powered_by">Powered by Strava</string>
 </resources>

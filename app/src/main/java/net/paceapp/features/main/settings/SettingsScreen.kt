@@ -23,6 +23,7 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
     onBack: () -> Unit,
     onNavigateToWebview: (String, String?) -> Unit,
+    onNavigateToStrava: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val context = LocalContext.current
@@ -41,6 +42,7 @@ fun SettingsScreen(
                 is Effect.NavigateToWebview -> onNavigateToWebview(effect.url, effect.title)
                 is Effect.NavigateToDeveloperWebsite -> context.openBrowser(effect.url)
                 is Effect.NavigateToNotifications -> context.openAppNotificationSettings()
+                is Effect.NavigateToStrava -> onNavigateToStrava()
                 is Effect.ShowLogoutDialog -> AppAlerts.showDialog(
                     title = UiText.StringResource(R.string.logout_dialog_title),
                     text = UiText.StringResource(R.string.logout_dialog_message),

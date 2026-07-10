@@ -17,6 +17,7 @@ fun ProfileScreen(
     onNavigateToSetGait: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
     onNavigateToManageWatch: () -> Unit,
+    onNavigateToStrava: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -34,6 +35,7 @@ fun ProfileScreen(
                 is Effect.NavigateToManageWatch -> onNavigateToManageWatch()
                 is Effect.NavigateToSetGait -> onNavigateToSetGait()
                 is Effect.NavigateToEditProfile -> onNavigateToEditProfile()
+                is Effect.NavigateToStrava -> onNavigateToStrava()
             }
         }
     }

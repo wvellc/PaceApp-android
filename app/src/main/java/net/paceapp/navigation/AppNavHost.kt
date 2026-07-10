@@ -36,6 +36,7 @@ import net.paceapp.features.main.favoriteactivities.navigation.favoriteActivitie
 import net.paceapp.features.main.managewatch.navigation.managewatchScreen
 import net.paceapp.features.main.notifications.navigation.notificationsScreen
 import net.paceapp.features.main.settings.navigation.settingsScreen
+import net.paceapp.features.main.strava.navigation.stravaConnectScreen
 import net.paceapp.features.main.tabhost.navigation.tabHostScreen
 import net.paceapp.features.main.updategait.navigation.updateGaitScreen
 import net.paceapp.features.splash.navigation.SplashRoute
@@ -194,13 +195,18 @@ fun AppNavHost(
                 onNavigateToEventDetails = navActions::toEventDetails,
                 onNavigateToDuplicateEvent = navActions::toDuplicateEvent,
                 onNavigateToFavorites = navActions::toFavorites,
+                onNavigateToStrava = navActions::toStravaConnect,
             )
 
             //Settings
             settingsScreen(
                 onBack = navActions::goBack,
-                onNavigateToWebview = navActions::toWebView
+                onNavigateToWebview = navActions::toWebView,
+                onNavigateToStrava = navActions::toStravaConnect,
             )
+
+            //Strava connect (shared by Profile + Settings entries)
+            stravaConnectScreen(onBack = navActions::goBack)
 
             //Analytics Details
             analyticsDetailScreen(onBack = navActions::goBack)

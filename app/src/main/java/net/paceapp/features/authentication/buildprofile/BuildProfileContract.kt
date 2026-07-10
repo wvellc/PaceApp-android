@@ -33,8 +33,9 @@ class BuildProfileContract {
         val walkingGait: GaitPace = selectedGender.getDefaultGaits().first,
         val runningGait: GaitPace = selectedGender.getDefaultGaits().second,
 
-        // --- Step 6: Strava ---
-        val stravaLinkState: TextFieldState = TextFieldState(),
+        // --- Step 6: Strava (real OAuth connect, mirrored from StravaManager) ---
+        val isStravaConnected: Boolean = false,
+        val stravaAthleteName: String? = null,
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -47,6 +48,8 @@ class BuildProfileContract {
         data class OnRunningGaitChanged(val gaitPace: GaitPace) : Event()
         data class OnGarminDialogRetry(val context: Context) : Event()
         data class OnGenderSelected(val gender: GenderTypes) : Event()
+        // Kick off Strava OAuth authorize (needs a Context for the Custom Tab / app).
+        data class OnStravaConnect(val context: Context) : Event()
 
         data object OnGarminDialogSkip : Event()
     }

@@ -163,7 +163,8 @@ internal fun BuildProfileContent(
 
                             // Connect Strava
                             ProfileStep.ConnectStrava -> ConnectStravaContent(
-                                stravaFieldState = state.stravaLinkState
+                                isConnected = state.isStravaConnected,
+                                athleteName = state.stravaAthleteName,
                             )
                         }
                     }

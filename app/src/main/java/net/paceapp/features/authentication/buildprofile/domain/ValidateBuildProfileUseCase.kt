@@ -28,7 +28,8 @@ class ValidateBuildProfileUseCase @Inject constructor(
             ProfileStep.PairWatchInit -> state.garminState == GarminSdkState.Ready
             ProfileStep.SelectModel -> state.selectedWatch != null
             ProfileStep.SetGait -> state.walkingGait.value > 0f && state.runningGait.value > 0f
-            ProfileStep.ConnectStrava -> state.stravaLinkState.text.trim().isNotEmpty()
+            // Strava is optional (connect-or-skip); the footer just triggers OAuth.
+            ProfileStep.ConnectStrava -> true
             ProfileStep.PairWatchSuccess -> true
         }
     }

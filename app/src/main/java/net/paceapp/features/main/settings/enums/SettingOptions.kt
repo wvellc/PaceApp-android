@@ -8,6 +8,11 @@ enum class SettingOptions(
     @param:StringRes val titleRes: Int,
     @param:DrawableRes val iconRes: Int,
 ) {
+    STRAVA(
+        titleRes = R.string.strava_connect,
+        iconRes = R.drawable.ic_sync
+    ),
+
     NOTIFICATIONS(
         titleRes = R.string.notifications,
         iconRes = R.drawable.ic_notifications

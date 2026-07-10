@@ -78,6 +78,10 @@ class SettingsViewModel @Inject constructor(
 
     private fun handleSettingOptionClick(option: SettingOptions) {
         when (option) {
+            SettingOptions.STRAVA -> setEffect {
+                Effect.NavigateToStrava
+            }
+
             SettingOptions.NOTIFICATIONS -> setEffect {
                 Effect.NavigateToNotifications
             }

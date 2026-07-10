@@ -31,5 +31,6 @@ class ProfileContract {
         data object NavigateToManageWatch : Effect()
         data object NavigateToSettings : Effect()
         data object NavigateToEditProfile : Effect()
+        data object NavigateToStrava : Effect()
     }
 }

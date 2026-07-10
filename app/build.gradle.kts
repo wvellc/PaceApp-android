@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -39,6 +40,20 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Strava OAuth client id. Read from secrets.properties (fallback
+        // local.defaults.properties), empty when unset so the feature stays dormant
+        // (StravaManager.connect guards on a blank id). Defined manually rather than via
+        // the secrets plugin, which emits invalid Java for an empty value.
+        val stravaClientId: String = run {
+            val props = Properties()
+            listOf("local.defaults.properties", "secrets.properties").forEach { name ->
+                val file = rootProject.file(name)
+                if (file.exists()) file.inputStream().use { props.load(it) }
+            }
+            (props.getProperty("STRAVA_CLIENT_ID") ?: "").trim().trim('"')
+        }
+        buildConfigField("String", "STRAVA_CLIENT_ID", "\"$stravaClientId\"")
     }
 
     buildTypes {
@@ -89,6 +104,11 @@ dependencies {
     // SPLASH SCREEN
     // ---------------------------------------------------------
     implementation(libs.androidx.core.splashscreen)
+
+    // ---------------------------------------------------------
+    // CUSTOM TABS (Strava OAuth authorize)
+    // ---------------------------------------------------------
+    implementation(libs.androidx.browser)
 
     // ---------------------------------------------------------
     // NAVIGATION (For AppNavHost)
@@ -184,4 +204,8 @@ secrets {
     // A properties file containing default secret values. This file can be
     // checked in version control.
     defaultPropertiesFileName = "local.defaults.properties"
+
+    // STRAVA_CLIENT_ID is provided manually via buildConfigField (see defaultConfig) —
+    // keep the plugin from also emitting it (it renders an empty value as invalid Java).
+    ignoreList.add("STRAVA_CLIENT_ID")
 }

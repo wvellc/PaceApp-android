@@ -5,6 +5,8 @@
 
     <queries>
         <package android:name="com.garmin.android.apps.connectmobile" />
+        <!-- Strava app — native OAuth handoff (strava://oauth/mobile/authorize). -->
+        <package android:name="com.strava" />
     </queries>
 
     <application
@@ -43,6 +45,20 @@
                     android:host="thepaceapp.firebaseapp.com"
                     android:pathPrefix="/emailSignIn"
                     android:scheme="https" />
+            </intent-filter>
+
+            <!-- Strava OAuth redirect: paceapp://strava-callback?code=…
+                 Custom scheme (no autoVerify); the Strava app's Authorization
+                 Callback Domain must be "strava-callback". Mirrors iOS PaceApp-Info.plist. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="strava-callback"
+                    android:scheme="paceapp" />
             </intent-filter>
         </activity>
 

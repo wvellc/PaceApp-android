@@ -19,6 +19,7 @@ import net.paceapp.core.extensions.getDefaultGaits
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.garmin.models.WatchModel
 import net.paceapp.core.garmin.state.GarminSdkState
+import net.paceapp.core.strava.StravaManager
 import net.paceapp.features.authentication.buildprofile.BuildProfileContract.Effect
 import net.paceapp.features.authentication.buildprofile.BuildProfileContract.Event
 import net.paceapp.features.authentication.buildprofile.BuildProfileContract.State
@@ -32,6 +33,7 @@ class BuildProfileViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val validationUseCase: ValidateBuildProfileUseCase,
     private val garminManager: GarminDeviceManager,
+    private val stravaManager: StravaManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -48,6 +50,7 @@ class BuildProfileViewModel @Inject constructor(
             is Event.OnSkipClick -> handleOnSkipClicked()
             is Event.OnGarminDialogRetry -> handleGarminDialogRetry(event.context)
             is Event.OnGarminDialogSkip -> handleGarminDialogSkip()
+            is Event.OnStravaConnect -> stravaManager.connect(event.context)
         }
     }
 
@@ -64,7 +67,17 @@ class BuildProfileViewModel @Inject constructor(
         observeGarminState()
         observeWatchStatus()
         observeConnectionErrors()
+        observeStravaState()
         setState { copy(isInitialized = true) }
+    }
+
+    // Reflect Strava connection (from users/{uid}.strava) into the step's state so the
+    // Connect Strava step shows "Connected as {name}" once the OAuth round-trip lands.
+    private fun observeStravaState() {
+        stravaManager.startObserving()
+        stravaManager.state.onEach { s ->
+            setState { copy(isStravaConnected = s.isConnected, stravaAthleteName = s.athleteName) }
+        }.launchIn(viewModelScope)
     }
 
     private fun setDummyData() {
@@ -81,7 +94,6 @@ class BuildProfileViewModel @Inject constructor(
             listOf(
                 currentState.firstNameState.text.toString(),
                 currentState.lastNameState.text.toString(),
-                currentState.stravaLinkState.text.toString(),
             )
         }
 
@@ -188,6 +200,17 @@ class BuildProfileViewModel @Inject constructor(
 
                 setState { copy(isLoading = true) }
                 garminManager.connectDevice(watchToConnect)
+            }
+
+            // Footer on the final step: trigger Strava OAuth when not yet connected
+            // (mirrors iOS, where the footer connects); once connected, finish onboarding.
+            // "Skip" also finishes. The connection reflects live via observeStravaState().
+            ProfileStep.ConnectStrava -> {
+                if (currentState.isStravaConnected) {
+                    navigateTo(currentStep.nextStep) // nextStep == null → saveUserDetails()
+                } else {
+                    stravaManager.connect(context)
+                }
             }
 
             else -> {

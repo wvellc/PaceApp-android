@@ -37,6 +37,7 @@ internal fun TabHostContent(
     onNavigateToEventDetails: (String, String, String, String) -> Unit,
     onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
     onNavigateToFavorites: () -> Unit,
+    onNavigateToStrava: () -> Unit,
     ) {
 
     // The Local NavController for the 4 inner tabs
@@ -99,6 +100,7 @@ internal fun TabHostContent(
                 onNavigateToSetGait = onNavigateToSetGait,
                 onNavigateToEditProfile = onNavigateToEditProfile,
                 onNavigateToManageWatch = onNavigateToManageWatch,
+                onNavigateToStrava = onNavigateToStrava,
             )
         }
         ///Bottom tab bar

@@ -86,6 +86,7 @@ class ProfileViewModel @Inject constructor(
             ProfileOptions.INTERVAL_VIBRATE -> setIntervalVibrate(!currentState.isIntervalVibrateEnabled)
             ProfileOptions.INTERVAL_BEEP -> setIntervalBeep(!currentState.isIntervalBeepEnabled)
             ProfileOptions.SET_GAIT -> setEffect { Effect.NavigateToSetGait }
+            ProfileOptions.STRAVA -> setEffect { Effect.NavigateToStrava }
         }
     }
 

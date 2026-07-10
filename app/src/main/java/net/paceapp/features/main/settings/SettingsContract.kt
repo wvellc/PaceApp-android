@@ -60,6 +60,7 @@ class SettingsContract {
         data class NavigateToDeveloperWebsite(val url: String) : Effect()
         data class NavigateToWebview(val url: String, val title: String?) : Effect()
         data object NavigateToNotifications : Effect()
+        data object NavigateToStrava : Effect()
         data object ShowLogoutDialog : Effect()
         data object ShowDeleteAccountDialog : Effect()
 

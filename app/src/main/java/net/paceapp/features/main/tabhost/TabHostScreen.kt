@@ -21,6 +21,7 @@ fun TabHostScreen(
     onNavigateToEventDetails: (String, String, String, String) -> Unit,
     onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
     onNavigateToFavorites: () -> Unit,
+    onNavigateToStrava: () -> Unit,
 ) {
     // Init view model
     LaunchedEffect(key1 = Unit) {
@@ -41,5 +42,6 @@ fun TabHostScreen(
         onNavigateToEventDetails = onNavigateToEventDetails,
         onNavigateToDuplicateEvent = onNavigateToDuplicateEvent,
         onNavigateToFavorites = onNavigateToFavorites,
+        onNavigateToStrava = onNavigateToStrava,
     )
 }
