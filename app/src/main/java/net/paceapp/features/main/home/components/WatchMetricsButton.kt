@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -56,7 +55,7 @@ fun WatchMetricsButton(
         ) {
             Image(
                 painter = painterResource(metric.iconRes),
-                contentDescription = stringResource(metric.unitLabelRes),
+                contentDescription = metric.title,
                 modifier = Modifier.size(32.dp),
                 colorFilter = ColorFilter.tint(tintColor)
             )
@@ -77,7 +76,7 @@ fun WatchMetricsButton(
             Spacer(modifier = Modifier.height(1.dp))
 
             Text(
-                text = stringResource(metric.unitLabelRes),
+                text = metric.unit,
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,

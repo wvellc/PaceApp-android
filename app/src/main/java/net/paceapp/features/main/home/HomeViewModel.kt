@@ -3,11 +3,15 @@ package net.paceapp.features.main.home
 import android.content.Context
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.data.firestore.EventDocument
 import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import net.paceapp.core.garmin.GarminDeviceManager
@@ -18,7 +22,6 @@ import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.HomeContract.State
-import net.paceapp.features.main.home.models.WatchMetric
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,6 +32,11 @@ class HomeViewModel @Inject constructor(
     private val eventRepository: EventRepository,
     private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
+
+    // Latest completed event backing the header metrics + the distance⇄finish flash.
+    private var latestCompletedDoc: EventDocument? = null
+    private var flashShowsDistance = true
+    private var flashJob: Job? = null
 
     override fun setInitialState() = State()
 
@@ -54,6 +62,7 @@ class HomeViewModel @Inject constructor(
         observeActiveWatchDevice()
         observeGarminSdkStatus()
         fetchUpcomingActivities()
+        observeLatestCompletedMetrics()
         setState { copy(isInitialized = true) }
     }
 
@@ -76,32 +85,61 @@ class HomeViewModel @Inject constructor(
 
     private fun observeActiveWatchDevice() {
         garminDeviceManager.activeDevice.onEach { watch ->
-            if (watch != null && watch.status == WatchConnectionState.CONNECTED) {
-
-            }
-            setState {
-                copy(
-                    watchModel = watch,
-                    metrics = getWatchMetrics()
-                )
-            }
+            setState { copy(watchModel = watch) }
         }.launchIn(viewModelScope)
-
     }
 
-    private fun getWatchMetrics(
-        bpm: String = "60",
-        hrs: String = "12",
-        goal: String = "-01:10",
-        left: String = "07:20",
-        pace: String = "9:09"
-    ): List<WatchMetric> = listOf(
-        WatchMetric.HeartRate(bpm),
-        WatchMetric.OverallTime(hrs),
-        WatchMetric.GoalTime(goal),
-        WatchMetric.RemainingTime(left),
-        WatchMetric.Pace(pace)
-    )
+    // Header metrics = the latest completed event's real, watch-sourced values (mirrors
+    // iOS refreshLatestCompletedMetrics). observeCompletedEvents is updatedAt-DESC, so
+    // first() is the most-recently-active completed run; the row hides when there is
+    // none. Re-emits automatically whenever an event completes or is edited.
+    private fun observeLatestCompletedMetrics() {
+        val uid = authManager.currentUid ?: return
+        eventRepository.observeCompletedEvents(uid)
+            .onEach { docs ->
+                val latest = docs.firstOrNull()
+                latestCompletedDoc = latest
+                if (latest == null) {
+                    stopFlash()
+                    setState { copy(metrics = emptyList()) }
+                } else {
+                    flashShowsDistance = true
+                    setState {
+                        copy(metrics = HomeMetricsMapper.metrics(latest, showDistanceFace = true))
+                    }
+                    startFlash()
+                }
+            }
+            .launchIn(viewModelScope)
+    }
+
+    // Alternates the capsule-2 face (distance ⇄ finish time) every 2.5s, swapping only
+    // that slot in place so the other four capsules stay put. Mirrors iOS startFlashLoop.
+    private fun startFlash() {
+        flashJob?.cancel()
+        flashJob = viewModelScope.launch {
+            while (isActive) {
+                delay(FLASH_INTERVAL_MS)
+                val doc = latestCompletedDoc ?: break
+                flashShowsDistance = !flashShowsDistance
+                val face = HomeMetricsMapper.face(doc, flashShowsDistance)
+                setState {
+                    val updated = metrics.toMutableList()
+                    if (updated.size > HomeMetricsMapper.FLASH_SLOT_INDEX) {
+                        updated[HomeMetricsMapper.FLASH_SLOT_INDEX] = face
+                        copy(metrics = updated)
+                    } else {
+                        this
+                    }
+                }
+            }
+        }
+    }
+
+    private fun stopFlash() {
+        flashJob?.cancel()
+        flashJob = null
+    }
 
     // Upcoming = active events from Firestore (shared thepaceapp backend). No date
     // filter — overdue-but-active events stay visible (matches iOS Home).
@@ -149,5 +187,8 @@ class HomeViewModel @Inject constructor(
         setEffect { Effect.NavigateToFavorites }
     }
 
+    companion object {
+        private const val FLASH_INTERVAL_MS = 2_500L
+    }
 }
 

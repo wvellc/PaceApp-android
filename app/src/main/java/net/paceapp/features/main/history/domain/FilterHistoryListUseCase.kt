@@ -34,24 +34,33 @@ class FilterHistoryListUseCase @Inject constructor(
                 true // Search is empty, so it passes
             }
 
-            // Distance Filter
+            // Distance Filter — parse the leading numeric token from the display
+            // string ("5.00 Miles" / "5.00 Kms"), ignoring the unit word. The old
+            // `.replace(" mi", "")` never matched the "Miles"/"Kms" suffix, so every
+            // row parsed to 0f and dropped out once the min slider left 0.
             val matchesDistance = filter?.let {
+                // Parse the leading numeric token from "5.00 Miles"/"5,00 Kms",
+                // normalising a comma decimal separator so comma-decimal locales
+                // (where "%.2f" renders "5,00") still parse instead of dropping to 0f.
                 val activityDistance = activity.distance
-                    .replace(" mi", "")
+                    .substringBefore(' ')
+                    .replace(',', '.')
                     .toFloatOrNull() ?: 0f
                 activityDistance in it.distanceRange
             } ?: true
 
-            // Date Filter
+            // Date Filter — the display date (DATE_SHORT_DM) uses hardcoded English
+            // month names, so format the filter date with the SAME (English) locale;
+            // Locale.getDefault() diverged on non-English devices and matched nothing.
             val matchesDate = filter?.dateMillis?.let { filterMillis ->
-                val filterDateStr = SimpleDateFormat("dd MMM", Locale.getDefault())
+                val filterDateStr = SimpleDateFormat("dd MMM", Locale.ENGLISH)
                     .format(Date(filterMillis))
                 activity.date.equals(filterDateStr, ignoreCase = true)
             } ?: true
 
-            // Location Filter
+            // Location Filter — match the event's location, not its title (name).
             val matchesLocation = filter?.location?.takeIf { it.isNotBlank() }?.let { loc ->
-                activity.title.contains(loc, ignoreCase = true)
+                activity.location.contains(loc, ignoreCase = true)
             } ?: true
 
             // The item must match ALL active criteria to stay in the list

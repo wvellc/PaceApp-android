@@ -102,21 +102,24 @@ internal fun HomeContent(
                     )
                 }
 
-                //Watch metrics buttons
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        state.metrics.forEachIndexed { index, item ->
-                            WatchMetricsButton(
-                                backdrop = metricsBackdrop,
-                                metric = item,
-                                tintColor = animatedColor.value,
-                                onClick = {
-                                    selectedMetricInfoIndex = index
-                                },
-                            )
+                //Watch metrics buttons — hidden entirely when there is no completed
+                // event to source them from (mirrors iOS, which hides the row on empty).
+                if (state.metrics.isNotEmpty()) {
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            state.metrics.forEachIndexed { index, item ->
+                                WatchMetricsButton(
+                                    backdrop = metricsBackdrop,
+                                    metric = item,
+                                    tintColor = animatedColor.value,
+                                    onClick = {
+                                        selectedMetricInfoIndex = index
+                                    },
+                                )
+                            }
                         }
                     }
                 }

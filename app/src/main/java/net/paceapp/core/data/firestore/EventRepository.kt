@@ -22,6 +22,10 @@ interface EventRepository {
     // One-shot read of a single event by id (events/{id}). Null if missing/malformed.
     suspend fun getEvent(eventId: Int): EventDocument?
 
+    // Live stream of a single event doc — emits on every change so an open screen
+    // (Event Details) reflects edits/completion without a manual refetch.
+    fun observeEvent(eventId: Int): Flow<EventDocument?>
+
     // Upsert from a raw ConnectIQ wire payload. Preserves write-once id/source/createdAt.
     suspend fun upsert(
         payload: Map<String, Any?>,

@@ -139,7 +139,7 @@ fun WatchMetricsInfoDialog(
                             Spacer(Modifier.height(24.dp))
                             //Title
                             Text(
-                                text = stringResource(id = metric.titleRes),
+                                text = metric.title,
                                 textAlign = TextAlign.Center,
                                 style = AppTheme.typography.medium.copy(
                                     fontSize = 24.sp,
@@ -150,7 +150,7 @@ fun WatchMetricsInfoDialog(
                             Spacer(Modifier.height(8.dp))
                             //Description
                             Text(
-                                text = stringResource(id = metric.descriptionRes),
+                                text = metric.description,
                                 textAlign = TextAlign.Center,
                                 style = AppTheme.typography.medium.copy(
                                     fontSize = 16.sp,

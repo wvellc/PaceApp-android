@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
@@ -72,20 +74,23 @@ class EventDetailsViewModel @Inject constructor(
         }
     }
 
-    // Loads the single event from Firestore (shared thepaceapp backend) and maps it
-    // to the UI model. The nav arg id is the Firestore document key (String(id)).
+    // Observes the single event from Firestore (shared thepaceapp backend) and maps it
+    // to the UI model. The nav arg id is the Firestore document key (String(id)). Using
+    // a live listener (not a one-shot read) means an edit — or a watch-driven change —
+    // re-renders this screen automatically when the user returns from Edit Event.
     private fun fetchEventData(id: String) {
         val eventId = id.toIntOrNull()
         if (eventId == null || authManager.currentUid == null) {
             setState { copy(eventDetails = null, isLoading = false) }
             return
         }
-        viewModelScope.launch {
-            setState { copy(isLoading = true) }
-            val document = eventRepository.getEvent(eventId)
-            val eventData = document?.let { EventDetailsMapper.toUiModel(it) }
-            setState { copy(eventDetails = eventData, isLoading = false) }
-        }
+        setState { copy(isLoading = true) }
+        eventRepository.observeEvent(eventId)
+            .onEach { document ->
+                val eventData = document?.let { EventDetailsMapper.toUiModel(it) }
+                setState { copy(eventDetails = eventData, isLoading = false) }
+            }
+            .launchIn(viewModelScope)
     }
 
 

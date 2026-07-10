@@ -62,6 +62,19 @@ class FirestoreEventRepository @Inject constructor(
     override suspend fun getEvent(eventId: Int): EventDocument? =
         runCatching { eventRef(eventId).get().await().toObject(EventDocument::class.java) }.getOrNull()
 
+    // Live single-doc listener — an open Event Details screen re-renders whenever the
+    // doc changes (e.g. a name/location edit or a watch-driven completion).
+    override fun observeEvent(eventId: Int): Flow<EventDocument?> = callbackFlow {
+        val registration = eventRef(eventId).addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                AppLogger.e("[$TAG] event listener failed", error)
+                return@addSnapshotListener
+            }
+            trySend(snapshot?.takeIf { it.exists() }?.toObject(EventDocument::class.java))
+        }
+        awaitClose { registration.remove() }
+    }
+
     // MARK: - Write
 
     override suspend fun upsert(

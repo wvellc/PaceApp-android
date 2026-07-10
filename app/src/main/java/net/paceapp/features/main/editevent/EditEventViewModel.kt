@@ -15,6 +15,7 @@ import net.paceapp.core.components.Validator
 import net.paceapp.core.components.ValidatorType
 import net.paceapp.core.data.firestore.EventDocumentMapper
 import net.paceapp.core.data.firestore.EventRepository
+import net.paceapp.core.data.firestore.EventStatusValue
 import net.paceapp.core.domain.usecases.ValidateEventUseCase
 import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.features.main.editevent.EditEventContract.Effect
@@ -88,7 +89,15 @@ class EditEventViewModel @Inject constructor(
                 }
                 ?: buildFallbackPayload(eventName, location)
 
-            eventSyncManager.createEvent(payload)
+            // Route by status so the edit persists correctly. createEvent hardcodes
+            // isCompleted=false and early-returns without a Firestore write when the id
+            // is already completed — a completed-event rename would silently vanish (and
+            // could flip it back to active). finishEvent takes the isCompleted=true path.
+            if (existing?.status == EventStatusValue.COMPLETED) {
+                eventSyncManager.finishEvent(payload)
+            } else {
+                eventSyncManager.createEvent(payload)
+            }
             showToast("$eventName event updated", type = MessageType.Success)
             setEffect { Effect.NavigateBack }
         }
