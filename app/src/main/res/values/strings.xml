@@ -132,6 +132,7 @@
     <!-- Home last-sync label (mirrors iOS lastSyncLabel) -->
     <string name="open_pace_app_to_sync">Open Pace App on your Garmin watch to sync</string>
     <string name="synced_time_ago">Synced %1$s</string>
+    <string name="just_now">just now</string>
     <string name="greetings_user">GM, %1$s</string>
     <string name="new_event">New Event</string>
     <string name="favorites">Favorites</string>

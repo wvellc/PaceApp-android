@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.isActive
@@ -76,18 +78,30 @@ class HomeViewModel @Inject constructor(
     }
 
     // Home greeting sync label: "Synced <time ago>" once the watch has synced, else a
-    // prompt to open the watch app. Mirrors iOS lastSyncLabel.
+    // prompt to open the watch app. Mirrors iOS lastSyncLabel. Combined with a ticker so
+    // the relative time updates in real time, not just when a new sync arrives.
     private fun observeLastSync() {
-        eventSyncManager.lastWatchSyncMillis
+        val ticker = flow {
+            while (true) {
+                emit(Unit)
+                delay(SYNC_LABEL_REFRESH_MS)
+            }
+        }
+        combine(eventSyncManager.lastWatchSyncMillis, ticker) { millis, _ -> millis }
             .onEach { millis -> setState { copy(lastSyncDate = syncLabel(millis)) } }
             .launchIn(viewModelScope)
     }
 
     private fun syncLabel(millis: Long?): String {
         if (millis == null) return resourceProvider.getString(R.string.open_pace_app_to_sync)
-        val relative = DateUtils.getRelativeTimeSpanString(
-            millis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
-        ).toString()
+        val elapsed = System.currentTimeMillis() - millis
+        val relative = if (elapsed < DateUtils.MINUTE_IN_MILLIS) {
+            resourceProvider.getString(R.string.just_now)
+        } else {
+            DateUtils.getRelativeTimeSpanString(
+                millis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
+            ).toString()
+        }
         return resourceProvider.getString(R.string.synced_time_ago, relative)
     }
 
@@ -221,6 +235,8 @@ class HomeViewModel @Inject constructor(
 
     companion object {
         private const val FLASH_INTERVAL_MS = 2_500L
+        // How often the "Synced X ago" label re-renders so it ticks in real time.
+        private const val SYNC_LABEL_REFRESH_MS = 30_000L
     }
 }
 
