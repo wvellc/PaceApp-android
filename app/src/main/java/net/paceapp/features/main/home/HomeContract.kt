@@ -18,7 +18,9 @@ class HomeContract {
         val watchModel: WatchModel? = null,
         val metrics: List<WatchMetric> = emptyList(),
         val upcomingActivities: List<ActivityUiModel> = emptyList(),
-        val lastSyncDate: String = "Wed, 1 May 2026",
+        // Home greeting sync label; set from the watch last-sync time (mirrors iOS
+        // lastSyncLabel). Empty until observed so no stale placeholder shows.
+        val lastSyncDate: String = "",
         val garminSdkStatus: GarminSdkState = GarminSdkState.Uninitialized,
     ) : ViewState
 

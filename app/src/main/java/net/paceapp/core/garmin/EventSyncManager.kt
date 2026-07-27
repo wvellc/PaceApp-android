@@ -7,6 +7,9 @@ import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -63,6 +66,7 @@ class EventSyncManager @Inject constructor(
         private const val KEY_COMPLETED_EVENTS = "completed_events"
         private const val KEY_DELETED_IDS = "deleted_event_ids"
         private const val KEY_SETTINGS = "synced_settings"
+        private const val KEY_LAST_SYNC = "last_watch_sync_millis"
 
         // Settings keys — must match watch's Application.Storage keys exactly
         val SETTINGS_KEYS = listOf(
@@ -89,6 +93,27 @@ class EventSyncManager @Inject constructor(
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+    // Epoch millis of the last sync message received from the watch, persisted across
+    // restarts. null → no sync yet (the Home label prompts to open the watch app).
+    // Mirrors iOS ConnectIQManager.lastWatchSyncDate.
+    private val _lastWatchSyncMillis =
+        MutableStateFlow(prefs.getLong(KEY_LAST_SYNC, 0L).takeIf { it > 0L })
+    val lastWatchSyncMillis: StateFlow<Long?> = _lastWatchSyncMillis.asStateFlow()
+
+    // Set on every incoming watch message (mirrors iOS lastSyncUpdate).
+    private fun markWatchSynced() {
+        val now = System.currentTimeMillis()
+        _lastWatchSyncMillis.value = now
+        prefs.edit().putLong(KEY_LAST_SYNC, now).apply()
+    }
+
+    // Cleared on reconnect so the label prompts "Open Pace App…" until a fresh sync
+    // message arrives (mirrors iOS clearLastSyncDate).
+    fun clearWatchSync() {
+        _lastWatchSyncMillis.value = null
+        prefs.edit().remove(KEY_LAST_SYNC).apply()
+    }
+
     // =====================================================================
     // INITIALIZATION
     // =====================================================================
@@ -110,6 +135,9 @@ class EventSyncManager @Inject constructor(
         // settings (height/weight/gait) so the profile stays in sync.
         deviceManager.onAppReady = {
             AppLogger.d("[$TAG] Watch connected — triggering full sync")
+            // Reset the sync clock on reconnect — the label prompts to open the watch
+            // app until a real sync message arrives (mirrors iOS clearLastSyncDate).
+            clearWatchSync()
             requestFullSync()
             requestWatchSettings()
         }
@@ -133,6 +161,7 @@ class EventSyncManager @Inject constructor(
 
                 // Try to handle as a sync command
                 if (handleSyncMessage(dict)) {
+                    markWatchSynced()
                     continue
                 }
 
@@ -140,6 +169,7 @@ class EventSyncManager @Inject constructor(
                 val eventPayload = extractEventRecord(dict)
                 if (eventPayload != null) {
                     upsertEventPayload(eventPayload, isCompleted = false, syncStatus = "synced")
+                    markWatchSynced()
                 }
             }
         }

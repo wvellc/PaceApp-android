@@ -129,6 +129,9 @@
     <string name="title_pace">Welcome to your heart rate monitor!</string>
     <string name="desc_pace">This tool tracks your heart rate during workouts and daily activities. Click the heart icon to view your current rate and gain insights to enhance your fitness journey. Stay informed and improve your health!</string>
     <string name="not_synced_yet">Not Synced Yet!</string>
+    <!-- Home last-sync label (mirrors iOS lastSyncLabel) -->
+    <string name="open_pace_app_to_sync">Open Pace App on your Garmin watch to sync</string>
+    <string name="synced_time_ago">Synced %1$s</string>
     <string name="greetings_user">GM, %1$s</string>
     <string name="new_event">New Event</string>
     <string name="favorites">Favorites</string>

@@ -1,6 +1,7 @@
 package net.paceapp.features.main.home
 
 import android.content.Context
+import android.text.format.DateUtils
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -20,6 +21,8 @@ import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.mappers.ActivityToUiModelMapper
 import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
+import net.paceapp.core.providers.AppResourceProvider
+import net.paceapp.R
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.HomeContract.State
@@ -33,6 +36,7 @@ class HomeViewModel @Inject constructor(
     private val eventRepository: EventRepository,
     private val authManager: AuthManager,
     private val eventSyncManager: EventSyncManager,
+    private val resourceProvider: AppResourceProvider,
 ) : BaseViewModel<State, Event, Effect>() {
 
     // Latest completed event backing the header metrics + the distance⇄finish flash.
@@ -67,7 +71,24 @@ class HomeViewModel @Inject constructor(
         observeGarminSdkStatus()
         fetchUpcomingActivities()
         observeLatestCompletedMetrics()
+        observeLastSync()
         setState { copy(isInitialized = true) }
+    }
+
+    // Home greeting sync label: "Synced <time ago>" once the watch has synced, else a
+    // prompt to open the watch app. Mirrors iOS lastSyncLabel.
+    private fun observeLastSync() {
+        eventSyncManager.lastWatchSyncMillis
+            .onEach { millis -> setState { copy(lastSyncDate = syncLabel(millis)) } }
+            .launchIn(viewModelScope)
+    }
+
+    private fun syncLabel(millis: Long?): String {
+        if (millis == null) return resourceProvider.getString(R.string.open_pace_app_to_sync)
+        val relative = DateUtils.getRelativeTimeSpanString(
+            millis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
+        ).toString()
+        return resourceProvider.getString(R.string.synced_time_ago, relative)
     }
 
     private fun observeGarminSdkStatus() {
