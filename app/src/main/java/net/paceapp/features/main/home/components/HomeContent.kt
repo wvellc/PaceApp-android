@@ -61,12 +61,12 @@ internal fun HomeContent(
     // Null index means the dialog is closed.
     var selectedMetricInfoIndex by remember { mutableStateOf<Int?>(null) }
 
-    val animatedColor = rememberPulsingColor(
-        initialColor = AppColors.FluorescentMint,
-        targetColor = AppColors.InfernoRed,
-        holdDuration = 30.seconds,
-        transitionDuration = 600.milliseconds
-    )
+//    val animatedColor = rememberPulsingColor(
+//        initialColor = AppColors.FluorescentMint,
+//        targetColor = AppColors.InfernoRed,
+//        holdDuration = 30.seconds,
+//        transitionDuration = 600.milliseconds
+//    )
 
     AppBaseScreen(
         modifier = Modifier.fillMaxSize(),
@@ -136,7 +136,7 @@ internal fun HomeContent(
                                 WatchMetricsButton(
                                     backdrop = metricsBackdrop,
                                     metric = item,
-                                    tintColor = animatedColor.value,
+//                                    tintColor = animatedColor.value,
                                     onClick = {
                                         selectedMetricInfoIndex = index
                                     },

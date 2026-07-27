@@ -76,8 +76,8 @@ fun WatchMetricsButton(
                     // capsule instead of getting clipped/ellipsized.
                     style = AppTheme.typography.semiBold.copy(
                         color = tintColor,
-                        fontSize = 12.sp,
-                        lineHeight = 12.sp,
+                        fontSize = 11.sp,
+                        lineHeight = 11.sp,
                         letterSpacing = 0.2.sp,
                     )
                 )
