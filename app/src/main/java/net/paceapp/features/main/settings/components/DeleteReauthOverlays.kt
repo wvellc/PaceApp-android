@@ -11,16 +11,19 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.DialogWindowProvider
 import net.paceapp.R
 import net.paceapp.core.components.AppButton
 import net.paceapp.core.components.AppTextButton
@@ -131,6 +134,7 @@ private fun ProcessingOverlay() {
             usePlatformDefaultWidth = false,
         ),
     ) {
+        NoDialogWindowAnimation()
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -159,6 +163,7 @@ private fun ReauthScrimDialog(
             usePlatformDefaultWidth = false,
         ),
     ) {
+        NoDialogWindowAnimation()
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -171,6 +176,14 @@ private fun ReauthScrimDialog(
             )
         }
     }
+}
+
+// Disables the platform Dialog window's default scale/fade so the overlay just
+// appears (no zoom-in) — applied inside every Dialog used here.
+@Composable
+private fun NoDialogWindowAnimation() {
+    val window = (LocalView.current.parent as? DialogWindowProvider)?.window
+    SideEffect { window?.setWindowAnimations(0) }
 }
 
 // Shared gradient card used by the reauth dialogs (matches the app background).
