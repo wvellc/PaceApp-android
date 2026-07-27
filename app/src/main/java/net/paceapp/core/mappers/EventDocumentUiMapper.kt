@@ -38,9 +38,10 @@ object EventDocumentUiMapper {
         Instant.fromEpochMilliseconds(doc.scheduledAt?.toDate()?.time ?: 0L)
             .toLocalDateTime(TimeZone.currentSystemDefault())
 
-    // Pace seconds → "m:ss"; blank when unknown.
+    // Pace seconds → "m:ss"; "00:00" when unknown (mirrors iOS avgPaceFormatted, which
+    // returns "00:00" for avgPace == 0 — e.g. a pre-run favorite/upcoming event).
     private fun formatPace(seconds: Int?): String {
-        if (seconds == null || seconds <= 0) return ""
+        if (seconds == null || seconds <= 0) return "00:00"
         return String.format(Locale.US, "%d:%02d", seconds / 60, seconds % 60)
     }
 }
