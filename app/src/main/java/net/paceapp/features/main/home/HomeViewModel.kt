@@ -94,12 +94,14 @@ class HomeViewModel @Inject constructor(
 
     private fun syncLabel(millis: Long?): String {
         if (millis == null) return resourceProvider.getString(R.string.open_pace_app_to_sync)
-        val elapsed = System.currentTimeMillis() - millis
-        val relative = if (elapsed < DateUtils.MINUTE_IN_MILLIS) {
+        val elapsed = (System.currentTimeMillis() - millis).coerceAtLeast(0)
+        // "just now" for the first couple seconds, then seconds → minutes → hours → days
+        // (DateUtils picks the largest unit ≥ the second resolution and handles plurals).
+        val relative = if (elapsed < 2 * DateUtils.SECOND_IN_MILLIS) {
             resourceProvider.getString(R.string.just_now)
         } else {
             DateUtils.getRelativeTimeSpanString(
-                millis, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS
+                millis, System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS
             ).toString()
         }
         return resourceProvider.getString(R.string.synced_time_ago, relative)
@@ -235,8 +237,9 @@ class HomeViewModel @Inject constructor(
 
     companion object {
         private const val FLASH_INTERVAL_MS = 2_500L
-        // How often the "Synced X ago" label re-renders so it ticks in real time.
-        private const val SYNC_LABEL_REFRESH_MS = 30_000L
+        // How often the "Synced X ago" label re-renders so it ticks in real time. 1s so
+        // the seconds count up live; unchanged labels dedupe in state (no recomposition).
+        private const val SYNC_LABEL_REFRESH_MS = 1_000L
     }
 }
 
