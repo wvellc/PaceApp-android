@@ -8,14 +8,23 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -134,10 +143,19 @@ private fun ProcessingOverlay() {
             usePlatformDefaultWidth = false,
         ),
     ) {
+        // Window animation off; the whole overlay fades in.
         NoDialogWindowAnimation()
+        var visible by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) { visible = true }
+        val alpha by animateFloatAsState(
+            targetValue = if (visible) 1f else 0f,
+            animationSpec = tween(durationMillis = 200),
+            label = "processing_enter",
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .graphicsLayer { this.alpha = alpha }
                 .background(AppColors.Black40),
             contentAlignment = Alignment.Center,
         ) {
@@ -163,15 +181,31 @@ private fun ReauthScrimDialog(
             usePlatformDefaultWidth = false,
         ),
     ) {
+        // Window animation off — the scrim fades in and the card scales+fades in,
+        // animated separately in Compose (the overlay fades; the dialog keeps its scale).
         NoDialogWindowAnimation()
+        var visible by remember { mutableStateOf(false) }
+        LaunchedEffect(Unit) { visible = true }
+        val enter by animateFloatAsState(
+            targetValue = if (visible) 1f else 0f,
+            animationSpec = tween(durationMillis = 200),
+            label = "reauth_enter",
+        )
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(AppColors.Black40),
+                .background(Color.Black.copy(alpha = 0.4f * enter)),
             contentAlignment = Alignment.Center,
         ) {
             DialogSurface(
-                modifier = Modifier.padding(horizontal = 24.dp),
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
+                    .graphicsLayer {
+                        val scale = 0.92f + 0.08f * enter
+                        scaleX = scale
+                        scaleY = scale
+                        alpha = enter
+                    },
                 content = content,
             )
         }
