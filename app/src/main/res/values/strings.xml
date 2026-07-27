@@ -195,6 +195,8 @@
     <string name="finished_goal_time">Finished Goal Time</string>
     <string name="time_variance">Time Variance</string>
     <string name="segments">Segments</string>
+    <string name="segment_completed">Completed</string>
+    <string name="segment_awaiting">Awaiting</string>
     <string name="completed_distance">Completed Distance</string>
     <string name="total_time_taken">Total Time Taken</string>
     <string name="look_back_intervals">Look-Back Intervals</string>

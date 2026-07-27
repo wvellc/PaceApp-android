@@ -45,7 +45,9 @@ object EventDetailsMapper {
             SegmentUiModel(
                 id = seg.index,
                 distance = DistanceModel(seg.distance.toFloat(), unit),
-                durationInSeconds = (seg.actualTimeSeconds ?: seg.goalTimeSeconds).toLong()
+                // Completed → actual time; awaiting → goal time (mirrors iOS SegmentRow).
+                durationInSeconds = (seg.actualTimeSeconds ?: seg.goalTimeSeconds).toLong(),
+                isCompleted = seg.actualTimeSeconds != null || seg.completedAt != null,
             )
         }
 

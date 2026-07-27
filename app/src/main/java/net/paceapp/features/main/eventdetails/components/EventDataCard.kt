@@ -9,13 +9,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -206,10 +209,13 @@ internal fun EventDataCard(
                     key(model.id) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            // Segment label — "S1", "S2"… (mirrors iOS, fixed 28dp lead).
                             Text(
                                 text = stringResource(R.string.segment_title, model.id + 1),
+                                modifier = Modifier.width(28.dp),
                                 style = AppTheme.typography.semiBold.copy(
                                     fontSize = 16.sp,
                                     lineHeight = 16.sp,
@@ -220,7 +226,9 @@ internal fun EventDataCard(
                             val formatDuration =
                                 DateTimeHelper.formatDuration(model.durationInSeconds.seconds)
                             Text(
+                                modifier = Modifier.weight(1f),
                                 text = "$formatDuration / ${model.distance.displayValue}",
+                                textAlign = TextAlign.Center,
                                 style = AppTheme.typography.semiBold.copy(
                                     fontSize = 16.sp,
                                     lineHeight = 16.sp,
@@ -228,6 +236,30 @@ internal fun EventDataCard(
                                     color = AppColors.DarkCharcoal,
                                 )
                             )
+                            // Completed / Awaiting status pill (mint vs hint-gray, iOS).
+                            Box(
+                                modifier = Modifier
+                                    .width(84.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(
+                                        if (model.isCompleted) AppColors.FluorescentMint
+                                        else AppColors.HintGray
+                                    )
+                                    .padding(vertical = 4.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        if (model.isCompleted) R.string.segment_completed
+                                        else R.string.segment_awaiting
+                                    ),
+                                    style = AppTheme.typography.semiBold.copy(
+                                        fontSize = 11.sp,
+                                        color = if (model.isCompleted) AppColors.DarkCharcoal
+                                        else AppColors.FashionGray,
+                                    )
+                                )
+                            }
                         }
                     }
                 }
