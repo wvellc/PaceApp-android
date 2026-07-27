@@ -12,7 +12,7 @@ class AnalyticsDetailContract {
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
         val metricType: AnalyticsMetricType = AnalyticsMetricType.PACE,
-        val selectedPeriod: AnalyticsPeriod = AnalyticsPeriod.DAY,
+        val selectedPeriod: AnalyticsPeriod = AnalyticsPeriod.WEEK,
         val summaryList: List<AnalyticsSummaryData> = emptyList()
     ) : ViewState
 

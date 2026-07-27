@@ -12,6 +12,7 @@ import net.paceapp.core.enums.AnalyticsMetricType
 import net.paceapp.core.enums.AnalyticsPeriod
 import net.paceapp.core.models.AnalyticsSummaryData
 import net.paceapp.features.main.analytics.AnalyticsAggregator
+import net.paceapp.features.main.analytics.AnalyticsSelectionState
 import net.paceapp.features.main.analyticsdetail.AnalyticsDetailContract.Effect
 import net.paceapp.features.main.analyticsdetail.AnalyticsDetailContract.Event
 import net.paceapp.features.main.analyticsdetail.AnalyticsDetailContract.State
@@ -23,6 +24,7 @@ class AnalyticsDetailViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val repository: AnalyticsRepository,
     private val authManager: AuthManager,
+    private val selectionState: AnalyticsSelectionState,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -42,12 +44,17 @@ class AnalyticsDetailViewModel @Inject constructor(
     private fun initData() {
         if (currentState.isInitialized) return
         val args = savedStateHandle.toRoute<AnalyticsDetailRoute>()
-        setState { copy(metricType = args.type, isInitialized = true) }
-        loadSummaries(metricType = args.type, period = currentState.selectedPeriod)
+        // Open on the shared period (default WEEK) so the duration tab is pre-selected
+        // to whatever the list is showing (mirrors iOS AnalyticsViewModel.selectedPeriod).
+        val period = selectionState.selectedPeriod.value
+        setState { copy(metricType = args.type, selectedPeriod = period, isInitialized = true) }
+        loadSummaries(metricType = args.type, period = period)
     }
 
-    // Re-fetch for the newly selected period; each period has its own date window.
+    // Re-fetch for the newly selected period; each period has its own date window. Also
+    // publish it to the shared state so the list reflects it when the user goes back.
     private fun handleAnalyticPeriodSelected(period: AnalyticsPeriod) {
+        selectionState.setPeriod(period)
         setState { copy(selectedPeriod = period) }
         loadSummaries(metricType = currentState.metricType, period = period)
     }

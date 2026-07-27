@@ -2,6 +2,8 @@ package net.paceapp.features.main.analytics
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
@@ -17,6 +19,7 @@ import javax.inject.Inject
 class AnalyticsViewModel @Inject constructor(
     private val repository: AnalyticsRepository,
     private val authManager: AuthManager,
+    private val selectionState: AnalyticsSelectionState,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -36,13 +39,16 @@ class AnalyticsViewModel @Inject constructor(
     private fun initData() {
         if (currentState.isInitialized) return
         setState { copy(isInitialized = true) }
-        fetchAnalyticsData()
+        // Re-aggregate whenever the shared period changes (default WEEK), so pressing
+        // back from the detail with a different duration updates the list (matches iOS).
+        selectionState.selectedPeriod
+            .onEach { period -> fetchAnalyticsData(period) }
+            .launchIn(viewModelScope)
     }
 
-    // Main list shows one card per metric aggregated over the last week (matches iOS).
-    private fun fetchAnalyticsData() {
+    // Main list shows one card per metric aggregated over the shared selected period.
+    private fun fetchAnalyticsData(period: AnalyticsPeriod) {
         val userId = authManager.currentUid ?: return
-        val period = AnalyticsPeriod.WEEK
         setState { copy(isLoading = true) }
         viewModelScope.launch {
             val (from, to) = AnalyticsAggregator.dateRange(period)
