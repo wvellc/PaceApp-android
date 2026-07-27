@@ -83,7 +83,7 @@ internal fun FavoriteActivitiesContent(
                             state = swipeState,
                             actions = {
                                 SwipeActionButtons(
-                                    id = R.drawable.ic_favorites,
+                                    id = R.drawable.ic_unfavorite,
                                     background = AppColors.Error,
                                 ) {
                                     onEvent(Event.OnUnfavoriteClick(activity))

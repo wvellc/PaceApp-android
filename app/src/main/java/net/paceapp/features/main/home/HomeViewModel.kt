@@ -14,6 +14,7 @@ import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.data.firestore.EventDocument
 import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
+import net.paceapp.core.garmin.EventSyncManager
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.mappers.ActivityToUiModelMapper
@@ -31,6 +32,7 @@ class HomeViewModel @Inject constructor(
     private val activityToUiModelMapper: ActivityToUiModelMapper,
     private val eventRepository: EventRepository,
     private val authManager: AuthManager,
+    private val eventSyncManager: EventSyncManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     // Latest completed event backing the header metrics + the distance⇄finish flash.
@@ -49,6 +51,7 @@ class HomeViewModel @Inject constructor(
 
             is Event.OnNotificationClick -> handleOnNotificationClick()
             is Event.OnActivityClick -> handleOnActivityClick(event.activity)
+            is Event.OnDeleteActivity -> handleOnDeleteActivity(event.activity)
             is Event.OnStartPairing -> handleOnStartPairing(event.context)
             is Event.OnNewEventClick -> handleOnNewEventClick()
             is Event.OnFavoriteClick -> handleOnFavoriteClick()
@@ -166,6 +169,13 @@ class HomeViewModel @Inject constructor(
         if (currentState.watchModel?.status == WatchConnectionState.CONNECTED) return
 
         setEffect { Effect.NavigateToManageWatch }
+    }
+
+    // Swipe-to-delete: soft-delete on the watch + Firestore; the active-events listener
+    // reconciles the list, but drop it optimistically for an instant response.
+    private fun handleOnDeleteActivity(activity: ActivityUiModel) {
+        activity.id.toIntOrNull()?.let { eventSyncManager.deleteEvent(it) }
+        setState { copy(upcomingActivities = upcomingActivities - activity) }
     }
 
     private fun handleOnActivityClick(activity: ActivityUiModel) {

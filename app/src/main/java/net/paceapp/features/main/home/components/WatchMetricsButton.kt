@@ -65,11 +65,13 @@ fun WatchMetricsButton(
                 textAlign = TextAlign.Center,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
+                // Smaller value text so long values (e.g. "00:00:00") fit the narrow
+                // capsule instead of getting clipped/ellipsized.
                 style = AppTheme.typography.semiBold.copy(
                     color = tintColor,
-                    fontSize = 17.sp,
-                    lineHeight = 17.sp,
-                    letterSpacing = 0.34.sp,
+                    fontSize = 12.sp,
+                    lineHeight = 12.sp,
+                    letterSpacing = 0.2.sp,
                 )
             )
 

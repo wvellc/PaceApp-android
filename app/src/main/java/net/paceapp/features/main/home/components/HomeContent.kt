@@ -34,8 +34,12 @@ import net.paceapp.core.components.AnimatedBellIcon
 import net.paceapp.core.components.AppBaseScreen
 import net.paceapp.core.components.CommonAppBar
 import net.paceapp.core.components.profilesteps.PairWatchInitContent
+import com.wvelabs.core_ui.components.SwipeDirection
+import com.wvelabs.core_ui.components.SwipeToActionBox
+import com.wvelabs.core_ui.components.rememberSwipeActionState
 import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.garmin.state.GarminSdkState
+import net.paceapp.features.main.history.components.SwipeActionButtons
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.HomeContract.State
 import net.paceapp.theme.AppColors
@@ -52,6 +56,7 @@ internal fun HomeContent(
     val isWatchConnected = state.watchModel?.status == WatchConnectionState.CONNECTED
     val metricsBackdrop = rememberLayerBackdrop()
     val lazyListState = rememberLazyListState()
+    val upcomingSwipeState = rememberSwipeActionState()
     val context = LocalContext.current
     // Null index means the dialog is closed.
     var selectedMetricInfoIndex by remember { mutableStateOf<Int?>(null) }
@@ -175,14 +180,29 @@ internal fun HomeContent(
                         )
                     }
                 }
-                //Upcoming Activity list
+                //Upcoming Activity list — swipe left to delete (mirrors iOS Home swipe).
                 itemsIndexed(
                     items = state.upcomingActivities,
                     key = { index, item -> item.id }) { index, activity ->
-                    UpcomingActivityListItem(
-                        modifier = Modifier.fillMaxWidth(), model = activity, onClick = {
-                            onEvent(Event.OnActivityClick(activity))
-                        })
+                    SwipeToActionBox(
+                        actionModifier = Modifier.padding(start = 16.dp),
+                        direction = SwipeDirection.EndToStart,
+                        actionBackgroundColor = AppColors.Transparent,
+                        itemId = activity.id,
+                        state = upcomingSwipeState,
+                        actions = {
+                            SwipeActionButtons(id = R.drawable.ic_delete) {
+                                onEvent(Event.OnDeleteActivity(activity))
+                                upcomingSwipeState.closeAll()
+                            }
+                        },
+                        content = {
+                            UpcomingActivityListItem(
+                                modifier = Modifier.fillMaxWidth(), model = activity, onClick = {
+                                    onEvent(Event.OnActivityClick(activity))
+                                })
+                        }
+                    )
                 }
             }
 

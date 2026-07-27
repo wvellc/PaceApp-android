@@ -26,6 +26,8 @@ class HomeContract {
         data object Init : Event()
         data object OnBackClick : Event()
         data class OnActivityClick(val activity: ActivityUiModel) : Event()
+        // Swipe-to-delete on an upcoming/active event (mirrors iOS Home swipe).
+        data class OnDeleteActivity(val activity: ActivityUiModel) : Event()
         data class OnStartPairing(val context: Context) : Event()
 
         data object OnNotificationClick : Event()
