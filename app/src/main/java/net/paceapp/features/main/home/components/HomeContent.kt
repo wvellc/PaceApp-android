@@ -163,15 +163,17 @@ internal fun HomeContent(
                             })
                     }
                 }
-                //Upcoming activities label
-                item {
-                    Text(
-                        text = stringResource(R.string.upcoming_activities),
-                        style = AppTheme.typography.semiBold.copy(
-                            color = AppColors.White,
-                            fontSize = 16.sp,
+                //Upcoming activities label — hidden when there are no active events.
+                if (state.upcomingActivities.isNotEmpty()) {
+                    item {
+                        Text(
+                            text = stringResource(R.string.upcoming_activities),
+                            style = AppTheme.typography.semiBold.copy(
+                                color = AppColors.White,
+                                fontSize = 16.sp,
+                            )
                         )
-                    )
+                    }
                 }
                 //Upcoming Activity list
                 itemsIndexed(
