@@ -56,14 +56,10 @@ private fun ReauthOtpDialog(
     phase: ReauthPhase.PhoneOtp,
     onEvent: (Event) -> Unit,
 ) {
-    Dialog(
+    ReauthScrimDialog(
         onDismissRequest = { if (!phase.isVerifying) onEvent(Event.OnReauthCancel) },
-        properties = DialogProperties(
-            dismissOnBackPress = !phase.isVerifying,
-            dismissOnClickOutside = false,
-        ),
+        dismissOnBackPress = !phase.isVerifying,
     ) {
-        DialogSurface {
             Text(
                 text = stringResource(R.string.reauth_confirm_title),
                 style = AppTheme.typography.bold.copy(fontSize = 22.sp, color = AppColors.White),
@@ -91,7 +87,6 @@ private fun ReauthOtpDialog(
                 style = AppTheme.typography.semiBold.copy(fontSize = 14.sp, color = AppColors.White85),
                 onClick = { if (!phase.isVerifying) onEvent(Event.OnReauthCancel) },
             )
-        }
     }
 }
 
@@ -102,11 +97,10 @@ private fun EmailReauthWaitDialog(
     phase: ReauthPhase.EmailWait,
     onEvent: (Event) -> Unit,
 ) {
-    Dialog(
+    ReauthScrimDialog(
         onDismissRequest = { onEvent(Event.OnReauthCancel) },
-        properties = DialogProperties(dismissOnClickOutside = false),
+        dismissOnBackPress = true,
     ) {
-        DialogSurface {
             CircularProgressIndicator(color = AppColors.White)
             Text(
                 text = stringResource(R.string.reauth_email_title),
@@ -123,7 +117,6 @@ private fun EmailReauthWaitDialog(
                 style = AppTheme.typography.semiBold.copy(fontSize = 14.sp, color = AppColors.White85),
                 onClick = { onEvent(Event.OnReauthCancel) },
             )
-        }
     }
 }
 
@@ -149,11 +142,45 @@ private fun ProcessingOverlay() {
     }
 }
 
+// Wraps a reauth dialog in a dimmed full-screen scrim so the popup reads as an
+// overlay above Settings (the app's dark background would otherwise hide the default
+// platform dim). Uses usePlatformDefaultWidth = false so we control the scrim + width.
+@Composable
+private fun ReauthScrimDialog(
+    onDismissRequest: () -> Unit,
+    dismissOnBackPress: Boolean,
+    content: @Composable () -> Unit,
+) {
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(
+            dismissOnBackPress = dismissOnBackPress,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(AppColors.Black40),
+            contentAlignment = Alignment.Center,
+        ) {
+            DialogSurface(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                content = content,
+            )
+        }
+    }
+}
+
 // Shared gradient card used by the reauth dialogs (matches the app background).
 @Composable
-private fun DialogSurface(content: @Composable () -> Unit) {
+private fun DialogSurface(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(20.dp))
             .background(Brush.verticalGradient(AppColors.backgroundGradient))
