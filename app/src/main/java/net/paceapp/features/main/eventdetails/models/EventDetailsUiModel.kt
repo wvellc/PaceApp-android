@@ -13,6 +13,11 @@ data class EventDetailsUiModel(
 
     @param:StringRes val eventTypeRes: Int,
 
+    // Whether the event has actuals (completed) vs upcoming/active. Gates the
+    // completed-only stats/sections so an active event shows only its planned data
+    // (mirrors iOS isCompletedEvent).
+    val isCompleted: Boolean,
+
     // --- Top Level Stats ---
     val performancePercentage: Int?, // 110
     val isAheadOfTime: Boolean, // 110

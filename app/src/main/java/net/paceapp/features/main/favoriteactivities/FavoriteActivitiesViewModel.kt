@@ -1,6 +1,8 @@
 package net.paceapp.features.main.favoriteactivities
 
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.data.firestore.FavoriteRepository
@@ -29,6 +31,17 @@ class FavoriteActivitiesViewModel @Inject constructor(
             }
 
             is Event.OnActivityClick -> handleActivityClick(event.activity)
+            is Event.OnUnfavoriteClick -> handleUnfavorite(event.activity)
+        }
+    }
+
+    // Un-favorite: optimistically drop the row, then toggle it off in Firestore.
+    // Mirrors iOS FavoritesViewModel.unFavorite.
+    private fun handleUnfavorite(activity: ActivityUiModel) {
+        val uid = authManager.currentUid ?: return
+        setState { copy(favorites = favorites.filterNot { it.id == activity.id }) }
+        viewModelScope.launch {
+            runCatching { favoriteRepository.toggleFavorite(uid, activity.id) }
         }
     }
 

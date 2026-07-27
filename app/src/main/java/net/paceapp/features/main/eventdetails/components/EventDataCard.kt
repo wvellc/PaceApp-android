@@ -56,13 +56,16 @@ internal fun EventDataCard(
                 letterSpacing = 0.54.sp
             )
         )
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TimeVarianceRow(
-            varianceInSeconds = eventDetails.timeVarianceInSeconds,
-            isAheadOfTime = eventDetails.isAheadOfTime,
-            percentage = eventDetails.performancePercentage ?: 0,
-        )
+        // Time-variance + effort badge only for completed events — an active/upcoming
+        // event has no variance, so iOS shows no red "+00:00:00 / 0%" here.
+        if (eventDetails.isCompleted) {
+            Spacer(modifier = Modifier.height(8.dp))
+            TimeVarianceRow(
+                varianceInSeconds = eventDetails.timeVarianceInSeconds,
+                isAheadOfTime = eventDetails.isAheadOfTime,
+                percentage = eventDetails.performancePercentage ?: 0,
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -105,10 +108,14 @@ internal fun EventDataCard(
                         value = DateTimeHelper.formatDuration(eventDetails.finishTimeGoalInSeconds.seconds)
                     )
 
-                    EventTitleValue(
-                        title = stringResource(R.string.time_variance),
-                        value = DateTimeHelper.formatDuration(eventDetails.timeVarianceInSeconds.seconds)
-                    )
+                    // Completed-only stats are hidden for an active/upcoming event
+                    // (mirrors iOS filtering out "—" values).
+                    if (eventDetails.isCompleted) {
+                        EventTitleValue(
+                            title = stringResource(R.string.time_variance),
+                            value = DateTimeHelper.formatDuration(eventDetails.timeVarianceInSeconds.seconds)
+                        )
+                    }
                     EventTitleValue(
                         title = stringResource(R.string.segments),
                         value = eventDetails.segments.size.toString()
@@ -119,29 +126,34 @@ internal fun EventDataCard(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    EventTitleValue(
-                        title = stringResource(R.string.completed_distance),
-                        value = eventDetails.completedDistance.displayValue
-                    )
-                    EventTitleValue(
-                        title = stringResource(R.string.total_time_taken),
-                        value = DateTimeHelper.formatDuration(eventDetails.totalTimeTakenInSeconds.seconds)
-                    )
+                    if (eventDetails.isCompleted) {
+                        EventTitleValue(
+                            title = stringResource(R.string.completed_distance),
+                            value = eventDetails.completedDistance.displayValue
+                        )
+                        EventTitleValue(
+                            title = stringResource(R.string.total_time_taken),
+                            value = DateTimeHelper.formatDuration(eventDetails.totalTimeTakenInSeconds.seconds)
+                        )
+                    }
 
                     EventTitleValue(
                         title = stringResource(R.string.look_back_intervals),
                         value = eventDetails.lookBackIntervals.toString()
                     )
-                    EventTitleValue(
-                        title = stringResource(R.string.average_heart_rate),
-                        value = "${eventDetails.averageHeartRateBpm ?: 0} bpm"
-                    )
+                    if (eventDetails.isCompleted) {
+                        EventTitleValue(
+                            title = stringResource(R.string.average_heart_rate),
+                            value = "${eventDetails.averageHeartRateBpm ?: 0} bpm"
+                        )
+                    }
                 }
             }
         }
 
+        //Intervals — only when the event actually has interval paces (mirrors iOS).
+        if (eventDetails.intervals.isNotEmpty()) {
         DefaultDivider()
-        //Intervals
         EventExpandableDetails(
             title = stringResource(R.string.intervals),
             isExpanded = isIntervalsExpanded,
@@ -177,8 +189,10 @@ internal fun EventDataCard(
             }
 
         }
+        } // end intervals guard
+        //Segments — only when the event has segments (mirrors iOS).
+        if (eventDetails.segments.isNotEmpty()) {
         DefaultDivider()
-        //Segments
         EventExpandableDetails(
             title = stringResource(R.string.segments),
             isExpanded = isSegmentsExpanded,
@@ -195,7 +209,7 @@ internal fun EventDataCard(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                text = stringResource(R.string.segment_title, model.id),
+                                text = stringResource(R.string.segment_title, model.id + 1),
                                 style = AppTheme.typography.semiBold.copy(
                                     fontSize = 16.sp,
                                     lineHeight = 16.sp,
@@ -220,6 +234,7 @@ internal fun EventDataCard(
             }
 
         }
+        } // end segments guard
     }
 }
 

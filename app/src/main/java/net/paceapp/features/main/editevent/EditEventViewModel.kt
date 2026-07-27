@@ -1,5 +1,6 @@
 package net.paceapp.features.main.editevent
 
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
@@ -53,10 +54,14 @@ class EditEventViewModel @Inject constructor(
         if (currentState.isInitialized) return
 
         val args = savedStateHandle.toRoute<EditEventRoute>()
-        //Set argument data — keep the original id so save updates in place
+        //Set argument data — keep the original id so save updates in place, and PRE-FILL
+        // the editable fields with the current name/location (mirrors iOS EditEvent, which
+        // seeds the text fields; previously these values were only shown as grey hints).
         setState {
             copy(
                 eventId = args.id.toIntOrNull() ?: 0,
+                eventNameState = TextFieldState(args.eventName),
+                locationState = TextFieldState(args.location),
                 currentEventName = args.eventName,
                 currentLocation = args.location,
             )

@@ -86,6 +86,7 @@ object EventDummyData {
                 .atTime(6, 30, 0), // Early morning Austin run
             eventTypeRes = EventType.Run.labelRes,
 
+            isCompleted = true,
             isAheadOfTime = Random.nextBoolean(),
             // Randomize Performance & Heart Rate
             performancePercentage = Random.nextInt(90, 115),

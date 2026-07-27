@@ -17,6 +17,8 @@ class FavoriteActivitiesContract {
         data object Init : Event()
         data object OnBackClick : Event()
         data class OnActivityClick(val activity: ActivityUiModel) : Event()
+        // Swipe-to-unfavorite (mirrors iOS .swipeActions un-favorite).
+        data class OnUnfavoriteClick(val activity: ActivityUiModel) : Event()
 
     }
 

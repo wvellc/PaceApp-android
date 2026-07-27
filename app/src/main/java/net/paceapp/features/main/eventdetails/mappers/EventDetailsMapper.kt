@@ -6,6 +6,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import net.paceapp.core.data.firestore.EventDocument
+import net.paceapp.core.data.firestore.EventStatusValue
 import net.paceapp.core.domain.models.DistanceModel
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.features.main.createevent.enums.EventType
@@ -54,6 +55,8 @@ object EventDetailsMapper {
             location = document.location,
             dateTime = dateTime,
             eventTypeRes = eventTypeRes(document.activityType),
+
+            isCompleted = document.status == EventStatusValue.COMPLETED,
 
             // effortPercentage (0..100) rounded; null when the event isn't completed.
             performancePercentage = document.effortPercentage?.let { Math.round(it).toInt() },

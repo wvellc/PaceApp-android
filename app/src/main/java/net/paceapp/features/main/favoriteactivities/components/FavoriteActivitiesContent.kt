@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.wvelabs.core_ui.components.SwipeDirection
+import com.wvelabs.core_ui.components.SwipeToActionBox
+import com.wvelabs.core_ui.components.rememberSwipeActionState
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
 import net.paceapp.R
 import net.paceapp.core.components.ActivityListItem
@@ -20,6 +23,8 @@ import net.paceapp.core.components.CommonAppBar
 import net.paceapp.core.components.NoDataView
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Event
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.State
+import net.paceapp.features.main.history.components.SwipeActionButtons
+import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
 @Composable
@@ -28,6 +33,7 @@ internal fun FavoriteActivitiesContent(
     onEvent: (Event) -> Unit
 ) {
     val historyListState = rememberLazyListState()
+    val swipeState = rememberSwipeActionState()
 
     AppBaseScreen(
         modifier = Modifier
@@ -68,37 +74,28 @@ internal fun FavoriteActivitiesContent(
                     contentPadding = PaddingValues(AppTheme.screenPadding)
                 ) {
                     items(state.favorites, key = { it.id }) { activity ->
-                        /*//Swipe to action item
+                        //Swipe left to un-favorite (single destructive action, mirrors iOS).
                         SwipeToActionBox(
                             actionModifier = Modifier.padding(start = 16.dp),
                             direction = SwipeDirection.EndToStart,
                             actionBackgroundColor = AppColors.Transparent,
-                            itemId = history.id,
-                            state = historySwipeState,
+                            itemId = activity.id,
+                            state = swipeState,
                             actions = {
-                                //Duplicate button
                                 SwipeActionButtons(
-                                    id = R.drawable.ic_duplicate,
-                                    background = AppColors.NeonAquaBlue,
+                                    id = R.drawable.ic_favorites,
+                                    background = AppColors.Error,
                                 ) {
-                                    onEvent(HistoryContract.Event.OnDuplicateHistoryClick(history))
-                                    historySwipeState.closeAll()
+                                    onEvent(Event.OnUnfavoriteClick(activity))
+                                    swipeState.closeAll()
                                 }
-
-                                //Delete button
-                                SwipeActionButtons(id = R.drawable.ic_delete) {
-                                    onEvent(HistoryContract.Event.OnDeleteHistoryClick(history))
-                                    historySwipeState.closeAll()
-                                }
-
                             },
-                            content = {*/
-                        //History item UI
-                        ActivityListItem(history = activity, onClick = {
-                            onEvent(Event.OnActivityClick(activity))
-                        })
-//                            }
-//                        )
+                            content = {
+                                ActivityListItem(history = activity, onClick = {
+                                    onEvent(Event.OnActivityClick(activity))
+                                })
+                            }
+                        )
                     }
                 }
             }

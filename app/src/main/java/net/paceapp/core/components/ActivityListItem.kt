@@ -61,11 +61,15 @@ fun ActivityListItem(
                 value = history.date,
             )
 
-            // Run status
-            RunStat(
-                paceDifference = history.paceDifference,
-                isPaceImproved = history.isAheadOfTime
-            )
+            // Time-variance pill — only for events that actually have a variance (mirrors
+            // iOS `delta != nil && delta != ""`). A pre-run favorite has no variance, so
+            // this is hidden instead of showing an empty red pill.
+            if (history.paceDifference.isNotBlank()) {
+                RunStat(
+                    paceDifference = history.paceDifference,
+                    isPaceImproved = history.isAheadOfTime
+                )
+            }
 
         }
         Spacer(modifier = Modifier.height(8.dp))
