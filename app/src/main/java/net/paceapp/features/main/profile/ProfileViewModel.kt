@@ -41,9 +41,9 @@ class ProfileViewModel @Inject constructor(
 
 
     private fun initData() {
-        // Ask the watch to push its settings (gait/height/weight) so the profile refreshes each visit (iOS onAppear parity).
-        eventSyncManager.requestWatchSettings()
         if (currentState.isInitialized) return
+        // Ask the watch to push its settings once per lifetime; gait/height/weight then stay live via the Firestore profile listener.
+        eventSyncManager.requestWatchSettings()
         observeUserData()
         observeIntervalSettings()
         setState { copy(isInitialized = true) }

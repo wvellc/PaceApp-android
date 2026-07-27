@@ -33,6 +33,11 @@ enum class SettingOptions(
         iconRes = R.drawable.ic_licenses
     ),
 
+    FAQ(
+        titleRes = R.string.faqs,
+        iconRes = R.drawable.ic_faq
+    ),
+
     DEVELOPED_BY(
         titleRes = R.string.developed_by,
         iconRes = R.drawable.ic_developed_by

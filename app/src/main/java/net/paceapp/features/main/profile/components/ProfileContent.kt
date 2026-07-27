@@ -143,7 +143,7 @@ internal fun ProfileContent(
             //Edit profile
             EditProfileButton(onClick = { onEvent(Event.OnEditProfileClick) })
 
-            ProfileOptions.entries.forEachIndexed { index, option ->
+            ProfileOptions.entries.filter { it != ProfileOptions.STRAVA }.forEachIndexed { index, option ->
 
                 key("${option.name}_$index") {
                     val isSwitchChecked = when (option) {

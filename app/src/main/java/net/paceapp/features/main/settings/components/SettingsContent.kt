@@ -98,7 +98,7 @@ internal fun SettingsContent(
                 // LIST OPTIONS — Notifications is hidden for now (parity with iOS,
                 // whose notifications entry is commented out).
                 items(
-                    items = SettingOptions.entries.filter { it != SettingOptions.NOTIFICATIONS },
+                    items = SettingOptions.entries.filter { it != SettingOptions.NOTIFICATIONS && it != SettingOptions.STRAVA },
                     key = { option -> option.name }
                 ) { option ->
                     SettingOptionItem(

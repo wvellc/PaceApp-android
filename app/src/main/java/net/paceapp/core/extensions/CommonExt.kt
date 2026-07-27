@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 import com.wvelabs.core_network.utils.AppLogger
 
@@ -17,6 +18,22 @@ fun Context.openBrowser(url: String) {
         startActivity(intent)
     } catch (e: Exception) {
         AppLogger.e("No web browser found : $e")
+    }
+}
+
+/**
+ * Opens a URL in an in-app Custom Tab (Android's analog of iOS SFSafariViewController) —
+ * used for the FAQ/Help pages. Falls back to the external browser if no Custom Tabs
+ * provider is available.
+ */
+fun Context.openCustomTab(url: String) {
+    try {
+        CustomTabsIntent.Builder().build().apply {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }.launchUrl(this, url.toUri())
+    } catch (e: Exception) {
+        AppLogger.e("Custom Tab failed, falling back to browser : $e")
+        openBrowser(url)
     }
 }
 

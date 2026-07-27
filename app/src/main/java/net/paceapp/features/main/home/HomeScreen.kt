@@ -3,8 +3,11 @@ package net.paceapp.features.main.home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import net.paceapp.config.AppWebUrls
+import net.paceapp.core.extensions.openCustomTab
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
 import net.paceapp.features.main.home.components.HomeContent
@@ -20,6 +23,7 @@ fun HomeScreen(
     onNavigateToFavorites: () -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
     // Init view model
     LaunchedEffect(key1 = Unit) {
@@ -42,6 +46,7 @@ fun HomeScreen(
                 )
 
                 is Effect.NavigateToFavorites -> onNavigateToFavorites()
+                is Effect.OpenFaq -> context.openCustomTab(AppWebUrls.FAQ)
             }
         }
     }

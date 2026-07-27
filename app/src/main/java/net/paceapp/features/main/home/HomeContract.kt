@@ -31,6 +31,7 @@ class HomeContract {
         data object OnNotificationClick : Event()
         data object OnNewEventClick : Event()
         data object OnFavoriteClick : Event()
+        data object OnFaqClick : Event()
 
     }
 
@@ -40,6 +41,7 @@ class HomeContract {
         data object NavigateToCreateEvent : Effect()
         data object NavigateToManageWatch : Effect()
         data object NavigateToFavorites : Effect()
+        data object OpenFaq : Effect()
 
         data class NavigateToEventDetails(
             val id: String,

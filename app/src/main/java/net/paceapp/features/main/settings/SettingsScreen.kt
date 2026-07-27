@@ -8,8 +8,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.paceapp.R
+import net.paceapp.config.AppWebUrls
 import net.paceapp.core.extensions.openAppNotificationSettings
 import net.paceapp.core.extensions.openBrowser
+import net.paceapp.core.extensions.openCustomTab
 import net.paceapp.features.main.settings.SettingsContract.Effect
 import net.paceapp.features.main.settings.SettingsContract.Event
 import net.paceapp.features.main.settings.components.DeleteReauthOverlays
@@ -43,6 +45,7 @@ fun SettingsScreen(
                 is Effect.NavigateToDeveloperWebsite -> context.openBrowser(effect.url)
                 is Effect.NavigateToNotifications -> context.openAppNotificationSettings()
                 is Effect.NavigateToStrava -> onNavigateToStrava()
+                is Effect.OpenFaq -> context.openCustomTab(AppWebUrls.FAQ)
                 is Effect.ShowLogoutDialog -> AppAlerts.showDialog(
                     title = UiText.StringResource(R.string.logout_dialog_title),
                     text = UiText.StringResource(R.string.logout_dialog_message),

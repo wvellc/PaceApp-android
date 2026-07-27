@@ -61,6 +61,7 @@ class SettingsContract {
         data class NavigateToWebview(val url: String, val title: String?) : Effect()
         data object NavigateToNotifications : Effect()
         data object NavigateToStrava : Effect()
+        data object OpenFaq : Effect()
         data object ShowLogoutDialog : Effect()
         data object ShowDeleteAccountDialog : Effect()
 

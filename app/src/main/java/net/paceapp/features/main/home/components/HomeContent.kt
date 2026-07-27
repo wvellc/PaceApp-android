@@ -1,5 +1,6 @@
 package net.paceapp.features.main.home.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -17,10 +19,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.shape.CircleShape
+import net.paceapp.core.extensions.defaultClickable
 import com.kyant.backdrop.backdrops.layerBackdrop
 import com.kyant.backdrop.backdrops.rememberLayerBackdrop
 import net.paceapp.R
@@ -74,6 +80,17 @@ internal fun HomeContent(
                     // notifications module ships with mock data but no reachable entry.
                     // Re-enable by restoring the AnimatedBellIcon below.
                     // AnimatedBellIcon { onEvent(Event.OnNotificationClick) }
+
+                    // FAQ / Help — opens the FAQ page in an in-app Custom Tab (mirrors
+                    // iOS's icQuestion nav-bar button + SafariView).
+                    Image(
+                        painter = painterResource(R.drawable.ic_question),
+                        contentDescription = stringResource(R.string.faqs),
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .defaultClickable { onEvent(Event.OnFaqClick) }
+                    )
                 })
         }) { innerPaddings ->
         if (!isSdkReady) {

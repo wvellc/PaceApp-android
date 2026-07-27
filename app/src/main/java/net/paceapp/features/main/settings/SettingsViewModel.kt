@@ -107,6 +107,8 @@ class SettingsViewModel @Inject constructor(
                 )
             }
 
+            SettingOptions.FAQ -> setEffect { Effect.OpenFaq }
+
             SettingOptions.DEVELOPED_BY -> setState {
                 copy(isDevOptionExpanded = isDevOptionExpanded.not())
             }

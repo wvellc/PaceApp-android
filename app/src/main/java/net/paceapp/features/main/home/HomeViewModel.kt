@@ -52,6 +52,7 @@ class HomeViewModel @Inject constructor(
             is Event.OnStartPairing -> handleOnStartPairing(event.context)
             is Event.OnNewEventClick -> handleOnNewEventClick()
             is Event.OnFavoriteClick -> handleOnFavoriteClick()
+            is Event.OnFaqClick -> setEffect { Effect.OpenFaq }
         }
     }
 

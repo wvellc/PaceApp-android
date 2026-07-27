@@ -1,5 +1,6 @@
 package net.paceapp.core.data.firestore
 
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -93,24 +94,71 @@ class FirestoreEventRepository @Inject constructor(
         )
 
         // Write-once fields. The same event round-trips app ⇄ watch many times; each
-        // pass rebuilds a full document. `source` (who created it) and `createdAt`
-        // (when) are set once at creation and must never change — otherwise a
-        // phone-created event echoed by the watch could flip to "watch". `id` is the
-        // document key, so inherently immutable. Carry the stored values forward.
+        // pass rebuilds a full document stamping source="watch", createdAt=now, and
+        // completedAt only when the payload currently looks completed. `source`/
+        // `createdAt`/`completedAt` must survive every echo — otherwise a watch
+        // reconnect that re-sends a finished run as active would revert its completion
+        // (the "run history reverts after reconnect" bug). Three branches (mirrors iOS
+        // FirestoreEventRepository.upsert):
         val ref = eventRef(document.id)
-        val existing = runCatching { ref.get().await() }.getOrNull()
-        val current = existing?.takeIf { it.exists() }?.toObject(EventDocument::class.java)
-        if (current != null) {
-            document.source = current.source
-            document.createdAt = current.createdAt
+        val snapshot = runCatching { ref.get().await() }.getOrNull()
+        val current = snapshot?.takeIf { it.exists() }?.toObject(EventDocument::class.java)
+        when {
+            // Decoded existing doc — carry the write-once fields forward. completedAt is
+            // preserved (a re-sent active echo can't null out a real completion), but a
+            // genuine first completion (stored null) still takes the new value.
+            current != null -> {
+                document.source = current.source
+                document.createdAt = current.createdAt
+                document.completedAt = current.completedAt ?: document.completedAt
+                ref.set(document, SetOptions.merge()).await()
+            }
+            // Confirmed brand-new doc — full merge, including the write-once fields.
+            snapshot != null && !snapshot.exists() -> {
+                ref.set(document, SetOptions.merge()).await()
+            }
+            // Read failed (offline/cold cache) or the stored doc didn't decode — a doc may
+            // exist that we can't see, so never blindly rewrite the three write-once fields.
+            else -> {
+                writeSkippingImmutableFields(ref, document)
+            }
         }
+    }
 
-        // Platform note: iOS's Codable encoder omits nil fields on a merge write;
-        // the Android POJO encoder writes explicit nulls. For reads this is
-        // equivalent (missing and null both decode to null) and our queries only
-        // key off always-present fields (status/scheduledAt/completedAt), so the
-        // difference is harmless. merge:true still preserves unrelated fields.
-        ref.set(document, SetOptions.merge()).await()
+    // Merge-writes every field EXCEPT the write-once source/createdAt/completedAt, so an
+    // unreadable/offline upsert can't clobber them on a doc that may already exist. (The
+    // Android POJO encoder writes explicit nulls, so a full merge with those nulled would
+    // clobber; a map that omits the keys is required.) Mirrors iOS writeSkippingImmutableFields.
+    private suspend fun writeSkippingImmutableFields(ref: DocumentReference, d: EventDocument) {
+        val data = hashMapOf<String, Any?>(
+            "id" to d.id,
+            "userId" to d.userId,
+            "status" to d.status,
+            "name" to d.name,
+            "location" to d.location,
+            "scheduledAt" to d.scheduledAt,
+            "activityType" to d.activityType,
+            "distanceValue" to d.distanceValue,
+            "measure" to d.measure,
+            "goalTimeSeconds" to d.goalTimeSeconds,
+            "lookBackIntervals" to d.lookBackIntervals,
+            "avgPaceSeconds" to d.avgPaceSeconds,
+            "avgHeartRate" to d.avgHeartRate,
+            "elevationGain" to d.elevationGain,
+            "effortPercentage" to d.effortPercentage,
+            "actualTimeSeconds" to d.actualTimeSeconds,
+            "actualDistance" to d.actualDistance,
+            "timeVarianceSeconds" to d.timeVarianceSeconds,
+            "paces" to d.paces,
+            "completedSegments" to d.completedSegments,
+            "syncStatus" to d.syncStatus,
+            "updatedAt" to d.updatedAt,
+            "deletedAt" to d.deletedAt,
+            "segments" to d.segments,
+            "routePolyline" to d.routePolyline,
+            // Deliberately omit source, createdAt, completedAt (write-once).
+        )
+        ref.set(data, SetOptions.merge()).await()
     }
 
     override suspend fun updateMetadata(eventId: Int, userId: String, name: String, location: String) {

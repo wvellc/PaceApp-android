@@ -202,6 +202,9 @@
     <string name="event_details">Event details</string>
     <string name="no_favorites_title">No favorite activities yet.</string>
 
+    <!-- FAQ / Help -->
+    <string name="faqs">FAQs</string>
+
     <!-- Strava integration -->
     <string name="strava_title">Strava</string>
     <string name="strava_connect">Connect Strava</string>
