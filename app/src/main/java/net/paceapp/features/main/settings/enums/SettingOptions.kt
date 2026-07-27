@@ -27,11 +27,11 @@ enum class SettingOptions(
         titleRes = R.string.terms_of_service,
         iconRes = R.drawable.ic_terms_service
     ),
-
-    LICENSES(
-        titleRes = R.string.licenses,
-        iconRes = R.drawable.ic_licenses
-    ),
+//
+//    LICENSES(
+//        titleRes = R.string.licenses,
+//        iconRes = R.drawable.ic_licenses
+//    ),
 
     FAQ(
         titleRes = R.string.faqs,

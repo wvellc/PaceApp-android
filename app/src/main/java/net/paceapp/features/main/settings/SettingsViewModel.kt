@@ -100,12 +100,12 @@ class SettingsViewModel @Inject constructor(
                 )
             }
 
-            SettingOptions.LICENSES -> setEffect {
-                Effect.NavigateToWebview(
-                    url = AppWebUrls.LICENSES,
-                    title = resourceProvider.getString(R.string.licenses)
-                )
-            }
+//            SettingOptions.LICENSES -> setEffect {
+//                Effect.NavigateToWebview(
+//                    url = AppWebUrls.LICENSES,
+//                    title = resourceProvider.getString(R.string.licenses)
+//                )
+//            }
 
             SettingOptions.FAQ -> setEffect { Effect.OpenFaq }
 
@@ -160,16 +160,18 @@ class SettingsViewModel @Inject constructor(
     private fun handleLogout() {
         runTask(
             block = {
-                //TODO : CallAPI
-                clearSessionData()
+                // Sign out of Firebase too — clearing only the local session leaves
+                // auth.currentUser set, so a later phone-OTP login would latch onto the
+                // stale account on the Verify screen (skipping the OTP). Then emit the
+                // session-expired event so AppNavHost routes to Login.
+                authManager.signOut()
+                sessionManager.onSessionExpired()
             },
             onLoading = { loading ->
                 setState { copy(isLoading = loading) }
             },
         )
     }
-
-    private suspend fun clearSessionData() = sessionManager.onSessionExpired()
 
     // Confirming the delete dialog verifies it's really the user before deleting — OTP
     // for phone, email link for email — no sign-out. Unknown provider deletes directly.
