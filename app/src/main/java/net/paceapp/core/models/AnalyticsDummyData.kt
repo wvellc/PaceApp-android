@@ -22,7 +22,6 @@ object AnalyticsDummyData {
         val values = when (metric) {
             AnalyticsMetricType.PACE -> listOf(10.0, 20.0, 15.0, 50.0, 80.0, 65.0, 90.0, 70.0)
             AnalyticsMetricType.HEART_RATE -> listOf(8.0, 12.0, 10.0, 35.0, 60.0, 55.0, 80.0, 60.0)
-            AnalyticsMetricType.ELEVATION -> listOf(40.0, 45.0, 42.0, 55.0, 65.0, 70.0, 80.0, 75.0)
             AnalyticsMetricType.PERCENTAGE -> listOf(10.0, 18.0, 14.0, 45.0, 72.0, 60.0, 85.0, 65.0)
         }
         return hours.zip(values) { label, value -> AnalyticsDataPoint(label, value) }
@@ -33,7 +32,6 @@ object AnalyticsDummyData {
         val values = when (metric) {
             AnalyticsMetricType.PACE -> listOf(20.0, 45.0, 30.0, 70.0, 55.0, 90.0, 75.0)
             AnalyticsMetricType.HEART_RATE -> listOf(15.0, 30.0, 20.0, 50.0, 40.0, 70.0, 55.0)
-            AnalyticsMetricType.ELEVATION -> listOf(35.0, 50.0, 42.0, 60.0, 55.0, 80.0, 70.0)
             AnalyticsMetricType.PERCENTAGE -> listOf(18.0, 40.0, 28.0, 62.0, 48.0, 82.0, 68.0)
         }
         return days.zip(values) { label, value -> AnalyticsDataPoint(label, value) }
@@ -44,7 +42,6 @@ object AnalyticsDummyData {
         val values = when (metric) {
             AnalyticsMetricType.PACE -> listOf(40.0, 55.0, 48.0, 78.0)
             AnalyticsMetricType.HEART_RATE -> listOf(30.0, 42.0, 35.0, 60.0)
-            AnalyticsMetricType.ELEVATION -> listOf(45.0, 58.0, 50.0, 72.0)
             AnalyticsMetricType.PERCENTAGE -> listOf(38.0, 52.0, 44.0, 70.0)
         }
         return weeks.zip(values) { label, value -> AnalyticsDataPoint(label, value) }
@@ -96,21 +93,6 @@ object AnalyticsDummyData {
                 72.0
             )
 
-            AnalyticsMetricType.ELEVATION -> listOf(
-                40.0,
-                52.0,
-                45.0,
-                62.0,
-                55.0,
-                72.0,
-                65.0,
-                78.0,
-                68.0,
-                82.0,
-                75.0,
-                88.0
-            )
-
             AnalyticsMetricType.PERCENTAGE -> listOf(
                 28.0,
                 42.0,
@@ -134,23 +116,6 @@ object AnalyticsDummyData {
         period: AnalyticsPeriod
     ): List<AnalyticsSummaryData> {
         return when (metricType) {
-            AnalyticsMetricType.ELEVATION -> listOf(
-                AnalyticsSummaryData(
-                    title = "Overall ELEVATION Climbed",
-                    value = "1,090",
-                    unit = "ft",
-                    type = metricType,
-                    dataPoints = getDataPoints(period, metricType)
-                ),
-                AnalyticsSummaryData(
-                    title = "Total Distance Covered",
-                    value = "102",
-                    unit = "mi.",
-                    type = metricType,
-                    dataPoints = getDataPoints(period, AnalyticsMetricType.PACE)
-                )
-            )
-
             AnalyticsMetricType.PACE -> listOf(
                 AnalyticsSummaryData(
                     title = "Avg PACE",

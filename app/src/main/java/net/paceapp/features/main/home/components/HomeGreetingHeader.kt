@@ -17,7 +17,10 @@ import net.paceapp.theme.AppTheme
 fun HomeGreetingHeader(
     modifier: Modifier = Modifier,
     user: UserUiModel?,
-    subtitle: String, ) {
+    // Null/blank subtitle is hidden entirely — the sync line only shows once a watch is
+    // connected (mirrors iOS, which hides the last-sync label when not paired).
+    subtitle: String? = null,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -31,12 +34,14 @@ fun HomeGreetingHeader(
                 fontSize = 24.sp,
             )
         )
-        Text(
-            text =subtitle, style = AppTheme.typography.medium.copy(
-                fontSize = 13.sp,
-                color = AppColors.White.copy(alpha = 0.5f),
-                lineHeight = 13.sp,
+        if (!subtitle.isNullOrBlank()) {
+            Text(
+                text = subtitle, style = AppTheme.typography.medium.copy(
+                    fontSize = 13.sp,
+                    color = AppColors.White.copy(alpha = 0.5f),
+                    lineHeight = 13.sp,
+                )
             )
-        )
+        }
     }
 }

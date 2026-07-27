@@ -87,7 +87,7 @@ internal fun HomeContent(
                         painter = painterResource(R.drawable.ic_question),
                         contentDescription = stringResource(R.string.faqs),
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(32.dp)
                             .clip(CircleShape)
                             .defaultClickable { onEvent(Event.OnFaqClick) }
                     )
@@ -220,7 +220,8 @@ internal fun HomeContent(
                         bottom = AppTheme.bottomNavBarPadding
                     )
             ) {
-                // Header
+                // Header — no sync subtitle in the disconnected state (mirrors iOS,
+                // which hides the last-sync label until a watch is paired).
                 HomeGreetingHeader(
                     modifier = Modifier
                         .padding(
@@ -228,7 +229,7 @@ internal fun HomeContent(
                             end = AppTheme.screenPadding,
                         ),
                     user = state.userUiModel,
-                    subtitle = stringResource(R.string.not_synced_yet)
+                    subtitle = null,
                 )
 
                 // Empty State

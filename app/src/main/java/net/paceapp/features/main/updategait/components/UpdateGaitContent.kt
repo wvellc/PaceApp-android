@@ -55,10 +55,10 @@ internal fun UpdateGaitContent(
                 onWalkingChange = { onEvent(Event.OnWalkingGaitChanged(it)) }
             )
 
-            //Close
+            //Save (persists the gait on back — mirrors iOS UpdateGaitScreen "Save").
             AppButton(
                 modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.close),
+                title = stringResource(R.string.save),
                 onClick = {
                     onEvent(Event.OnBackClick)
                 }

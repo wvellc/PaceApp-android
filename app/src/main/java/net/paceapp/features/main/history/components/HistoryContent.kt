@@ -93,15 +93,19 @@ internal fun HistoryContent(
                 animationSpec = defaultAnimSpec(duration = 300)
             ) { hasNoData ->
                 if (hasNoData) {
-                    //No Data
-
+                    // Two empty states (mirror iOS): a filter/search that returned nothing
+                    // vs no completed runs at all. Both are text-only (no image), like iOS.
+                    val isFilterActive = state.activeFilter != null ||
+                        state.searchTextState.text.isNotBlank()
                     NoDataView(
-                        title = stringResource(R.string.no_history_title),
-                        imageRes = R.drawable.ic_empty_history,
-                        imageShape = CircleShape,
-                        onImageClick = {
-                            AppConstants.showComingSoonDialog()
-                        }
+                        title = stringResource(
+                            if (isFilterActive) R.string.no_results_title
+                            else R.string.no_runs_title
+                        ),
+                        subtitle = stringResource(
+                            if (isFilterActive) R.string.no_results_subtitle
+                            else R.string.no_runs_subtitle
+                        ),
                     )
                 } else {
                     //History list

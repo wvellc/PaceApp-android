@@ -138,7 +138,13 @@ fun AppTextField(
                 else -> Validator.validate(currentText, validatorType) != null
             }
         } else {
-            Validator.validate(currentText, validatorType) != null
+            when {
+                // An empty field is "not filled yet", not a format error — never flag it.
+                // (Prevents a programmatically cleared field, e.g. after the email-link is
+                // sent, from showing a spurious "invalid" error.)
+                currentText.isBlank() -> false
+                else -> Validator.validate(currentText, validatorType) != null
+            }
         }
 
         // ONLY show the error if the field is dirty (has been touched)

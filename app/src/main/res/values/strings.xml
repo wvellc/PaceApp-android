@@ -109,6 +109,11 @@
     <string name="min">Min</string>
     <string name="max">Max</string>
     <string name="no_history_title">Let’s Get After It!\nPRs await!</string>
+    <!-- History empty states (mirror iOS) -->
+    <string name="no_runs_title">No Runs So Far</string>
+    <string name="no_runs_subtitle">Start your first run to see your\nprogress here.</string>
+    <string name="no_results_title">No Results Found</string>
+    <string name="no_results_subtitle">Try adjusting your search or filters to\nfind what you\'re looking for.</string>
     <string name="unit_heart_rate">bpm</string>
     <string name="unit_overall_time">hrs</string>
     <string name="unit_m_per_sec">m/sec</string>
@@ -137,7 +142,7 @@
     <string name="avg_pace">Avg Pace</string>
     <string name="avg_heart_rate">Avg Heart Rate</string>
     <string name="elevation">Elevation</string>
-    <string name="avg_percentage">Avg Percentage</string>
+    <string name="avg_percentage">Pace Percentage</string>
     <string name="day">Day</string>
     <string name="week">Week</string>
     <string name="month">Month</string>

@@ -11,7 +11,6 @@ val AnalyticsMetricType.titleRes: Int
     @StringRes get() = when (this) {
         AnalyticsMetricType.PACE -> R.string.avg_pace
         AnalyticsMetricType.HEART_RATE -> R.string.avg_heart_rate
-        AnalyticsMetricType.ELEVATION -> R.string.elevation
         AnalyticsMetricType.PERCENTAGE -> R.string.avg_percentage
     }
 
@@ -20,7 +19,6 @@ val AnalyticsMetricType.iconRes: Int
     @DrawableRes get() = when (this) {
         AnalyticsMetricType.PACE -> R.drawable.ic_metrics_pace
         AnalyticsMetricType.HEART_RATE -> R.drawable.ic_metrics_heart_rate
-        AnalyticsMetricType.ELEVATION -> R.drawable.ic_analytics_elevation
         AnalyticsMetricType.PERCENTAGE -> R.drawable.ic_analytics_percentage
     }
 
@@ -29,6 +27,5 @@ val AnalyticsMetricType.color: Color
     get() = when (this) {
         AnalyticsMetricType.PACE -> AppColors.FluorescentMint
         AnalyticsMetricType.HEART_RATE -> AppColors.Error
-        AnalyticsMetricType.ELEVATION -> AppColors.NeonAquaBlue
         AnalyticsMetricType.PERCENTAGE -> AppColors.FashionGray
     }

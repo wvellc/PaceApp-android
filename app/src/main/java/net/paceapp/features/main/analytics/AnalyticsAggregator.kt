@@ -103,9 +103,6 @@ object AnalyticsAggregator {
                 records.map { (it.avgHeartRate ?: 0).toDouble() }.average()
             AnalyticsMetricType.PERCENTAGE ->
                 records.map { it.effortPercentage ?: 0.0 }.average()
-            // Android-only metric; averaged from elevationGain like the others.
-            AnalyticsMetricType.ELEVATION ->
-                records.map { it.elevationGain ?: 0.0 }.average()
         }
     }
 
@@ -170,30 +167,13 @@ object AnalyticsAggregator {
                 val peak = (efforts.maxOrNull() ?: 0.0).toInt()
                 listOf(
                     AnalyticsSummaryData(
-                        // Matches iOS AnalyticsMetricType.percentage ("Avg Efforts")
-                        title = "Avg Efforts", value = "$avg", unit = "%",
+                        // Matches iOS AnalyticsMetricType.percentage ("Pace Percentage")
+                        title = "Pace Percentage", value = "$avg", unit = "%",
                         type = metric, dataPoints = points,
                     ),
                     AnalyticsSummaryData(
                         title = "Peak Effort", value = "$peak", unit = "%",
                         type = metric, dataPoints = points,
-                    ),
-                )
-            }
-
-            AnalyticsMetricType.ELEVATION -> {
-                // Android-only metric — no iOS counterpart; totals derived from records.
-                val totalElevation = records.sumOf { it.elevationGain ?: 0.0 }
-                val totalDistance = records.sumOf { it.distanceValue }
-                listOf(
-                    AnalyticsSummaryData(
-                        title = "Overall ELEVATION Climbed", value = formatWhole(totalElevation),
-                        unit = "ft", type = metric, dataPoints = points,
-                    ),
-                    AnalyticsSummaryData(
-                        title = "Total Distance Covered", value = formatWhole(totalDistance),
-                        unit = "mi.", type = metric,
-                        dataPoints = dataPoints(period, AnalyticsMetricType.PACE, records, now),
                     ),
                 )
             }
