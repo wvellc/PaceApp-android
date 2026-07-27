@@ -110,9 +110,11 @@ fun WatchMetricsInfoDialog(
                         }
                     }
 
-                    //Animated metric info
+                    //Animated metric info. Key on (index, iconRes) — NOT the whole metric —
+                    // so the Home flash loop rebuilding the metrics list (new WatchMetric
+                    // instance, same slot) doesn't re-trigger the slide to the same index.
                     AnimatedContent(
-                        targetState = Pair(currentIndex, metricInfo),
+                        targetState = Pair(currentIndex, metricInfo.iconRes),
                         transitionSpec = {
                             if (targetState.first > initialState.first) {
                                 // Moving Forward: Slide in from right, fade out to left
@@ -127,13 +129,13 @@ fun WatchMetricsInfoDialog(
                             }
                         },
                         label = "metric_content_animation",
-                    ) { (_, metric) ->
+                    ) { (_, iconRes) ->
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             //Icon — tinted mint like iOS StepContentView.
                             Image(
-                                painter = painterResource(metric.iconRes),
+                                painter = painterResource(iconRes),
                                 contentDescription = null,
                                 modifier = Modifier.size(128.dp),
                                 colorFilter = ColorFilter.tint(AppColors.FluorescentMint),
