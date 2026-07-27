@@ -550,10 +550,15 @@ class EventSyncManager @Inject constructor(
         }
     }
 
-    // Mirrors iOS applyRemoteSettings profile write: alerts + body metrics, and gait
-    // RE-DERIVED from the watch's height when present (overwrites manual gait — accepted
-    // parity trade-off; iOS has no manual-override flag). `settings` is the raw watch map.
-    // Gait unit boundary: watch "ft"/"m" ↔ Firestore/app "Feet"/"Meters".
+    // Applies the watch settings map: alerts + body metrics, and gait.
+    //
+    // Gait is RE-DERIVED from the watch's height ONLY when the height actually changed
+    // (the user set/updated their height on the watch) — in that case we derive, save,
+    // and push the computed mm back. When the height is unchanged we instead RESPECT the
+    // gait the watch reports and do NOT push anything back, so a manual gait change made
+    // on the watch sticks instead of being overwritten. (Diverges from iOS, which always
+    // re-derives from height; noted trade-off.) Gait unit boundary: watch "ft"/"m" ↔
+    // Firestore/app "Feet"/"Meters".
     private fun applyRemoteSettingsToProfile(settings: Map<String, Any?>) {
         val userId = authManager.currentUid ?: return
         val heightCm = settingDouble(settings["user_height"])
@@ -566,14 +571,24 @@ class EventSyncManager @Inject constructor(
             (settings["beep_alert"] as? Boolean)?.let {
                 runCatching { userProfileRepository.updateIntervalBeep(userId, it) }
             }
+
+            // Read the previously-stored height BEFORE overwriting it, so we can tell a
+            // height change (→ derive gait) from a gait-only change (→ respect the watch).
+            val storedHeight = runCatching { userProfileRepository.getUser(userId)?.heightCm }
+                .getOrNull()
+
             if (heightCm != null || weightKg != null) {
                 runCatching { userProfileRepository.updateBodyMetrics(userId, heightCm, weightKg) }
             }
 
-            if (heightCm != null && heightCm > 0) {
-                // Derive gait from height, save it, and push the computed mm back to the watch.
+            val heightChanged = heightCm != null && heightCm > 0 &&
+                (storedHeight == null || kotlin.math.abs(heightCm - storedHeight) >= 0.5)
+
+            if (heightChanged) {
+                // Height was set/changed on the watch → derive gait from it, save it, and
+                // push the computed mm back to the watch.
                 val derived = GaitStrideCalculator.gait(
-                    heightCm = heightCm,
+                    heightCm = heightCm!!,
                     walkingUnit = fullGaitUnit(settings["walking_gait_measure"]),
                     runningUnit = fullGaitUnit(settings["running_gait_measure"]),
                 )
@@ -588,7 +603,9 @@ class EventSyncManager @Inject constructor(
                 persistGaitToPrefs(derived)
                 sendSettings()
             } else {
-                // Legacy fallback: use the watch's reported gait values directly.
+                // Height unchanged → respect the gait the watch reported (manual gait edit).
+                // Save it + keep the phone's local synced_settings in step, but DON'T
+                // sendSettings() back (no override of the watch).
                 val walking = settingDouble(settings["walking_gait"])
                 val running = settingDouble(settings["running_gait"])
                 if (walking != null || running != null) {
@@ -600,6 +617,17 @@ class EventSyncManager @Inject constructor(
                     )
                     runCatching { userProfileRepository.updateGait(userId, gait) }
                         .onFailure { AppLogger.e("[$TAG] Firestore gait update failed", it) }
+
+                    // Mirror into local prefs (watch "ft"/"m" units) so a later
+                    // phone→watch sync doesn't resend a stale gait.
+                    walking?.let { updateSetting("walking_gait", it) }
+                    (settings["walking_gait_measure"] as? String)?.let {
+                        updateSetting("walking_gait_measure", it)
+                    }
+                    running?.let { updateSetting("running_gait", it) }
+                    (settings["running_gait_measure"] as? String)?.let {
+                        updateSetting("running_gait_measure", it)
+                    }
                 }
             }
         }
