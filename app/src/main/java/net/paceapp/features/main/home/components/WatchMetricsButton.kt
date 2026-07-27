@@ -60,35 +60,40 @@ fun WatchMetricsButton(
                 colorFilter = ColorFilter.tint(tintColor)
             )
 
-            Text(
-                text = metric.value,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                // Smaller value text so long values (e.g. "00:00:00") fit the narrow
-                // capsule instead of getting clipped/ellipsized.
-                style = AppTheme.typography.semiBold.copy(
-                    color = tintColor,
-                    fontSize = 12.sp,
-                    lineHeight = 12.sp,
-                    letterSpacing = 0.2.sp,
+            // Value + unit grouped with a tight gap so the stat value sits close to its
+            // type/unit label (the icon keeps the wider 8dp spacing above).
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                Text(
+                    text = metric.value,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    // Smaller value text so long values (e.g. "00:00:00") fit the narrow
+                    // capsule instead of getting clipped/ellipsized.
+                    style = AppTheme.typography.semiBold.copy(
+                        color = tintColor,
+                        fontSize = 12.sp,
+                        lineHeight = 12.sp,
+                        letterSpacing = 0.2.sp,
+                    )
                 )
-            )
 
-            Spacer(modifier = Modifier.height(1.dp))
-
-            Text(
-                text = metric.unit,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = AppTheme.typography.semiBold.copy(
-                    color = tintColor,
-                    lineHeight = 10.sp,
-                    fontSize = 10.sp,
-                    letterSpacing = 0.2.sp,
+                Text(
+                    text = metric.unit,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    style = AppTheme.typography.semiBold.copy(
+                        color = tintColor,
+                        lineHeight = 10.sp,
+                        fontSize = 10.sp,
+                        letterSpacing = 0.2.sp,
+                    )
                 )
-            )
+            }
         }
     }
 }
