@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Text
@@ -46,11 +47,11 @@ fun WatchMetricsButton(
         onClick = onClick
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(
-                space = 8.dp,
-                alignment = Alignment.CenterVertically
-            ),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 12.dp),
+            // Icon pinned to the top, value/unit block to the bottom (not centered).
+            verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
