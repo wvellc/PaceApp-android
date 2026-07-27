@@ -49,7 +49,7 @@ fun WatchMetricsButton(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 5.dp),
+                .padding(vertical = 20.dp),
             // Icon pinned to the top, value/unit block to the bottom (not centered).
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.CenterHorizontally
