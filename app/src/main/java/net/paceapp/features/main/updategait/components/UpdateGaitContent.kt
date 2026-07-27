@@ -1,6 +1,7 @@
 package net.paceapp.features.main.updategait.components
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -44,16 +45,21 @@ internal fun UpdateGaitContent(
                 .padding(innerPaddings)
                 .padding(AppTheme.screenPadding)
         ) {
-            //Gait content
-            SetGaitContent(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                runningGait = state.runningGait,
-                onRunningChange = { onEvent(Event.OnRunningGaitChanged(it)) },
-                walkingGait = state.walkingGait,
-                onWalkingChange = { onEvent(Event.OnWalkingGaitChanged(it)) }
-            )
+            //Gait content — only composed once the saved gait is loaded, so the wheel
+            // picker never renders (and emits) the default value first.
+            if (state.isLoading) {
+                Spacer(modifier = Modifier.weight(1f))
+            } else {
+                SetGaitContent(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    runningGait = state.runningGait,
+                    onRunningChange = { onEvent(Event.OnRunningGaitChanged(it)) },
+                    walkingGait = state.walkingGait,
+                    onWalkingChange = { onEvent(Event.OnWalkingGaitChanged(it)) }
+                )
+            }
 
             //Save (persists the gait on back — mirrors iOS UpdateGaitScreen "Save").
             AppButton(

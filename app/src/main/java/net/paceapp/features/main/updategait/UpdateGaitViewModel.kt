@@ -18,7 +18,6 @@ import com.wvelabs.core_network.di.ApplicationScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -46,8 +45,12 @@ class UpdateGaitViewModel @Inject constructor(
 
     private fun initData() {
         if (currentState.isInitialized) return
+        // Load first (isLoading gates the picker) so it is only composed once the real
+        // gait is in state. Otherwise the wheel composes at the default and its settle
+        // callback writes the default back — and Save-on-back would persist that default,
+        // permanently resetting the saved gait. Mirrors iOS seeding gait before render.
+        setState { copy(isInitialized = true, isLoading = true) }
         setGaitValues()
-        setState { copy(isInitialized = true) }
     }
 
     private fun setGaitValues() {
@@ -58,6 +61,7 @@ class UpdateGaitViewModel @Inject constructor(
                 copy(
                     walkingGait = walkGait,
                     runningGait = runGait,
+                    isLoading = false,
                 )
             }
         }
@@ -65,9 +69,12 @@ class UpdateGaitViewModel @Inject constructor(
 
     private suspend fun getWalkingRunningGaits(
     ): Pair<GaitPace, GaitPace> = withContext(Dispatchers.Default) {
-        // Prefer the Firestore user doc (source of truth, parity with iOS).
+        // Prefer the Firestore user doc (source of truth, parity with iOS). One-shot
+        // get() is deterministic for a load-once screen (returns cache offline).
         val uid = authManager.currentUid
-        val remoteGait = uid?.let { userProfileRepository.observeUser(it).firstOrNull()?.gait }
+        val remoteGait = uid?.let {
+            runCatching { userProfileRepository.getUser(it)?.gait }.getOrNull()
+        }
         if (remoteGait != null) {
             return@withContext Pair(
                 GaitPace(remoteGait.walkingStepLength.toFloat(), remoteGait.walkingUnit.toGaitUnit()),
@@ -109,6 +116,12 @@ class UpdateGaitViewModel @Inject constructor(
     }
 
     private fun handleBackClick() {
+        // Never persist before the saved gait has loaded — otherwise the default in
+        // state would overwrite the real gait in Firestore.
+        if (currentState.isLoading) {
+            setEffect { Effect.NavigateBack }
+            return
+        }
         val walkingToSave = currentState.walkingGait
         val runningToSave = currentState.runningGait
         setEffect { Effect.NavigateBack }
