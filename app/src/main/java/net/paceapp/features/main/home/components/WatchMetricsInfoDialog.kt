@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -130,16 +131,17 @@ fun WatchMetricsInfoDialog(
                         Column(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            //Icon
+                            //Icon — tinted mint like iOS StepContentView.
                             Image(
                                 painter = painterResource(metric.iconRes),
                                 contentDescription = null,
                                 modifier = Modifier.size(128.dp),
+                                colorFilter = ColorFilter.tint(AppColors.FluorescentMint),
                             )
                             Spacer(Modifier.height(24.dp))
-                            //Title
+                            //Title — fixed onboarding copy, matching iOS (same text per step).
                             Text(
-                                text = metric.title,
+                                text = stringResource(R.string.title_heart_rate),
                                 textAlign = TextAlign.Center,
                                 style = AppTheme.typography.medium.copy(
                                     fontSize = 24.sp,
@@ -148,9 +150,9 @@ fun WatchMetricsInfoDialog(
                                 )
                             )
                             Spacer(Modifier.height(8.dp))
-                            //Description
+                            //Description — fixed onboarding copy, matching iOS.
                             Text(
-                                text = metric.description,
+                                text = stringResource(R.string.desc_heart_rate),
                                 textAlign = TextAlign.Center,
                                 style = AppTheme.typography.medium.copy(
                                     fontSize = 16.sp,
