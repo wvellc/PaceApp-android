@@ -1,5 +1,6 @@
 package com.wvelabs.core_ui.components
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -9,8 +10,10 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,6 +69,10 @@ fun LiquidSwitch(
     val dragWidthPx = with(density) { dragWidthDp.toPx() }
     val paddingPx = with(density) { thumbPadding.toPx() }
     val thumbHeightPx = with(density) { thumbHeight.toPx() }
+
+    // Latest lambdas for the tap handler below (pointerInput(Unit) captures once).
+    val latestSelected by rememberUpdatedState(selected)
+    val latestOnSelect by rememberUpdatedState(onSelect)
 
     val blurRadiusPx = thumbHeightPx * (8f / 24f)
     val lensDistPx = thumbHeightPx * (5f / 24f)
@@ -144,7 +151,15 @@ fun LiquidSwitch(
     val trackBackdrop = rememberLayerBackdrop()
 
     Box(
-        modifier = modifier,
+        modifier = modifier
+            // The drag detector (inspectDragGestures) only fires after real drag movement,
+            // so a plain tap never toggled the switch. Add an explicit tap handler that
+            // flips the value; drag still works via DampedDragAnimation on the thumb.
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    latestOnSelect(!latestSelected())
+                }
+            },
         contentAlignment = Alignment.CenterStart
     ) {
         Box(

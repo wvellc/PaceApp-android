@@ -39,7 +39,10 @@ fun ProfileOptionItem(
             .fillMaxWidth()
             .clip(shape)
             .background(color = AppColors.White)
-            .defaultClickable(onClick = onClick)
+            // For switch rows the LiquidSwitch is the sole toggle control — making the
+            // whole row clickable too would fire a second toggle per tap (they cancel
+            // out, so the setting never persists). Only non-switch rows are clickable.
+            .then(if (option.showSwitch) Modifier else Modifier.defaultClickable(onClick = onClick))
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         verticalAlignment = Alignment.CenterVertically,

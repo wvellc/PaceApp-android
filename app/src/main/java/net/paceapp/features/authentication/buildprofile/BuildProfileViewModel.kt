@@ -4,18 +4,27 @@ import android.content.Context
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
+import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
 import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
+import net.paceapp.core.data.firestore.GaitDocument
+import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.domain.enums.GenderTypes
 import net.paceapp.core.domain.models.GaitPace
 import net.paceapp.core.domain.repositories.UserRepository
+import net.paceapp.core.extensions.firestoreName
 import net.paceapp.core.extensions.getDefaultGaits
+import net.paceapp.core.extensions.watchName
+import net.paceapp.core.garmin.EventSyncManager
+import net.paceapp.core.garmin.GaitStrideCalculator
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.garmin.models.WatchModel
 import net.paceapp.core.garmin.state.GarminSdkState
@@ -34,6 +43,10 @@ class BuildProfileViewModel @Inject constructor(
     private val validationUseCase: ValidateBuildProfileUseCase,
     private val garminManager: GarminDeviceManager,
     private val stravaManager: StravaManager,
+    private val userProfileRepository: UserProfileRepository,
+    private val authManager: AuthManager,
+    private val eventSyncManager: EventSyncManager,
+    @param:ApplicationScope private val appScope: CoroutineScope,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -167,11 +180,23 @@ class BuildProfileViewModel @Inject constructor(
     }
 
     private fun setWalkingGaitPace(pace: GaitPace) {
-        updateState { copy(walkingGait = pace) }
+        updateState { copy(walkingGait = applyGaitChange(walkingGait, pace)) }
     }
 
     private fun setRunningGaitPace(pace: GaitPace) {
-        updateState { copy(runningGait = pace) }
+        updateState { copy(runningGait = applyGaitChange(runningGait, pace)) }
+    }
+
+    // On a unit toggle, convert the shown step-length instead of keeping the raw
+    // number (matches iOS SetGaitStepView + the Settings-side UpdateGaitViewModel).
+    private fun applyGaitChange(current: GaitPace, incoming: GaitPace): GaitPace {
+        if (incoming.unit == current.unit) return incoming
+        val converted = GaitStrideCalculator.convert(
+            current.value.toDouble(),
+            current.unit.firestoreName(),
+            incoming.unit.firestoreName(),
+        )
+        return GaitPace(converted.toFloat(), incoming.unit)
     }
 
     private fun handleSelectWatchModel(device: WatchModel) {
@@ -306,11 +331,42 @@ class BuildProfileViewModel @Inject constructor(
                 )
 
                 userRepository.updateUserDetails(updatedUserData)
+
+                // Onboarding gait was previously local-only. Persist it to the Firestore
+                // user doc (parity with iOS) and, once onboarding is complete, push the
+                // settings to the watch. Fire-and-forget on the application scope so an
+                // offline Firestore write can't block/cancel finishing onboarding.
+                persistGaitToCloudAndWatch(
+                    walking = updatedUserData.walkingGait ?: currentState.walkingGait,
+                    running = updatedUserData.runningGait ?: currentState.runningGait,
+                )
             },
             onLoading = { loading -> setState { copy(isLoading = loading) } },
             onSuccess = { navigateToProfileSuccess() },
             onError = { e -> AppLogger.e("UpdateProfileError: $e") }
         )
+    }
+
+    // Writes the chosen gait to `users/{uid}.gait` and pushes the settings payload to
+    // the watch. Runs only on onboarding completion (called from saveUserDetails).
+    private fun persistGaitToCloudAndWatch(walking: GaitPace, running: GaitPace) {
+        val uid = authManager.currentUid ?: return
+        appScope.launch {
+            val gait = GaitDocument(
+                walkingStepLength = walking.value.toDouble(),
+                walkingUnit = walking.unit.firestoreName(),
+                runningStepLength = running.value.toDouble(),
+                runningUnit = running.unit.firestoreName(),
+            )
+            runCatching { userProfileRepository.updateGait(uid, gait) }
+
+            // Push to the watch (unit boundary: full words → "ft"/"m").
+            eventSyncManager.updateSetting("walking_gait", walking.value.toDouble())
+            eventSyncManager.updateSetting("walking_gait_measure", walking.unit.watchName())
+            eventSyncManager.updateSetting("running_gait", running.value.toDouble())
+            eventSyncManager.updateSetting("running_gait_measure", running.unit.watchName())
+            eventSyncManager.sendSettings()
+        }
     }
 
     private fun navigateToProfileSuccess() {

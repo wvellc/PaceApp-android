@@ -10,3 +10,9 @@ val GaitUnit.titleRes: Int
     GaitUnit.FEET -> R.string.feet
       GaitUnit.METERS -> R.string.meters
     }
+
+// GaitUnit → Firestore/app full word ("Feet"/"Meters"). Convert only at this boundary.
+fun GaitUnit.firestoreName(): String = if (this == GaitUnit.METERS) "Meters" else "Feet"
+
+// GaitUnit → watch BLE short form ("m"/"ft").
+fun GaitUnit.watchName(): String = if (this == GaitUnit.METERS) "m" else "ft"
