@@ -98,7 +98,10 @@ internal fun ProfileContent(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(innerPaddings)
-                .padding(horizontal = AppTheme.screenPadding),
+                .padding(horizontal = AppTheme.screenPadding)
+                // Clear the floating bottom tab bar so the last rows are reachable and
+                // the content has room to scroll (matches Home/History).
+                .padding(bottom = AppTheme.bottomNavBarPadding + AppTheme.screenPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {

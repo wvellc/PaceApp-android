@@ -56,8 +56,8 @@ sealed class ProfileStep(
         buttonLabelRes = R.string.next,
         stepOrder = 5
     ) {
-        // Strava step hidden for now; Set Gait is the final step (nextStep=null finishes onboarding).
-        override val nextStep get() = null
+        // Set Gait → Connect Strava → finish (ConnectStrava.nextStep=null finishes onboarding).
+        override val nextStep get() = ConnectStrava
         override val previousStep get() = PairWatchInit // The UX jump backwards
     }
 
