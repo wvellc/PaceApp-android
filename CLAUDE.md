@@ -14,10 +14,10 @@ Both phone apps share **one Firebase project (`thepaceapp`)** and read/write the
 
 ## Build & run
 
-There is **no Java on PATH** in the default shell. Use the Gradle-managed JDK 17 and the Android SDK explicitly:
+There is **no Java on PATH** in the default shell. Point `JAVA_HOME` at an installed JDK 17 and set the Android SDK explicitly. Resolve the JDK dynamically (works across JDK updates and if the Gradle-managed `~/.gradle/jdks` toolchain gets cleaned):
 
 ```bash
-export JAVA_HOME="$HOME/.gradle/jdks/eclipse_adoptium-17-aarch64-os_x.2/jdk-17.0.19+10/Contents/Home"
+export JAVA_HOME="$(/usr/libexec/java_home -v 17)"   # e.g. /Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
 export ANDROID_HOME="/Volumes/WveBhavesh/developer/Library/Android/sdk"
 
 ./gradlew :app:compileDebugKotlin      # fast compile check after edits
