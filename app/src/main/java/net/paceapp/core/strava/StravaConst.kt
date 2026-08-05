@@ -18,13 +18,14 @@ object StravaConst {
     const val CALLBACK_HOST = "strava-callback"
 
     // The redirect_uri sent to Strava at authorize. Strava rejects/mishandles custom schemes,
-    // so we use an https page on Firebase Hosting (Strava "Authorization Callback Domain" =
-    // thepaceapp.web.app). That page relays the query back to "$CALLBACK_SCHEME://$CALLBACK_HOST",
-    // which re-enters the app via the manifest intent-filter — so handleCallback is unchanged.
-    const val REDIRECT_URI = "https://thepaceapp.web.app/stravaCallback"
+    // so it redirects to this https URL — the `stravaCallback` Cloud Function 302-redirects
+    // to "$CALLBACK_SCHEME://$CALLBACK_HOST", which re-enters the app via the manifest
+    // intent-filter (so handleCallback is unchanged). Host must match the Strava app's
+    // "Authorization Callback Domain" (thepaceapp.web.app). Trailing slash matches iOS.
+    const val REDIRECT_URI = "https://thepaceapp.web.app/stravaCallback/"
 
-    // activity:write → uploads, read → read back. Must match iOS.
-    const val SCOPE = "activity:write,read"
+    // Upload-only — activity:write is all that POST /activities needs. Must match iOS.
+    const val SCOPE = "activity:write"
 
     // Native Strava-app handoff vs web (Custom Tab) fallback.
     const val APP_AUTHORIZE_URL = "strava://oauth/mobile/authorize"

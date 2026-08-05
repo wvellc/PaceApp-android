@@ -3,6 +3,7 @@ package net.paceapp.core.garmin
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.compose.runtime.mutableStateListOf
+import com.google.firebase.firestore.FirebaseFirestoreException
 import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +20,7 @@ import net.paceapp.core.data.firestore.GaitDocument
 import net.paceapp.core.data.firestore.UserProfileRepository
 import org.json.JSONArray
 import org.json.JSONObject
+import java.util.concurrent.CopyOnWriteArrayList
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -65,6 +67,7 @@ class EventSyncManager @Inject constructor(
         private const val KEY_ACTIVE_EVENTS = "active_events"
         private const val KEY_COMPLETED_EVENTS = "completed_events"
         private const val KEY_DELETED_IDS = "deleted_event_ids"
+        private const val KEY_FOREIGN_IDS = "foreign_event_ids"
         private const val KEY_SETTINGS = "synced_settings"
         private const val KEY_LAST_SYNC = "last_watch_sync_millis"
 
@@ -88,6 +91,12 @@ class EventSyncManager @Inject constructor(
     private var activeEventPayloads = mutableListOf<MutableMap<String, Any?>>()
     private var completedEventPayloads = mutableListOf<MutableMap<String, Any?>>()
     private var deletedEventIds = mutableListOf<Int>()
+
+    // Watch-event ids whose Firestore write was permission-denied because the doc is
+    // owned by a PREVIOUS account. Persisted + skipped on later syncs so the watch's
+    // replay of them isn't retried on every connect (mirrors iOS AppSession.foreignEventIds).
+    // CopyOnWriteArrayList: appended from the async write-through, read from the sync path.
+    private val foreignEventIds = CopyOnWriteArrayList<Int>()
 
     private val prefs: SharedPreferences by lazy {
         context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -123,6 +132,7 @@ class EventSyncManager @Inject constructor(
         activeEventPayloads = loadEventPayloads(KEY_ACTIVE_EVENTS)
         completedEventPayloads = loadEventPayloads(KEY_COMPLETED_EVENTS)
         deletedEventIds = loadDeletedEventIds()
+        foreignEventIds.addAll(loadForeignEventIds())
         pruneActivePayloadsAlreadyCompleted()
         rebuildObservableLists()
 
@@ -565,18 +575,41 @@ class EventSyncManager @Inject constructor(
         source: String,
     ) {
         val userId = authManager.currentUid ?: return
+        val id = extractEventId(payload)
+        // Skip ids a previous sync already proved belong to another account.
+        if (id != null && foreignEventIds.contains(id)) return
         appScope.launch {
             runCatching {
                 eventRepository.upsert(payload, isCompleted, syncStatus, source, userId)
-            }.onFailure { AppLogger.e("[$TAG] Firestore event upsert failed", it) }
+            }.onFailure {
+                if (id != null && isPermissionDenied(it)) markEventForeign(id)
+                AppLogger.e("[$TAG] Firestore event upsert failed", it)
+            }
         }
     }
 
     private fun deleteEventInFirestore(id: Int) {
         val userId = authManager.currentUid ?: return
+        // Skip ids a previous sync already proved belong to another account.
+        if (foreignEventIds.contains(id)) return
         appScope.launch {
             runCatching { eventRepository.softDelete(id, userId) }
-                .onFailure { AppLogger.e("[$TAG] Firestore soft delete failed", it) }
+                .onFailure {
+                    if (isPermissionDenied(it)) markEventForeign(id)
+                    AppLogger.e("[$TAG] Firestore soft delete failed", it)
+                }
+        }
+    }
+
+    // A permission-denied write means the event doc is owned by a previous account
+    // (Firestore rules require auth.uid == doc.userId). Remember the id (persisted) so
+    // the watch replaying it isn't retried on every connect.
+    private fun isPermissionDenied(t: Throwable): Boolean =
+        t is FirebaseFirestoreException && t.code == FirebaseFirestoreException.Code.PERMISSION_DENIED
+
+    private fun markEventForeign(id: Int) {
+        if (foreignEventIds.addIfAbsent(id)) {
+            prefs.edit().putString(KEY_FOREIGN_IDS, JSONArray(foreignEventIds).toString()).apply()
         }
     }
 
@@ -732,6 +765,17 @@ class EventSyncManager @Inject constructor(
         } catch (e: Exception) {
             AppLogger.e("[$TAG] Failed to load deleted IDs", e)
             mutableListOf()
+        }
+    }
+
+    private fun loadForeignEventIds(): List<Int> {
+        val json = prefs.getString(KEY_FOREIGN_IDS, null) ?: return emptyList()
+        return try {
+            val array = JSONArray(json)
+            (0 until array.length()).map { array.getInt(it) }
+        } catch (e: Exception) {
+            AppLogger.e("[$TAG] Failed to load foreign IDs", e)
+            emptyList()
         }
     }
 
