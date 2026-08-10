@@ -176,7 +176,13 @@ internal fun BuildProfileContent(
                     .fillMaxWidth()
                     .safeContentPadding()
                     .padding(bottom = AppTheme.screenPadding),
-                title = stringResource(state.currentStep.buttonLabelRes),
+                // Once Strava is linked on the final step, the button reads "Next" and a
+                // tap finishes onboarding (mirrors iOS d413c4f); otherwise its per-step label.
+                title = if (state.currentStep == ProfileStep.ConnectStrava && state.isStravaConnected) {
+                    stringResource(R.string.next)
+                } else {
+                    stringResource(state.currentStep.buttonLabelRes)
+                },
                 enabled = state.isNextButtonEnabled,
                 onClick = {
                     onEvent(Event.OnNextClick(context = context))
