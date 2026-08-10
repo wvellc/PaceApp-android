@@ -217,9 +217,12 @@ class EventSyncManager @Inject constructor(
                     completedEventPayloads.clear()
                     deletedEventIds.clear()
                 }
-                applyDeletedEventIds(extractIntList(dict["deletedEventIds"]))
-                mergeEventPayloads(extractPayloadList(dict["completedEvents"]), isCompleted = true)
-                mergeEventPayloads(extractPayloadList(dict["activeEvents"]), isCompleted = false)
+                val requestCompleted = extractPayloadList(dict["completedEvents"])
+                val requestActive = extractPayloadList(dict["activeEvents"])
+                // Reconcile the watch's bulk tombstones locally only (no Firestore delete).
+                reconcileDeletedEventIds(extractIntList(dict["deletedEventIds"]), requestActive, requestCompleted)
+                mergeEventPayloads(requestCompleted, isCompleted = true)
+                mergeEventPayloads(requestActive, isCompleted = false)
                 applyRemoteSettings(dict["settings"])
                 persistSyncState()
                 // Respond with our full data so the watch gets our events too
@@ -235,9 +238,12 @@ class EventSyncManager @Inject constructor(
                     completedEventPayloads.clear()
                     deletedEventIds.clear()
                 }
-                applyDeletedEventIds(extractIntList(dict["deletedEventIds"]))
-                mergeEventPayloads(extractPayloadList(dict["completedEvents"]), isCompleted = true)
-                mergeEventPayloads(extractPayloadList(dict["activeEvents"]), isCompleted = false)
+                val syncCompleted = extractPayloadList(dict["completedEvents"])
+                val syncActive = extractPayloadList(dict["activeEvents"])
+                // Reconcile the watch's bulk tombstones locally only (no Firestore delete).
+                reconcileDeletedEventIds(extractIntList(dict["deletedEventIds"]), syncActive, syncCompleted)
+                mergeEventPayloads(syncCompleted, isCompleted = true)
+                mergeEventPayloads(syncActive, isCompleted = false)
                 applyRemoteSettings(dict["settings"])
                 persistSyncState()
                 return true
@@ -403,7 +409,12 @@ class EventSyncManager @Inject constructor(
         source: String = "watch",
     ) {
         val normalized = payload.toMutableMap()
-        val id = extractEventId(normalized) ?: (System.currentTimeMillis() / 1000).toInt()
+        // No stable id → skip. A clock-based fallback would mint a fresh doc on every
+        // resync (duplicates); every real app/watch payload already carries an id.
+        val id = extractEventId(normalized) ?: run {
+            AppLogger.w("[$TAG] Skipping event upsert — payload has no id")
+            return
+        }
 
         // Skip events that were locally deleted
         if (deletedEventIds.contains(id)) return
@@ -454,19 +465,36 @@ class EventSyncManager @Inject constructor(
     // SECTION 6: Deleted Event ID Tracking
     // =====================================================================
 
-    private fun applyDeletedEventIds(ids: List<Int>) {
+    // Local-only reconciliation of the watch's bulk tombstone list. A sync replay is NOT
+    // a user action, so it never writes a Firestore delete — the phone is the full archive
+    // and live data wins. Tombstones for ids still present in this sync's live lists are
+    // ignored (the watch's storage cap can drop an event it never actually deleted).
+    // Mirrors iOS reconcileDeletedEventIds.
+    private fun reconcileDeletedEventIds(
+        ids: List<Int>,
+        liveActive: List<Map<String, Any?>>,
+        liveCompleted: List<Map<String, Any?>>,
+    ) {
+        val liveIds = (liveActive + liveCompleted).mapNotNull { extractEventId(it) }.toSet()
         for (id in ids) {
-            applyDeletedEventId(id)
+            if (id !in liveIds) applyDeletedEventLocally(id)
         }
     }
 
-    private fun applyDeletedEventId(id: Int) {
+    // Prunes an event from local state only — no Firestore write.
+    private fun applyDeletedEventLocally(id: Int) {
         if (!deletedEventIds.contains(id)) {
             deletedEventIds.add(id)
         }
         activeEventPayloads.removeAll { extractEventId(it) == id }
         completedEventPayloads.removeAll { extractEventId(it) == id }
         rebuildObservableLists()
+    }
+
+    // A genuine user delete (app action or the watch's delete_event command) — prunes
+    // local state AND soft-deletes the Firestore doc. Bulk sync tombstones must NOT reach here.
+    private fun applyDeletedEventId(id: Int) {
+        applyDeletedEventLocally(id)
         deleteEventInFirestore(id)
     }
 

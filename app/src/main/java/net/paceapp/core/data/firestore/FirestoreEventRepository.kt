@@ -111,6 +111,11 @@ class FirestoreEventRepository @Inject constructor(
                 document.source = current.source
                 document.createdAt = current.createdAt
                 document.completedAt = current.completedAt ?: document.completedAt
+                // A user-deleted event stays deleted — a later watch re-sync must not
+                // resurrect it back to active/completed.
+                if (current.status == EventStatusValue.DELETED) {
+                    document.status = EventStatusValue.DELETED
+                }
                 ref.set(document, SetOptions.merge()).await()
             }
             // Confirmed brand-new doc — full merge, including the write-once fields.
