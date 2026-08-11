@@ -22,6 +22,8 @@ object AppColors {
     val LightGray = Color(0xFFF1F1F1)
     val Gray = Color(0xFF7D7D7D)
     val Orange = Color(0xFFFF9500)
+    // Strava brand orange — https://developers.strava.com/guidelines/
+    val StravaOrange = Color(0xFFFC5200)
     val ShipGray30 = Color(0x4D3C3C43)
     val LimeGreen = Color(0xFF25cd25)
 

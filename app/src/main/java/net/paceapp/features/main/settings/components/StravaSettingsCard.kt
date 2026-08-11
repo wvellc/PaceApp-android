@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -26,7 +27,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.paceapp.R
-import net.paceapp.core.components.AppButton
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
@@ -59,14 +59,14 @@ internal fun StravaSettingsCard(
         ) {
             // Strava logo as a 48dp circular badge — matches the size and circular shape
             // of the other Settings row icons.
-            Image(
-                painter = painterResource(R.drawable.ic_strava_logo),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape),
-            )
+//            Image(
+//                painter = painterResource(R.drawable.ic_strava_logo),
+//                contentDescription = null,
+//                contentScale = ContentScale.Crop,
+//                modifier = Modifier
+//                    .size(48.dp)
+//                    .clip(CircleShape),
+//            )
             Column(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -78,16 +78,16 @@ internal fun StravaSettingsCard(
                         fontSize = 16.sp,
                     ),
                 )
+                if (isConnected)
                 Text(
                     text = when {
-                        isConnected && !athleteName.isNullOrEmpty() ->
+                        !athleteName.isNullOrEmpty() ->
                             stringResource(R.string.strava_connected_as, athleteName)
 
-                        isConnected -> stringResource(R.string.strava_status_connected)
-                        else -> stringResource(R.string.strava_status_not_connected)
+                        else -> stringResource(R.string.strava_status_connected)
                     },
                     style = AppTheme.typography.medium.copy(
-                        color = if (isConnected) AppColors.FluorescentMint else AppColors.FashionGray,
+                        color = AppColors.FluorescentMint,
                         fontSize = 13.sp,
                     ),
                 )
@@ -126,12 +126,21 @@ internal fun StravaSettingsCard(
                 )
             }
         } else {
-            AppButton(
-                modifier = Modifier.fillMaxWidth(),
-                title = stringResource(R.string.strava_connect),
-                enabled = !isWorking,
-                onClick = onConnect,
-            )
+            // "Connect with Strava" — Strava brand orange (#FC4C02) with the Strava mark,
+            // per https://developers.strava.com/guidelines/.
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(AppColors.StravaOrange)
+                    .clickable(enabled = !isWorking, onClick = onConnect)
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.btn_strava_connect_with_orange),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth() ,
+                )
+            }
         }
     }
 }
