@@ -1,6 +1,7 @@
 package net.paceapp.features.main.settings
 
 import android.app.Activity
+import android.content.Context
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.features.main.settings.enums.SettingOptions
 import com.wvelabs.core_ui.base.ViewEvent
@@ -17,6 +18,10 @@ class SettingsContract {
         // overlay; `isDeleting` shows the blocking processing overlay.
         val reauthPhase: ReauthPhase? = null,
         val isDeleting: Boolean = false,
+        // Inline Strava card state (mirrored from StravaManager, sourced from Firestore).
+        val isStravaConnected: Boolean = false,
+        val stravaAthleteName: String? = null,
+        val isStravaWorking: Boolean = false,
     ) : ViewState
 
     // Which re-auth surface to present before deleting. Phone → enter the OTP sent to
@@ -51,6 +56,11 @@ class SettingsContract {
         data class OnReauthOtpChanged(val otp: String) : Event()
         data object OnReauthOtpSubmit : Event()
         data object OnReauthCancel : Event()
+
+        // Inline Strava card actions. Connect needs a Context (Custom Tab / Strava app).
+        data class OnStravaConnect(val context: Context) : Event()
+        data object OnStravaDisconnect : Event()
+        data object OnStravaResync : Event()
     }
 
     sealed class Effect : ViewSideEffect {

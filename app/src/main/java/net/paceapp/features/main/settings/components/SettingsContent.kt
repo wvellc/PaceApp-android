@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,6 +39,7 @@ internal fun SettingsContent(
     state: State,
     onEvent: (Event) -> Unit
 ) {
+    val context = LocalContext.current
     AppBaseScreen(
         modifier = Modifier.fillMaxSize(),
         isLoading = state.isLoading,
@@ -95,10 +97,25 @@ internal fun SettingsContent(
                     }
                 }
 
-                // LIST OPTIONS — Notifications is hidden for now (parity with iOS,
-                // whose notifications entry is commented out). Strava is enabled.
+                // Inline Strava connectivity card (mirrors iOS Settings) — replaces the
+                // navigating Strava row; the standalone Strava screen is no longer used here.
+                item(key = "strava_card") {
+                    StravaSettingsCard(
+                        isConnected = state.isStravaConnected,
+                        athleteName = state.stravaAthleteName,
+                        isWorking = state.isStravaWorking,
+                        onConnect = { onEvent(Event.OnStravaConnect(context)) },
+                        onDisconnect = { onEvent(Event.OnStravaDisconnect) },
+                        onResync = { onEvent(Event.OnStravaResync) },
+                    )
+                }
+
+                // LIST OPTIONS — Notifications is hidden for now (parity with iOS, whose
+                // notifications entry is commented out). Strava is the inline card above.
                 items(
-                    items = SettingOptions.entries.filter { it != SettingOptions.NOTIFICATIONS },
+                    items = SettingOptions.entries.filter {
+                        it != SettingOptions.NOTIFICATIONS && it != SettingOptions.STRAVA
+                    },
                     key = { option -> option.name }
                 ) { option ->
                     SettingOptionItem(

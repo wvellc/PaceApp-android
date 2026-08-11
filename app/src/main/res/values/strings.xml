@@ -228,4 +228,7 @@
     <string name="strava_sync_recent">Sync recent activities</string>
     <string name="strava_disconnect">Disconnect</string>
     <string name="strava_powered_by">Powered by Strava</string>
+    <string name="strava_resync">Resync</string>
+    <string name="strava_status_connected">Connected</string>
+    <string name="strava_status_not_connected">Not connected</string>
 </resources>

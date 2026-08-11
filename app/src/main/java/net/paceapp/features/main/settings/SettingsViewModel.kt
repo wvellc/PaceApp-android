@@ -11,6 +11,7 @@ import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.core.providers.AppResourceProvider
+import net.paceapp.core.strava.StravaManager
 import net.paceapp.features.main.settings.SettingsContract.Effect
 import net.paceapp.features.main.settings.SettingsContract.Event
 import net.paceapp.features.main.settings.SettingsContract.ReauthPhase
@@ -21,6 +22,8 @@ import com.wvelabs.core_ui.alerts.AppAlerts
 import com.wvelabs.core_ui.alerts.MessageType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,6 +33,7 @@ class SettingsViewModel @Inject constructor(
     val sessionManager: AppSessionManager,
     private val userProfileRepository: UserProfileRepository,
     private val authManager: AuthManager,
+    private val stravaManager: StravaManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -51,6 +55,9 @@ class SettingsViewModel @Inject constructor(
             is Event.OnReauthOtpChanged -> handleReauthOtpChanged(event.otp)
             is Event.OnReauthOtpSubmit -> handleReauthOtpSubmit()
             is Event.OnReauthCancel -> handleReauthCancel()
+            is Event.OnStravaConnect -> stravaManager.connect(event.context)
+            is Event.OnStravaDisconnect -> stravaManager.disconnect()
+            is Event.OnStravaResync -> stravaManager.syncRecent()
         }
     }
 
@@ -58,8 +65,26 @@ class SettingsViewModel @Inject constructor(
     private fun initData() {
         if (currentState.isInitialized) return
         getDistanceUnits()
+        observeStravaState()
         setState { copy(isInitialized = true) }
 
+    }
+
+    // Mirror StravaManager's connection state (users/{uid}.strava) into the inline
+    // Settings card. startObserving() is idempotent. Mirrors iOS SettingScreen.onAppear.
+    private fun observeStravaState() {
+        stravaManager.startObserving()
+        stravaManager.state
+            .onEach { s ->
+                setState {
+                    copy(
+                        isStravaConnected = s.isConnected,
+                        stravaAthleteName = s.athleteName,
+                        isStravaWorking = s.isWorking,
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
     private fun getDistanceUnits() {
