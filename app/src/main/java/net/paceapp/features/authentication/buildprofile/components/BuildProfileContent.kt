@@ -2,15 +2,26 @@ package net.paceapp.features.authentication.buildprofile.components
 
 import android.content.Context
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -170,24 +181,60 @@ internal fun BuildProfileContent(
                     }
                 }
             }
-            //Next button
-            AppButton(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .safeContentPadding()
-                    .padding(bottom = AppTheme.screenPadding),
-                // Once Strava is linked on the final step, the button reads "Next" and a
-                // tap finishes onboarding (mirrors iOS d413c4f); otherwise its per-step label.
-                title = if (state.currentStep == ProfileStep.ConnectStrava && state.isStravaConnected) {
-                    stringResource(R.string.next)
-                } else {
-                    stringResource(state.currentStep.buttonLabelRes)
-                },
-                enabled = state.isNextButtonEnabled,
-                onClick = {
-                    onEvent(Event.OnNextClick(context = context))
-                }
-            )
+            //Footer button. On the Connect Strava step (not yet connected): the official
+            // orange "Connect with Strava" button, or a spinner while the OAuth exchange
+            // runs. Otherwise the standard button — which reads "Next" once Strava is linked
+            // (a tap finishes onboarding, iOS d413c4f).
+            val footerModifier = Modifier
+                .fillMaxWidth()
+                .safeContentPadding()
+                .padding(bottom = AppTheme.screenPadding)
+            when {
+                state.currentStep == ProfileStep.ConnectStrava && !state.isStravaConnected ->
+                    if (state.isStravaConnecting) {
+                        Box(
+                            modifier = footerModifier.height(54.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(32.dp),
+                                color = AppColors.NeonAquaBlue,
+                                strokeWidth = 3.dp,
+                            )
+                        }
+                    } else {
+                        // Official "Connect with Strava" artwork (same button as Settings).
+
+                        Box (
+                            modifier = footerModifier.clip(RoundedCornerShape(12.dp))
+                                .background(AppColors.StravaOrange).clickable {
+                                onEvent(Event.OnNextClick(context = context))
+                            },
+                            contentAlignment = Alignment.Center
+                        )
+                        {
+                            Image(
+                                painter = painterResource(R.drawable.btn_strava_connect_with_orange),
+                                contentDescription = stringResource(R.string.strava_connect_button),
+
+                            )
+                        }
+                    }
+
+                else ->
+                    AppButton(
+                        modifier = footerModifier,
+                        title = if (state.currentStep == ProfileStep.ConnectStrava && state.isStravaConnected) {
+                            stringResource(R.string.next)
+                        } else {
+                            stringResource(state.currentStep.buttonLabelRes)
+                        },
+                        enabled = state.isNextButtonEnabled,
+                        onClick = {
+                            onEvent(Event.OnNextClick(context = context))
+                        }
+                    )
+            }
         }
     }
 }

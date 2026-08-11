@@ -36,6 +36,8 @@ class BuildProfileContract {
         // --- Step 6: Strava (real OAuth connect, mirrored from StravaManager) ---
         val isStravaConnected: Boolean = false,
         val stravaAthleteName: String? = null,
+        // True while the OAuth token exchange runs (mirrors StravaManager.isWorking).
+        val isStravaConnecting: Boolean = false,
     ) : ViewState
 
     sealed class Event : ViewEvent {

@@ -69,7 +69,16 @@ class StravaManager @Inject constructor(
                 val strava = snapshot?.get("strava") as? Map<String, Any?>
                 val connected = strava?.get("connected") as? Boolean ?: false
                 val name = strava?.get("athleteName") as? String
-                _state.update { it.copy(isConnected = connected, athleteName = name) }
+                AppLogger.d("[$TAG] user snapshot strava=$strava connected=$connected name=$name")
+                // When connected, keep the best-known name (fall back to the optimistic one
+                // set at exchange) so a snapshot lacking athleteName can't blank it out; when
+                // disconnected, clear it.
+                _state.update {
+                    it.copy(
+                        isConnected = connected,
+                        athleteName = if (connected) (name ?: it.athleteName) else null,
+                    )
+                }
             }
     }
 
@@ -134,7 +143,14 @@ class StravaManager @Inject constructor(
         runServerCall(
             block = { token ->
                 val result = api.exchange(token, StravaExchangeRequest(code))
-                _state.update { it.copy(athleteName = result.athleteName ?: it.athleteName) }
+                AppLogger.d("[$TAG] exchange OK — athleteName=${result.athleteName}")
+                // A successful exchange means the server established + persisted the
+                // connection, so flip isConnected immediately (the Firestore listener then
+                // reconciles). Without this the UI stayed on "Connect" until the listener
+                // fired — or forever if the connected flag didn't propagate.
+                _state.update {
+                    it.copy(isConnected = true, athleteName = result.athleteName ?: it.athleteName)
+                }
                 AppAlerts.showToast("Connected to Strava.", type = MessageType.Success)
             },
             failureLog = "exchange failed",

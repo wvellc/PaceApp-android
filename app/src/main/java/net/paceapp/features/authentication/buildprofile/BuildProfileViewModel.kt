@@ -89,7 +89,13 @@ class BuildProfileViewModel @Inject constructor(
     private fun observeStravaState() {
         stravaManager.startObserving()
         stravaManager.state.onEach { s ->
-            setState { copy(isStravaConnected = s.isConnected, stravaAthleteName = s.athleteName) }
+            setState {
+                copy(
+                    isStravaConnected = s.isConnected,
+                    stravaAthleteName = s.athleteName,
+                    isStravaConnecting = s.isWorking,
+                )
+            }
         }.launchIn(viewModelScope)
     }
 
