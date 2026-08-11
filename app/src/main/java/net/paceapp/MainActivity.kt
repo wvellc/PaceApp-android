@@ -86,6 +86,13 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        // Catch a remote account deletion promptly: force a token check. If the account was
+        // deleted/disabled elsewhere, AuthManager routes this device to the login flow.
+        lifecycleScope.launch { authManager.verifyAccountStillValid() }
+    }
+
     // Hand a Strava OAuth redirect (paceapp://strava-callback?code=…) to StravaManager,
     // which exchanges the code via a Cloud Function. Returns true if it was a Strava link.
     private fun handleStravaCallback(intent: Intent?): Boolean {

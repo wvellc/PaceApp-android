@@ -184,6 +184,16 @@ class StravaManager @Inject constructor(
         )
     }
 
+    // Suspending, silent disconnect used during account deletion — revokes on the server
+    // while the Firebase ID token is still valid, with no success toast. Best-effort
+    // (the caller wraps this in runCatching so a failure never blocks deletion).
+    suspend fun disconnectForAccountDeletion() {
+        val token = bearerToken() ?: return
+        runCatching { api.disconnect(token) }
+        _state.update { it.copy(isConnected = false, athleteName = null) }
+        stopObserving()
+    }
+
     // MARK: - Private
 
     // Shared wrapper: flips isWorking, fetches the Firebase ID token, runs the call, and

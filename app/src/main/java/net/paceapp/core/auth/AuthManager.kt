@@ -7,6 +7,7 @@ import com.google.firebase.auth.ActionCodeSettings
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
@@ -24,6 +25,7 @@ import net.paceapp.core.data.firestore.UserDocument
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.data.firestore.await
 import net.paceapp.core.garmin.GarminDeviceManager
+import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.domain.enums.LoginTypes
 import net.paceapp.core.domain.models.UserData
 import net.paceapp.core.domain.models.isProfileComplete
@@ -43,6 +45,7 @@ class AuthManager @Inject constructor(
     private val eventRepository: EventRepository,
     private val favoriteRepository: FavoriteRepository,
     private val garminDeviceManager: GarminDeviceManager,
+    private val stravaManager: StravaManager,
     private val sessionManager: AppSessionManager,
     @param:ApplicationScope private val appScope: CoroutineScope,
 ) {
@@ -67,6 +70,33 @@ class AuthManager @Inject constructor(
     // so MainActivity treats the returning link as reauth-then-delete, not a fresh
     // sign-in. Mirrors iOS AuthManager.isReauthenticatingForDeletion.
     var isReauthenticatingForDeletion = false
+
+    // Set true once Firebase has a signed-in user this session, so the auth-state watcher
+    // can tell a REMOTE sign-out (account deleted/disabled elsewhere) from the transient
+    // null before Firebase restores the persisted user on cold start. Cleared just before an
+    // intentional local sign-out/deletion so those don't trip the watcher.
+    @Volatile
+    private var hadSignedInUser = false
+
+    init {
+        // Remote account-deletion watcher: if the signed-in Firebase user disappears and we
+        // didn't sign out on purpose, the account was deleted/invalidated elsewhere (e.g. on
+        // another device) → force this device to the login flow via the session-expired path
+        // (AppNavHost routes it to Login). Guarded by hadSignedInUser to avoid a false logout
+        // from the transient null on cold start.
+        auth.addAuthStateListener { fb ->
+            if (fb.currentUser != null) {
+                hadSignedInUser = true
+            } else if (hadSignedInUser) {
+                appScope.launch {
+                    if (sessionManager.isAuthenticated()) {
+                        AppLogger.w("[Auth] signed-in user vanished (remote deletion?) — forcing logout")
+                        sessionManager.onSessionExpired()
+                    }
+                }
+            }
+        }
+    }
 
     // MARK: - Phone OTP
 
@@ -284,7 +314,13 @@ class AuthManager @Inject constructor(
         val user = auth.currentUser ?: return
         val uid = user.uid
 
+        // This device is performing the deletion — suppress the auth-state watcher so
+        // user.delete() below doesn't also fire the remote-deletion path.
+        hadSignedInUser = false
+
         runCatching { garminDeviceManager.disconnect() }
+        // Disconnect Strava first (revoke server-side while the ID token is still valid).
+        runCatching { stravaManager.disconnectForAccountDeletion() }
         runCatching { eventRepository.deleteAllForUser(uid) }
         runCatching { favoriteRepository.deleteAllForUser(uid) }
         runCatching { userProfileRepository.deleteUser(uid) }
@@ -299,8 +335,25 @@ class AuthManager @Inject constructor(
     // MARK: - Session
 
     suspend fun signOut() {
+        // Intentional local sign-out — suppress the remote-deletion watcher.
+        hadSignedInUser = false
         auth.signOut()
         sessionManager.clearSession()
+    }
+
+    // Forces a token refresh so a remotely-deleted/disabled account is detected promptly on
+    // app resume: Firebase rejects the refresh, which signs the user out (tripping the
+    // auth-state watcher) and also surfaces here — either way we route to login. Best-effort;
+    // a transient/network failure is ignored so a valid user isn't logged out while offline.
+    suspend fun verifyAccountStillValid() {
+        val user = auth.currentUser ?: return
+        runCatching { user.getIdToken(true).await() }
+            .onFailure { e ->
+                if (e is FirebaseAuthInvalidUserException) {
+                    AppLogger.w("[Auth] account no longer valid — forcing logout: ${e.message}")
+                    if (sessionManager.isAuthenticated()) sessionManager.onSessionExpired()
+                }
+            }
     }
 
     // Fetch-or-create users/{uid}, then mirror identity into the local session so
