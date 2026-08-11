@@ -18,7 +18,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -55,10 +57,15 @@ internal fun StravaSettingsCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // Strava logo as a 48dp circular badge — matches the size and circular shape
+            // of the other Settings row icons.
             Image(
                 painter = painterResource(R.drawable.ic_strava_logo),
                 contentDescription = null,
-                modifier = Modifier.size(40.dp),
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape),
             )
             Column(
                 modifier = Modifier.weight(1f),
@@ -92,13 +99,24 @@ internal fun StravaSettingsCard(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                StravaPill(
-                    modifier = Modifier.weight(1f),
-                    title = stringResource(R.string.strava_resync),
-                    tint = AppColors.RadiantBlue,
-                    enabled = !isWorking,
-                    onClick = onResync,
-                )
+                // Resync — the app's primary brand gradient (matches AppButton).
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clip(CircleShape)
+                        .background(Brush.verticalGradient(AppColors.buttonGradient))
+                        .clickable(enabled = !isWorking, onClick = onResync)
+                        .padding(vertical = 10.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = stringResource(R.string.strava_resync),
+                        style = AppTheme.typography.semiBold.copy(
+                            color = AppColors.White,
+                            fontSize = 14.sp,
+                        ),
+                    )
+                }
                 StravaPill(
                     modifier = Modifier.weight(1f),
                     title = stringResource(R.string.strava_disconnect),
