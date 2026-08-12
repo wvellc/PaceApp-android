@@ -11,3 +11,10 @@ enum class DistanceUnits(
     MILES(R.string.miles, R.string.mi_unit)
 }
 
+// Firestore full word ("Miles"/"Kilometers") → DistanceUnits.
+fun String.toDistanceUnitsOrNull(): DistanceUnits? = when (trim().lowercase()) {
+    "miles" -> DistanceUnits.MILES
+    "kilometers", "kms", "km" -> DistanceUnits.KMS
+    else -> null
+}
+

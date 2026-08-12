@@ -11,3 +11,17 @@ val GenderTypes.titleRes: Int
         GenderTypes.FEMALE -> R.string.female
         GenderTypes.OTHER -> R.string.other
     }
+
+// GenderTypes ↔ Firestore string ("Male"/"Female"/"Other") — matches iOS Gender.rawValue.
+fun GenderTypes.firestoreName(): String = when (this) {
+    GenderTypes.MALE -> "Male"
+    GenderTypes.FEMALE -> "Female"
+    GenderTypes.OTHER -> "Other"
+}
+
+fun String.toGenderTypeOrNull(): GenderTypes? = when (trim().lowercase()) {
+    "male" -> GenderTypes.MALE
+    "female" -> GenderTypes.FEMALE
+    "other" -> GenderTypes.OTHER
+    else -> null
+}

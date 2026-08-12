@@ -17,6 +17,7 @@ interface UserProfileRepository {
     fun observeUser(uid: String): Flow<UserDocument?>
     suspend fun getUser(uid: String): UserDocument?
     suspend fun upsertUser(user: UserDocument)
+    suspend fun updateProfile(uid: String, firstName: String, lastName: String, gender: String)
     suspend fun updateGait(uid: String, gait: GaitDocument)
     suspend fun updateBodyMetrics(uid: String, heightCm: Double?, weightKg: Double?)
     suspend fun updateIntervalVibrate(uid: String, enabled: Boolean)
@@ -54,6 +55,14 @@ class FirestoreUserProfileRepository @Inject constructor(
 
     override suspend fun upsertUser(user: UserDocument) {
         userRef(user.uuid).set(user, SetOptions.merge()).await()
+    }
+
+    // Targeted merge of the profile identity fields (never touches other doc fields).
+    override suspend fun updateProfile(uid: String, firstName: String, lastName: String, gender: String) {
+        userRef(uid).set(
+            mapOf("firstName" to firstName, "lastName" to lastName, "gender" to gender),
+            SetOptions.merge(),
+        ).await()
     }
 
     override suspend fun updateGait(uid: String, gait: GaitDocument) {

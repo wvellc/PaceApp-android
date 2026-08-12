@@ -338,6 +338,14 @@ class BuildProfileViewModel @Inject constructor(
 
                 userRepository.updateUserDetails(updatedUserData)
 
+                // Name + gender were previously saved only to the local session — persist
+                // them to the Firestore user doc so they reach the backend (and other devices).
+                persistProfileToFirestore(
+                    firstName = updatedUserData.firstName.orEmpty(),
+                    lastName = updatedUserData.lastName.orEmpty(),
+                    gender = currentState.selectedGender,
+                )
+
                 // Onboarding gait was previously local-only. Persist it to the Firestore
                 // user doc (parity with iOS) and, once onboarding is complete, push the
                 // settings to the watch. Fire-and-forget on the application scope so an
@@ -351,6 +359,14 @@ class BuildProfileViewModel @Inject constructor(
             onSuccess = { navigateToProfileSuccess() },
             onError = { e -> AppLogger.e("UpdateProfileError: $e") }
         )
+    }
+
+    // Writes the entered name + gender to `users/{uid}` (targeted merge, best-effort).
+    private fun persistProfileToFirestore(firstName: String, lastName: String, gender: GenderTypes) {
+        val uid = authManager.currentUid ?: return
+        appScope.launch {
+            runCatching { userProfileRepository.updateProfile(uid, firstName, lastName, gender.firestoreName()) }
+        }
     }
 
     // Writes the chosen gait to `users/{uid}.gait` and pushes the settings payload to

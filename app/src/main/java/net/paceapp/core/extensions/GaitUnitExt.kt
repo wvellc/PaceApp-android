@@ -16,3 +16,7 @@ fun GaitUnit.firestoreName(): String = if (this == GaitUnit.METERS) "Meters" els
 
 // GaitUnit → watch BLE short form ("m"/"ft").
 fun GaitUnit.watchName(): String = if (this == GaitUnit.METERS) "m" else "ft"
+
+// Firestore/app full word ("Feet"/"Meters", or the watch "m"/"ft") → GaitUnit.
+fun String.toGaitUnit(): GaitUnit =
+    if (trim().lowercase().startsWith("m")) GaitUnit.METERS else GaitUnit.FEET
