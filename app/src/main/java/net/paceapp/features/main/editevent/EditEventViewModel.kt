@@ -85,6 +85,9 @@ class EditEventViewModel @Inject constructor(
         // in-place upsert re-sent to the watch + Firestore. Falls back to a
         // minimal payload if the event can't be loaded.
         viewModelScope.launch {
+            // Don't write on a session that no longer exists (account deleted elsewhere).
+            if (!authManager.verifyAccountStillValid()) return@launch
+
             val existing = eventRepository.getEvent(currentState.eventId)
             val payload = existing
                 ?.let { EventDocumentMapper.connectIQPayload(it).toMutableMap() }

@@ -92,6 +92,8 @@
     <string name="logout_dialog_title">Take a quick break?</string>
     <string name="logout_dialog_message">Your events and Garmin sync will be waiting when you return.</string>
     <string name="log_out">Log Out</string>
+    <string name="session_expired_title">Session expired</string>
+    <string name="session_expired_message">Your session has timed out. Please sign in again.</string>
     <string name="keep_going">Keep Going</string>
     <string name="delete_account_dialog_title">Start Fresh?</string>
     <string name="delete_account_dialog_message">Create a new Pace App experience anytime. Your next race adventure awaits!</string>

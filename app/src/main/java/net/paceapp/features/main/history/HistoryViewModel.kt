@@ -142,11 +142,15 @@ class HistoryViewModel @Inject constructor(
     }
 
     private fun handleOnDeleteHistoryClick(history: ActivityUiModel) {
-        // Sync delete to watch
-        history.id.toIntOrNull()?.let { syncId ->
-            eventSyncManager.deleteEvent(syncId)
+        viewModelScope.launch {
+            // Don't delete on a session that no longer exists (account deleted elsewhere).
+            if (!authManager.verifyAccountStillValid()) return@launch
+            // Sync delete to watch
+            history.id.toIntOrNull()?.let { syncId ->
+                eventSyncManager.deleteEvent(syncId)
+            }
+            setState { copy(historyList = historyList - history) }
         }
-        setState { copy(historyList = historyList - history) }
     }
 
 }

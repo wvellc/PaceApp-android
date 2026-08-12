@@ -142,6 +142,9 @@ class SettingsViewModel @Inject constructor(
 
     private fun handleDistanceUnitSelected(distanceUnits: DistanceUnits) {
         viewModelScope.launch {
+            // Confirm the account still exists — a deleted/disabled account is signed out
+            // instead of writing a setting to a dead session.
+            if (!authManager.verifyAccountStillValid()) return@launch
             //Save distance units — keep local session in sync (existing behaviour).
             val userDetails = sessionManager.getUserDetails()
             sessionManager.setUserDetails(

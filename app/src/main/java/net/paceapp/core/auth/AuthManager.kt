@@ -24,6 +24,10 @@ import net.paceapp.core.data.firestore.FavoriteRepository
 import net.paceapp.core.data.firestore.UserDocument
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.data.firestore.await
+import com.wvelabs.core_ui.alerts.AppAlerts
+import com.wvelabs.core_ui.alerts.MessageType
+import net.paceapp.R
+import net.paceapp.core.data.ProfileSessionSync
 import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.domain.enums.LoginTypes
@@ -47,6 +51,7 @@ class AuthManager @Inject constructor(
     private val garminDeviceManager: GarminDeviceManager,
     private val stravaManager: StravaManager,
     private val sessionManager: AppSessionManager,
+    private val profileSessionSync: ProfileSessionSync,
     @param:ApplicationScope private val appScope: CoroutineScope,
 ) {
     // Carried between onCodeSent and confirmOtp so the OTP screen doesn't need to
@@ -78,6 +83,11 @@ class AuthManager @Inject constructor(
     @Volatile
     private var hadSignedInUser = false
 
+    // Guards against prompting / logging out twice for the same remote deletion (the auth
+    // watcher and the resume-time token check can both fire). Re-armed on a fresh sign-in.
+    @Volatile
+    private var forcedLogout = false
+
     init {
         // Remote account-deletion watcher: if the signed-in Firebase user disappears and we
         // didn't sign out on purpose, the account was deleted/invalidated elsewhere (e.g. on
@@ -87,11 +97,17 @@ class AuthManager @Inject constructor(
         auth.addAuthStateListener { fb ->
             if (fb.currentUser != null) {
                 hadSignedInUser = true
-            } else if (hadSignedInUser) {
-                appScope.launch {
-                    if (sessionManager.isAuthenticated()) {
-                        AppLogger.w("[Auth] signed-in user vanished (remote deletion?) — forcing logout")
-                        sessionManager.onSessionExpired()
+                forcedLogout = false
+                // Live-mirror users/{uid} → session so other-device profile edits refresh UI.
+                profileSessionSync.start()
+            } else {
+                profileSessionSync.stop()
+                if (hadSignedInUser) {
+                    appScope.launch {
+                        if (sessionManager.isAuthenticated()) {
+                            AppLogger.w("[Auth] signed-in user vanished (remote deletion?) — forcing logout")
+                            forceSessionExpiredLogout()
+                        }
                     }
                 }
             }
@@ -345,15 +361,43 @@ class AuthManager @Inject constructor(
     // app resume: Firebase rejects the refresh, which signs the user out (tripping the
     // auth-state watcher) and also surfaces here — either way we route to login. Best-effort;
     // a transient/network failure is ignored so a valid user isn't logged out while offline.
-    suspend fun verifyAccountStillValid() {
-        val user = auth.currentUser ?: return
-        runCatching { user.getIdToken(true).await() }
-            .onFailure { e ->
+    // Returns true if the account still exists. On a deleted/disabled account it signs out
+    // (session-expired prompt) and returns false, so callers can guard writes:
+    // `if (!verifyAccountStillValid()) return`. A transient/network failure returns true so a
+    // valid user isn't blocked (or logged out) while offline. Mirrors iOS verifyAccountStillValid.
+    suspend fun verifyAccountStillValid(): Boolean {
+        val user = auth.currentUser ?: return false
+        return runCatching { user.getIdToken(true).await() }.fold(
+            onSuccess = { true },
+            onFailure = { e ->
                 if (e is FirebaseAuthInvalidUserException) {
                     AppLogger.w("[Auth] account no longer valid — forcing logout: ${e.message}")
-                    if (sessionManager.isAuthenticated()) sessionManager.onSessionExpired()
+                    if (sessionManager.isAuthenticated()) forceSessionExpiredLogout()
+                    false
+                } else {
+                    true // transient/offline — don't block a valid user
                 }
-            }
+            },
+        )
+    }
+
+    // Shows a "Session expired" prompt (mirrors iOS 1c4e734) and routes to Login via the
+    // session-expired path. Used when the account was deleted/invalidated elsewhere. Guarded
+    // so the same remote deletion can't prompt twice. The alert floats above Login via
+    // AppAlertContainer, so the user lands on Login with the dismissable prompt on top.
+    private fun forceSessionExpiredLogout() {
+        if (forcedLogout) return
+        forcedLogout = true
+        // Route to Login, then surface a "session expired" TOAST. A Material3 dialog opens a
+        // separate input window; tearing it down while the nav back-stack cleared stranded
+        // touch input. The toast is an in-composition overlay (no window), so it can't block
+        // touch — and it rides above the nav host, appearing on the Login screen.
+        sessionManager.onSessionExpired()
+        AppAlerts.showToast(
+            text = context.getString(R.string.session_expired_message),
+            type = MessageType.Warning,
+            durationMillis = 5000L,
+        )
     }
 
     // Fetch-or-create users/{uid}, then mirror identity into the local session so
@@ -384,6 +428,8 @@ class AuthManager @Inject constructor(
                 phoneNumber = doc.phoneNumber.ifBlank { null } ?: user.phoneNumber,
             )
         )
+        // Session is now populated — begin live-mirroring remote profile changes.
+        profileSessionSync.start()
     }
 
     companion object {

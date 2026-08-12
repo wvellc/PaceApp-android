@@ -3,7 +3,10 @@ package net.paceapp.features.main.duplicateevent
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigation.toRoute
+import androidx.lifecycle.viewModelScope
 import com.wvelabs.core_ui.alerts.MessageType
+import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
 import com.wvelabs.core_ui.utils.AppDateFormat
 import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -24,6 +27,7 @@ class DuplicateEventViewModel @Inject constructor(
     private val validateEventUseCase: ValidateEventUseCase,
     private val eventSyncManager: EventSyncManager,
     private val saveStateHandle: SavedStateHandle,
+    private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -78,12 +82,17 @@ class DuplicateEventViewModel @Inject constructor(
             return
         }
 
-        // New id → a brand new active event, then sync to watch/Firestore.
-        val payload = buildEventPayload(eventName, location)
-        eventSyncManager.createEvent(payload)
+        viewModelScope.launch {
+            // Don't create on a session that no longer exists (account deleted elsewhere).
+            if (!authManager.verifyAccountStillValid()) return@launch
 
-        showToast("Successfully created", type = MessageType.Success)
-        setEffect { Effect.NavigateBack }
+            // New id → a brand new active event, then sync to watch/Firestore.
+            val payload = buildEventPayload(eventName, location)
+            eventSyncManager.createEvent(payload)
+
+            showToast("Successfully created", type = MessageType.Success)
+            setEffect { Effect.NavigateBack }
+        }
     }
 
     // Wire payload in Garmin format with a NEW id and the user's edited fields.

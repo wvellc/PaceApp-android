@@ -8,6 +8,7 @@ import com.wvelabs.core_ui.utils.AppDateFormat
 import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.domain.models.DistanceModel
 import net.paceapp.core.enums.DistanceUnits
@@ -34,6 +35,7 @@ class CreateEventViewModel @Inject constructor(
     private val resourceProvider: ResourceProvider,
     private val runSegmentHelper: RunSegmentHelper,
     private val eventSyncManager: EventSyncManager,
+    private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
     override fun setInitialState() = State()
 
@@ -187,17 +189,22 @@ class CreateEventViewModel @Inject constructor(
 
     private fun createEventApi() {
         val state = currentState
-        val eventPayload = buildEventPayload(state)
+        viewModelScope.launch {
+            // Don't create on a session that no longer exists (account deleted/disabled
+            // elsewhere) — verifyAccountStillValid signs out + prompts, so just abort here.
+            if (!authManager.verifyAccountStillValid()) return@launch
 
-        // Save locally + send create_event to watch
-        eventSyncManager.createEvent(eventPayload)
+            val eventPayload = buildEventPayload(state)
+            // Save locally + send create_event to watch
+            eventSyncManager.createEvent(eventPayload)
 
-        showToast(
-            "${state.eventNameState.text.trim()} event created",
-            type = MessageType.Success
-        )
+            showToast(
+                "${state.eventNameState.text.trim()} event created",
+                type = MessageType.Success
+            )
 
-        setEffect { Effect.NavigateBack }
+            setEffect { Effect.NavigateBack }
+        }
     }
 
     private fun buildEventPayload(state: State): Map<String, Any?> {

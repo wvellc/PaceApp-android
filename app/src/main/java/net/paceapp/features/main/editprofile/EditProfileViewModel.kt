@@ -81,6 +81,12 @@ class EditProfileViewModel @Inject constructor(
     private fun handleUpdateProfileClick() {
         viewModelScope.launch {
             setState { copy(isLoading = true) }
+            // Confirm the account still exists — a deleted/disabled account (elsewhere) is
+            // signed out here instead of appearing to save (mirrors iOS 97bbfcf).
+            if (!authManager.verifyAccountStillValid()) {
+                setState { copy(isLoading = false) }
+                return@launch
+            }
             saveUserDetails()
             setState { copy(isLoading = false) }
             setEffect { Effect.NavigateBack }
