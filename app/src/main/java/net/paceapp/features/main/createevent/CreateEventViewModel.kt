@@ -217,7 +217,7 @@ class CreateEventViewModel @Inject constructor(
             "name" to state.eventNameState.text.toString().trim(),
             "location" to state.locationState.text.toString().trim(),
             "date" to dateStr,
-            "distance" to String.format(Locale.getDefault(), "%.2f", state.selectedDistance.value),
+            "distance" to String.format(Locale.US, "%.2f", state.selectedDistance.value),
             "measure" to measure,
             "intervals" to state.lookBackInterval.toString(),
             "goal" to goalStr,
@@ -225,7 +225,7 @@ class CreateEventViewModel @Inject constructor(
             "segmentCount" to if (state.hasSegments) state.segmentCount else 1,
             "segments" to state.segmentList.map { segment ->
                 mapOf(
-                    "distance" to String.format(Locale.getDefault(), "%.2f", segment.distance),
+                    "distance" to String.format(Locale.US, "%.2f", segment.distance),
                     "eta" to DateTimeHelper.formatDuration(segment.durationInSeconds.seconds)
                 )
             },

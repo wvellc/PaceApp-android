@@ -121,7 +121,7 @@ class EditEventViewModel @Inject constructor(
             "name" to name,
             "location" to location,
             "date" to dateStr,
-            "distance" to String.format(java.util.Locale.getDefault(), "%.2f", 1.50f),
+            "distance" to String.format(java.util.Locale.US, "%.2f", 1.50f),
             "measure" to "Miles",
             "intervals" to "1",
             "goal" to DateTimeHelper.formatDuration(goalSeconds.seconds),

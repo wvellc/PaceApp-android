@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import net.paceapp.core.auth.AuthManager
+import net.paceapp.core.data.firestore.EventDocumentMapper
 import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.data.firestore.GaitDocument
 import net.paceapp.core.data.firestore.UserProfileRepository
@@ -71,6 +72,10 @@ class EventSyncManager @Inject constructor(
         private const val KEY_SETTINGS = "synced_settings"
         private const val KEY_LAST_SYNC = "last_watch_sync_millis"
 
+        // Max deletion records sent to the watch in one sync — mirrors the watch's
+        // MAX_DELETED_IDS cap (EventSync.mc) so both sides drop the same oldest ids.
+        private const val MAX_DELETED_IDS = 50
+
         // Settings keys — must match watch's Application.Storage keys exactly
         val SETTINGS_KEYS = listOf(
             "vibrate_alert",
@@ -90,7 +95,12 @@ class EventSyncManager @Inject constructor(
     // --- Internal storage ---
     private var activeEventPayloads = mutableListOf<MutableMap<String, Any?>>()
     private var completedEventPayloads = mutableListOf<MutableMap<String, Any?>>()
-    private var deletedEventIds = mutableListOf<Int>()
+    // Deletion records: event id -> deletion time (epoch millis). Kept ON PURPOSE and
+    // NEVER pruned by "absent from live lists" — a deleted event is by definition gone
+    // from the live lists, so pruning that way would wipe the very records that stop a
+    // deleted event coming back from the watch (the bug this replaced). Growth is bounded
+    // only by what we send to the watch (newest MAX_DELETED_IDS). Mirrors iOS deletedEvents.
+    private var deletedEvents = linkedMapOf<Int, Long>()
 
     // Watch-event ids whose Firestore write was permission-denied because the doc is
     // owned by a PREVIOUS account. Persisted + skipped on later syncs so the watch's
@@ -131,7 +141,7 @@ class EventSyncManager @Inject constructor(
         // Load persisted state
         activeEventPayloads = loadEventPayloads(KEY_ACTIVE_EVENTS)
         completedEventPayloads = loadEventPayloads(KEY_COMPLETED_EVENTS)
-        deletedEventIds = loadDeletedEventIds()
+        deletedEvents = loadDeletedEvents()
         foreignEventIds.addAll(loadForeignEventIds())
         pruneActivePayloadsAlreadyCompleted()
         rebuildObservableLists()
@@ -212,15 +222,15 @@ class EventSyncManager @Inject constructor(
 
             // --- SYNC REQUEST: Watch asks phone to send all data ---
             "sync_request" -> {
-                if (isForce) {
-                    activeEventPayloads.clear()
-                    completedEventPayloads.clear()
-                    deletedEventIds.clear()
-                }
+                // Even a forced request MERGES — clearing first would drop phone-only events
+                // and deletion records from the reply. Deletions persist on purpose.
                 val requestCompleted = extractPayloadList(dict["completedEvents"])
                 val requestActive = extractPayloadList(dict["activeEvents"])
                 // Reconcile the watch's bulk tombstones locally only (no Firestore delete).
                 reconcileDeletedEventIds(extractIntList(dict["deletedEventIds"]), requestActive, requestCompleted)
+                // Genuine user deletes the watch made while unconfirmed — save them for real
+                // (Firestore soft-delete) and confirm each back so the watch stops re-sending.
+                applyPendingWatchDeletes(extractIntList(dict["pendingDeletedEventIds"]))
                 mergeEventPayloads(requestCompleted, isCompleted = true)
                 mergeEventPayloads(requestActive, isCompleted = false)
                 applyRemoteSettings(dict["settings"])
@@ -233,15 +243,15 @@ class EventSyncManager @Inject constructor(
             // --- SYNC ALL: Watch sends all its data (response to our sync_request) ---
             // We merge but do NOT echo sync_all back — prevents infinite loop.
             "sync_all" -> {
-                if (isForce) {
-                    activeEventPayloads.clear()
-                    completedEventPayloads.clear()
-                    deletedEventIds.clear()
-                }
+                // Even a forced push MERGES — clearing first would drop phone-only events
+                // and deletion records. Deletions persist on purpose.
                 val syncCompleted = extractPayloadList(dict["completedEvents"])
                 val syncActive = extractPayloadList(dict["activeEvents"])
                 // Reconcile the watch's bulk tombstones locally only (no Firestore delete).
                 reconcileDeletedEventIds(extractIntList(dict["deletedEventIds"]), syncActive, syncCompleted)
+                // Genuine user deletes the watch made while unconfirmed — save them for real
+                // (Firestore soft-delete) and confirm each back so the watch stops re-sending.
+                applyPendingWatchDeletes(extractIntList(dict["pendingDeletedEventIds"]))
                 mergeEventPayloads(syncCompleted, isCompleted = true)
                 mergeEventPayloads(syncActive, isCompleted = false)
                 applyRemoteSettings(dict["settings"])
@@ -253,7 +263,8 @@ class EventSyncManager @Inject constructor(
             "delete_event" -> {
                 val id = extractEventId(dict)
                 if (id != null) {
-                    applyDeletedEventId(id)
+                    // Confirms back to the watch (clears its pending) and waits for sign-in.
+                    applyWatchDelete(id)
                     persistSyncState()
                 }
                 return true
@@ -313,12 +324,14 @@ class EventSyncManager @Inject constructor(
      * Call this when the user creates a new event on the phone.
      */
     fun createEvent(eventPayload: Map<String, Any?>) {
-        upsertEventPayload(eventPayload, isCompleted = false, syncStatus = "pending", source = "phone")
+        // Canonical two-decimal distances (segments re-summed to the total) before store + send.
+        val payload = EventDocumentMapper.normalizingWatchDistances(eventPayload)
+        upsertEventPayload(payload, isCompleted = false, syncStatus = "pending", source = "phone")
         deviceManager.sendMessageToWatch(
             mapOf(
                 "command" to "create_event",
                 "source" to "phone",
-                "event" to eventPayload
+                "event" to payload
             )
         )
     }
@@ -345,12 +358,14 @@ class EventSyncManager @Inject constructor(
      * Call this if the phone needs to mark an event as completed.
      */
     fun finishEvent(eventPayload: Map<String, Any?>) {
-        upsertEventPayload(eventPayload, isCompleted = true, syncStatus = "pending", source = "phone")
+        // Canonical two-decimal distances (segments re-summed to the total) before store + send.
+        val payload = EventDocumentMapper.normalizingWatchDistances(eventPayload)
+        upsertEventPayload(payload, isCompleted = true, syncStatus = "pending", source = "phone")
         deviceManager.sendMessageToWatch(
             mapOf(
                 "command" to "finish_event",
                 "source" to "phone",
-                "event" to eventPayload
+                "event" to payload
             )
         )
     }
@@ -386,7 +401,7 @@ class EventSyncManager @Inject constructor(
                 "is_force_update" to isForceUpdate,
                 "activeEvents" to activeEventPayloads.toList(),
                 "completedEvents" to completedEventPayloads.toList(),
-                "deletedEventIds" to deletedEventIds.toList(),
+                "deletedEventIds" to recentlyDeletedEventIds(),
                 "settings" to getSettingsPayload()
             )
         )
@@ -416,8 +431,14 @@ class EventSyncManager @Inject constructor(
             return
         }
 
-        // Skip events that were locally deleted
-        if (deletedEventIds.contains(id)) return
+        // The watch still holds an event the user deleted — don't revive it; tell the
+        // watch to delete it again (authoritative deletion). Mirrors iOS upsert guard.
+        if (deletedEvents.containsKey(id)) {
+            deviceManager.sendMessageToWatch(
+                mapOf("command" to "delete_event", "source" to "phone", "id" to id)
+            )
+            return
+        }
 
         normalized["id"] = id
         normalized["syncStatus"] = syncStatus
@@ -483,8 +504,8 @@ class EventSyncManager @Inject constructor(
 
     // Prunes an event from local state only — no Firestore write.
     private fun applyDeletedEventLocally(id: Int) {
-        if (!deletedEventIds.contains(id)) {
-            deletedEventIds.add(id)
+        if (!deletedEvents.containsKey(id)) {
+            deletedEvents[id] = System.currentTimeMillis()
         }
         activeEventPayloads.removeAll { extractEventId(it) == id }
         completedEventPayloads.removeAll { extractEventId(it) == id }
@@ -497,6 +518,39 @@ class EventSyncManager @Inject constructor(
         applyDeletedEventLocally(id)
         deleteEventInFirestore(id)
     }
+
+    // A delete the USER made on the watch (a live delete_event, or a still-unconfirmed id in
+    // pendingDeletedEventIds): applied for real (Firestore included) then confirmed back with
+    // delete_event so the watch clears it from its pending list and stops re-sending.
+    //
+    // Waits for a signed-in user: if signed out we do NOTHING — no local delete, no confirm —
+    // so the watch keeps the id pending and re-sends it after sign-in, instead of the delete
+    // being confirmed away before it could reach Firestore. Mirrors iOS applyWatchDelete.
+    private fun applyWatchDelete(id: Int) {
+        if (authManager.currentUid == null) return
+        if (!deletedEvents.containsKey(id)) {
+            applyDeletedEventId(id)
+        }
+        deviceManager.sendMessageToWatch(
+            mapOf("command" to "delete_event", "source" to "phone", "id" to id)
+        )
+    }
+
+    // Handles the watch's `pendingDeletedEventIds` — genuine, still-unconfirmed USER deletes
+    // (finished events are never in this list). Makes a watch delete made while the phone was
+    // out of range still reach Firestore once they reconnect. (Gap B contract.)
+    private fun applyPendingWatchDeletes(ids: List<Int>) {
+        for (id in ids) applyWatchDelete(id)
+    }
+
+    // The most-recent deletions to send the watch, capped at MAX_DELETED_IDS and ordered
+    // OLDEST-first to match the watch's append order — so its own cap drops the same ids.
+    private fun recentlyDeletedEventIds(): List<Int> =
+        deletedEvents.entries
+            .sortedByDescending { it.value }
+            .take(MAX_DELETED_IDS)
+            .map { it.key }
+            .reversed()
 
     // =====================================================================
     // SECTION 7: Pruning & Cleanup
@@ -512,14 +566,10 @@ class EventSyncManager @Inject constructor(
         }
     }
 
-    /** Removes deleted IDs that no longer exist in any event list. */
-    private fun pruneDeletedEventIds() {
-        val activeIds = activeEventPayloads.mapNotNull { extractEventId(it) }.toSet()
-        val completedIds = completedEventPayloads.mapNotNull { extractEventId(it) }.toSet()
-        deletedEventIds.removeAll { id ->
-            !activeIds.contains(id) && !completedIds.contains(id)
-        }
-    }
+    // NOTE: deletion records (deletedEvents) are intentionally NOT pruned by "absent from
+    // the live lists". A deleted event is by definition absent, so that rule would wipe every
+    // real tombstone and let deleted events come back from the watch. Growth is bounded by the
+    // cap applied when sending to the watch (recentlyDeletedEventIds).
 
     // =====================================================================
     // SECTION 8: Settings Sync
@@ -755,14 +805,20 @@ class EventSyncManager @Inject constructor(
     /** Persists all sync state to SharedPreferences and updates Compose-observable lists. */
     private fun persistSyncState() {
         pruneActivePayloadsAlreadyCompleted()
-        pruneDeletedEventIds()
         rebuildObservableLists()
 
         prefs.edit()
             .putString(KEY_ACTIVE_EVENTS, payloadsToJson(activeEventPayloads))
             .putString(KEY_COMPLETED_EVENTS, payloadsToJson(completedEventPayloads))
-            .putString(KEY_DELETED_IDS, JSONArray(deletedEventIds).toString())
+            .putString(KEY_DELETED_IDS, deletedEventsToJson())
             .apply()
+    }
+
+    // Serializes deletedEvents as a JSON object { "<id>": <epochMillis> }.
+    private fun deletedEventsToJson(): String {
+        val obj = JSONObject()
+        for ((id, ts) in deletedEvents) obj.put(id.toString(), ts)
+        return obj.toString()
     }
 
     private fun rebuildObservableLists() {
@@ -785,15 +841,32 @@ class EventSyncManager @Inject constructor(
         }
     }
 
-    private fun loadDeletedEventIds(): MutableList<Int> {
-        val json = prefs.getString(KEY_DELETED_IDS, null) ?: return mutableListOf()
-        return try {
-            val array = JSONArray(json)
-            (0 until array.length()).map { array.getInt(it) }.toMutableList()
+    // Loads deletion records. Current format is a JSON object { "<id>": <epochMillis> }.
+    // Legacy format was a JSON array [id, id, ...]; those are migrated with a synthetic
+    // timestamp (now) so old tombstones survive the upgrade instead of being dropped.
+    private fun loadDeletedEvents(): LinkedHashMap<Int, Long> {
+        val json = prefs.getString(KEY_DELETED_IDS, null) ?: return linkedMapOf()
+        val out = linkedMapOf<Int, Long>()
+        try {
+            val trimmed = json.trimStart()
+            if (trimmed.startsWith("[")) {
+                // Legacy array of ids.
+                val array = JSONArray(json)
+                val now = System.currentTimeMillis()
+                for (i in 0 until array.length()) out[array.getInt(i)] = now
+            } else {
+                // Current object of id -> timestamp.
+                val obj = JSONObject(json)
+                val keys = obj.keys()
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    key.toIntOrNull()?.let { out[it] = obj.optLong(key, System.currentTimeMillis()) }
+                }
+            }
         } catch (e: Exception) {
             AppLogger.e("[$TAG] Failed to load deleted IDs", e)
-            mutableListOf()
         }
+        return out
     }
 
     private fun loadForeignEventIds(): List<Int> {

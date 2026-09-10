@@ -1,6 +1,7 @@
 package net.paceapp.features.main.analytics
 
 import net.paceapp.core.data.firestore.EventDocument
+import net.paceapp.core.data.firestore.EventDocumentMapper
 import net.paceapp.core.enums.AnalyticsMetricType
 import net.paceapp.core.enums.AnalyticsPeriod
 import net.paceapp.core.models.AnalyticsDataPoint
@@ -102,7 +103,7 @@ object AnalyticsAggregator {
             AnalyticsMetricType.HEART_RATE ->
                 records.map { (it.avgHeartRate ?: 0).toDouble() }.average()
             AnalyticsMetricType.PERCENTAGE ->
-                records.map { it.effortPercentage ?: 0.0 }.average()
+                records.map { EventDocumentMapper.pacePercentage(it) ?: 0.0 }.average()
         }
     }
 
@@ -162,7 +163,7 @@ object AnalyticsAggregator {
             }
 
             AnalyticsMetricType.PERCENTAGE -> {
-                val efforts = records.mapNotNull { it.effortPercentage }
+                val efforts = records.mapNotNull { EventDocumentMapper.pacePercentage(it) }
                 val avg = if (efforts.isEmpty()) 0 else efforts.average().toInt()
                 val peak = (efforts.maxOrNull() ?: 0.0).toInt()
                 listOf(
