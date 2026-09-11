@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlin.math.ceil
 import net.paceapp.core.models.AnalyticsDataPoint
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
@@ -29,6 +30,7 @@ import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.marker.rememberDefaultCartesianMarker
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.cartesian.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.common.DashedShape
 import com.patrykandpatrick.vico.compose.common.Fill
 import com.patrykandpatrick.vico.compose.common.Insets
@@ -63,6 +65,15 @@ fun AppLineChart(
             yAxisFormatter(yValue)
         }
     }
+
+    // X-axis labels come straight from each data point's bucket label so the bottom
+    // bar reads as the period's duration: Day → times, Week → weekdays, Month → weeks,
+    // Year → months (produced by AnalyticsAggregator.bucketRecords).
+    val bottomAxisFormatter = remember(dataPoints) {
+        CartesianValueFormatter { _, xValue, _ ->
+            dataPoints.getOrNull(xValue.toInt())?.label.orEmpty()
+        }
+    }
     //Common label component
     val axisLabelComponent = rememberTextComponent(
         style = AppTheme.typography.medium.copy(
@@ -80,10 +91,15 @@ fun AppLineChart(
         fill = Fill(AppColors.LightGray),
     )
 
-    //Min and Max range on y axis
-    val rangeProvider = remember(minY, maxY) {
+    //Min and Max range on y axis. When the data overshoots the requested max (e.g. a
+    // Pace Percentage above 100%), raise the top to the next y-step multiple so the
+    // point shows in full instead of being drawn/clipped past a hard 100 cap.
+    val rangeProvider = remember(minY, maxY, yAxisStep, dataPoints) {
         if (minY != null && maxY != null) {
-            CartesianLayerRangeProvider.fixed(minY = minY, maxY = maxY)
+            val dataMax = dataPoints.maxOfOrNull { it.value } ?: maxY
+            val step = if (yAxisStep > 0.0) yAxisStep else 1.0
+            val grownMax = ceil(dataMax / step) * step
+            CartesianLayerRangeProvider.fixed(minY = minY, maxY = maxOf(maxY, grownMax))
         } else {
             CartesianLayerRangeProvider.auto()
         }
@@ -143,10 +159,16 @@ fun AppLineChart(
         indicator = { markerIndicator },
         guideline = markerGuideline
     )
+    // Lock the chart: no panning, no pinch-zoom. Disabling scroll also disables zoom
+    // (the host gates zoom on scrollEnabled) and makes the default zoom state fit all
+    // points to the full width via Zoom.Content, so data is shown in full, never cut off.
+    val scrollState = rememberVicoScrollState(scrollEnabled = false)
+
     //Chart host
     CartesianChartHost(
         modifier = modifier,
         modelProducer = modelProducer,
+        scrollState = scrollState,
         animationSpec = defaultAnimSpec(duration = 200),
         //Chart
         chart = rememberCartesianChart(
@@ -184,6 +206,8 @@ fun AppLineChart(
                 itemPlacer = itemPlacer
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
+                label = axisLabelComponent,
+                valueFormatter = bottomAxisFormatter,
                 line = guideline,
                 tick = guideline,
                 tickLength = 0.dp,
