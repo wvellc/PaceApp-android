@@ -39,7 +39,8 @@ internal fun DuplicateEventContent(
         appBar = {
             //App bar
             CommonAppBar(
-                title = stringResource(R.string.edit_event),
+                // Duplicating creates a brand-new event, so the screen reads "New Event".
+                title = stringResource(R.string.new_event),
                 onBackClick = {
                     onEvent(Event.OnBackClick)
                 },

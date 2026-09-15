@@ -50,17 +50,14 @@ class DuplicateEventViewModel @Inject constructor(
 
         val args = saveStateHandle.toRoute<DuplicateEventRoute>()
 
-        val formattedDate = DateTimeHelper.getDateTime(
-            date = args.date,
-            format = AppDateFormat.DATE_SHORT_DM,
-            isUtc = true
-        )
         setState {
             copy(
                 isInitialized = true,
                 eventNameState = TextFieldState(args.eventName),
                 locationState = TextFieldState(args.location),
-                selectedDate = formattedDate ?: DateTimeHelper.now(),
+                // A duplicate is a fresh event, so start the date at today rather than the
+                // original (often past) date. The picker still allows future dates only.
+                selectedDate = DateTimeHelper.now(),
             )
         }
     }
