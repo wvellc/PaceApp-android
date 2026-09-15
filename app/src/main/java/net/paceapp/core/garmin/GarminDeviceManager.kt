@@ -57,8 +57,12 @@ class GarminDeviceManager @Inject constructor(
             .onEach { (device, status) ->
                 when (status) {
                     IQDevice.IQDeviceStatus.CONNECTED -> handleDeviceConnected(device)
-                    IQDevice.IQDeviceStatus.NOT_CONNECTED,
-                    IQDevice.IQDeviceStatus.NOT_PAIRED -> handleDeviceDisconnected(device)
+                    // Still paired in Connect IQ but temporarily unreachable (Bluetooth
+                    // off / out of range / watch asleep). Keep showing "connected" and keep
+                    // the device-event listener alive so the SDK can reconnect on its own.
+                    IQDevice.IQDeviceStatus.NOT_CONNECTED -> handleTransientDisconnect(device)
+                    // Watch removed from Connect IQ — a real disconnect: tear down fully.
+                    IQDevice.IQDeviceStatus.NOT_PAIRED -> handleDeviceDisconnected(device, fullTeardown = true)
 
                     IQDevice.IQDeviceStatus.UNKNOWN -> {}
                 }
@@ -106,8 +110,12 @@ class GarminDeviceManager @Inject constructor(
     private fun handleDeviceConnected(device: IQDevice) {
         garminHelper.registerForDeviceEvents(device)
 //
+        // Fully established = same device shown CONNECTED AND the app layer is live. After a
+        // transient drop we keep the device shown CONNECTED but clear activeIqApp, so this is
+        // false and we re-establish the app layer (getApplicationInfo → app events) below.
         val wasAlreadyConnected = _activeDevice.value?.id == device.deviceIdentifier.toString() &&
-                _activeDevice.value?.status == WatchConnectionState.CONNECTED
+                _activeDevice.value?.status == WatchConnectionState.CONNECTED &&
+                activeIqApp != null
         //Safe guard
         if (wasAlreadyConnected) return
 
@@ -121,8 +129,26 @@ class GarminDeviceManager @Inject constructor(
         garminHelper.getApplicationInfo(AppConstants.WATCH_APP_UUID, device)
     }
 
-    private fun handleDeviceDisconnected(device: IQDevice) {
-        AppLogger.w("Device disconnected or manual tear-down triggered. Purging listener registers.")
+    // Watch temporarily unreachable but still paired in Connect IQ (Bluetooth off / out of
+    // range / watch asleep). Keep the UI "connected" and keep the device-event listener
+    // registered so the SDK can auto-reconnect. Drop only the app-message layer, whose IQApp
+    // handle can go stale — it's re-established when the watch reconnects (handleDeviceConnected).
+    private fun handleTransientDisconnect(device: IQDevice) {
+        if (_activeDevice.value?.id != device.deviceIdentifier.toString()) return
+        AppLogger.w("Watch temporarily unreachable; keeping it connected and listening for reconnect.")
+        activeIqApp?.let { app ->
+            garminHelper.unregisterForAppEvents(device, app)
+        }
+        activeIqApp = null
+        registeredAppDeviceId = null
+        // Intentionally NOT calling unregisterForDeviceEvents and NOT nulling _activeDevice.
+    }
+
+    // A real disconnect: the watch was removed from Connect IQ (NOT_PAIRED) or the user
+    // explicitly disconnected. fullTeardown also drops the device-event listener so the SDK
+    // stops tracking it. Only this path flips the UI to disconnected.
+    private fun handleDeviceDisconnected(device: IQDevice, fullTeardown: Boolean = false) {
+        AppLogger.w("Device removed or manual tear-down triggered. Purging listener registers.")
 
         // 1. Unregister App Messaging Hook
         activeIqApp?.let { app ->
@@ -131,8 +157,10 @@ class GarminDeviceManager @Inject constructor(
         activeIqApp = null
         registeredAppDeviceId = null
 
-        // 2. Unregister Device Event System Hook
-        garminHelper.unregisterForDeviceEvents(device)
+        // 2. Unregister Device Event System Hook (only on a real removal / explicit disconnect)
+        if (fullTeardown) {
+            garminHelper.unregisterForDeviceEvents(device)
+        }
 
         // 3. Reset local states
         if (_activeDevice.value?.id == device.deviceIdentifier.toString()) {
@@ -169,6 +197,7 @@ class GarminDeviceManager @Inject constructor(
         val finalStatus =
             currentStatus as? GarminSdkState.Ready ?: garminHelper.initializeSdk(context)
 
+        // No paired watch (never paired, or un-paired/cleared) → truly disconnected.
         if (finalStatus !is GarminSdkState.Ready || savedWatchId == null) {
             _activeDevice.value = null
             return
@@ -179,15 +208,14 @@ class GarminDeviceManager @Inject constructor(
                 it.deviceIdentifier.toString() == savedWatchId
             }
 
-            if (rawDevice != null) {
-                val liveStatus = garminHelper.getLiveDeviceStatus(rawDevice)
-                if (liveStatus == IQDevice.IQDeviceStatus.CONNECTED) {
-                    handleDeviceConnected(rawDevice)
-                } else {
-                    _activeDevice.value = null
-                }
-            } else {
-                _activeDevice.value = null
+            // Reachable now → (re)establish. If not reachable, DON'T clobber the current
+            // state: a live "connected" display stays connected across a Bluetooth off/on
+            // cycle (the request), and a cold start that has never reached the watch simply
+            // stays disconnected. A real removal comes through the NOT_PAIRED event instead.
+            if (rawDevice != null &&
+                garminHelper.getLiveDeviceStatus(rawDevice) == IQDevice.IQDeviceStatus.CONNECTED
+            ) {
+                handleDeviceConnected(rawDevice)
             }
         }
     }
@@ -255,7 +283,7 @@ class GarminDeviceManager @Inject constructor(
                 val rawDevice = garminHelper.getKnownDevices().find {
                     it.deviceIdentifier.toString() == currentWatch.id
                 }
-                rawDevice?.let { handleDeviceDisconnected(it) }
+                rawDevice?.let { handleDeviceDisconnected(it, fullTeardown = true) }
             }
         }
     }

@@ -7,11 +7,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import net.paceapp.core.auth.AuthErrorMapper
 import net.paceapp.core.auth.AuthManager
+import net.paceapp.core.domain.repositories.UserRepository
+import net.paceapp.core.garmin.BluetoothStateReceiver
+import net.paceapp.core.garmin.GarminDeviceManager
 import net.paceapp.core.strava.StravaConst
 import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.components.AppActionDialog
@@ -37,6 +41,15 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var stravaManager: StravaManager
+
+    @Inject
+    lateinit var garminDeviceManager: GarminDeviceManager
+
+    @Inject
+    lateinit var userRepository: UserRepository
+
+    // Re-arms the remembered-watch reconnect when the phone's Bluetooth turns back on.
+    private val bluetoothStateReceiver = BluetoothStateReceiver { restoreWatchConnection() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -91,6 +104,30 @@ class MainActivity : ComponentActivity() {
         // Catch a remote account deletion promptly: force a token check. If the account was
         // deleted/disabled elsewhere, AuthManager routes this device to the login flow.
         lifecycleScope.launch { authManager.verifyAccountStillValid() }
+
+        // Auto-reconnect the remembered Garmin watch: listen for Bluetooth turning back on,
+        // and attempt a restore now (covers returning to the app after a Bluetooth off/on).
+        ContextCompat.registerReceiver(
+            this,
+            bluetoothStateReceiver,
+            BluetoothStateReceiver.intentFilter,
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        restoreWatchConnection()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        runCatching { unregisterReceiver(bluetoothStateReceiver) }
+    }
+
+    // Re-run the ConnectIQ restore against the persisted paired-watch id. No-ops safely when
+    // there is no paired watch; won't clobber a live connection (guarded in restoreConnection).
+    private fun restoreWatchConnection() {
+        lifecycleScope.launch {
+            val watchId = userRepository.getPairedWatchId()
+            garminDeviceManager.restoreConnection(watchId, this@MainActivity)
+        }
     }
 
     // Hand a Strava OAuth redirect (paceapp://strava-callback?code=…) to StravaManager,
