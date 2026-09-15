@@ -17,12 +17,14 @@ fun NavGraphBuilder.eventDetailsScreen(
     onBack: () -> Unit,
     onNavigateToEventMap: () -> Unit,
     onNavigateToEditEvent: (String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
 ) {
     composable<EventDetailsRoute> {
         EventDetailsScreen(
             onBack = onBack,
             onNavigateToEventMap = onNavigateToEventMap,
-            onNavigateToEditEvent = onNavigateToEditEvent
+            onNavigateToEditEvent = onNavigateToEditEvent,
+            onNavigateToDuplicateEvent = onNavigateToDuplicateEvent
         )
     }
 }

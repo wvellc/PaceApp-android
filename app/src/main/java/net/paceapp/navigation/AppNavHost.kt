@@ -231,6 +231,7 @@ fun AppNavHost(
                 onBack = navActions::goBack,
                 onNavigateToEventMap = navActions::toEventMap,
                 onNavigateToEditEvent = navActions::toEditEvent,
+                onNavigateToDuplicateEvent = navActions::toDuplicateEvent,
             )
 
             //Edit event

@@ -4,6 +4,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.wvelabs.core_ui.alerts.MessageType
+import com.wvelabs.core_ui.utils.AppDateFormat
+import com.wvelabs.core_ui.utils.DateTimeHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -46,6 +48,7 @@ class EventDetailsViewModel @Inject constructor(
             is Event.OnIntervalsToggle -> handleOnIntervalsToggle()
             is Event.OnSegmentsToggle -> handleOnSegmentsToggle()
             is Event.OnEditButtonClick -> handleOnEditButtonClick()
+            is Event.OnDuplicateButtonClick -> handleOnDuplicateButtonClick()
             is Event.OnDeleteButtonClick -> handleOnDeleteButtonClick()
             is Event.OnDeleteEventConfirmation -> handleOnDeleteEventConfirmation()
             is Event.OnMapClick -> handleOnMapClick()
@@ -130,6 +133,20 @@ class EventDetailsViewModel @Inject constructor(
                 id = event.id,
                 eventName = event.title,
                 location = event.location,
+            )
+        }
+    }
+
+    // Duplicate is offered only for completed runs (mirrors iOS EventDetails duplicateAction).
+    // Copies the plan into the existing Duplicate flow, which starts a fresh upcoming event.
+    private fun handleOnDuplicateButtonClick() {
+        val event = currentState.eventDetails ?: return
+        setEffect {
+            Effect.NavigateToDuplicateEvent(
+                id = event.id,
+                eventName = event.title,
+                location = event.location,
+                date = DateTimeHelper.formatDateTime(event.dateTime, AppDateFormat.DATE_SHORT_DM).orEmpty(),
             )
         }
     }

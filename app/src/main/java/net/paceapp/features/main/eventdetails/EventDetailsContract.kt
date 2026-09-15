@@ -24,6 +24,7 @@ class EventDetailsContract {
         data object OnIntervalsToggle : Event()
         data object OnSegmentsToggle : Event()
         data object OnEditButtonClick : Event()
+        data object OnDuplicateButtonClick : Event()
         data object OnDeleteButtonClick : Event()
         data object OnDeleteEventConfirmation : Event()
         data object OnMapClick : Event()
@@ -35,6 +36,13 @@ class EventDetailsContract {
             val id: String,
             val eventName: String,
             val location: String
+        ) : Effect()
+
+        data class NavigateToDuplicateEvent(
+            val id: String,
+            val eventName: String,
+            val location: String,
+            val date: String,
         ) : Effect()
 
         data object NavigateToEventMap : Effect()

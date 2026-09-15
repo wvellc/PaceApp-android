@@ -144,6 +144,21 @@ internal fun EventDetailsContent(
                         }
                     )
                     Spacer(modifier = Modifier.height(24.dp))
+                    //Duplicate — only for completed runs (mirrors iOS EventDetails duplicateAction),
+                    // full-width above the Delete | Edit row. Routes into the existing Duplicate flow.
+                    if (eventDetails.isCompleted) {
+                        EventDetailButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            iconRes = R.drawable.ic_duplicate,
+                            contentColor = AppColors.White,
+                            backdrop = backdrop,
+                            label = stringResource(R.string.duplicate),
+                            onClick = {
+                                onEvent(Event.OnDuplicateButtonClick)
+                            }
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                     //Bottom buttons
                     Row(
                         modifier = Modifier
@@ -165,7 +180,7 @@ internal fun EventDetailsContent(
 
                         EventDetailButton(
                             modifier = Modifier.weight(1f),
-                            iconRes = R.drawable.ic_duplicate,
+                            iconRes = R.drawable.ic_edit,
                             contentColor = AppColors.White,
                             backdrop = backdrop,
                             label = stringResource(R.string.edit),

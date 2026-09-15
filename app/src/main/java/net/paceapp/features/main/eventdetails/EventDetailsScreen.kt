@@ -19,6 +19,7 @@ fun EventDetailsScreen(
     onBack: () -> Unit,
     onNavigateToEventMap: () -> Unit,
     onNavigateToEditEvent: (String, String, String) -> Unit,
+    onNavigateToDuplicateEvent: (String, String, String, String) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -36,6 +37,12 @@ fun EventDetailsScreen(
                     effect.id,
                     effect.eventName,
                     effect.location
+                )
+                is Effect.NavigateToDuplicateEvent -> onNavigateToDuplicateEvent(
+                    effect.id,
+                    effect.eventName,
+                    effect.location,
+                    effect.date
                 )
                 is Effect.NavigateToEventMap -> onNavigateToEventMap()
 

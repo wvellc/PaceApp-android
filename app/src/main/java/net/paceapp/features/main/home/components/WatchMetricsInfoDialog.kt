@@ -141,9 +141,11 @@ fun WatchMetricsInfoDialog(
                                 colorFilter = ColorFilter.tint(AppColors.FluorescentMint),
                             )
                             Spacer(Modifier.height(24.dp))
-                            //Title — fixed onboarding copy, matching iOS (same text per step).
+                            //Title — the tapped metric's own title (read from the current metric,
+                            // not the animation key, so the distance⇄finish flash can't re-trigger
+                            // the slide). Mirrors iOS binding metric.title.
                             Text(
-                                text = stringResource(R.string.title_heart_rate),
+                                text = metricInfo.title,
                                 textAlign = TextAlign.Center,
                                 style = AppTheme.typography.medium.copy(
                                     fontSize = 24.sp,
@@ -152,9 +154,9 @@ fun WatchMetricsInfoDialog(
                                 )
                             )
                             Spacer(Modifier.height(8.dp))
-                            //Description — fixed onboarding copy, matching iOS.
+                            //Description — the tapped metric's own description (mirrors iOS metric.description).
                             Text(
-                                text = stringResource(R.string.desc_heart_rate),
+                                text = metricInfo.description,
                                 textAlign = TextAlign.Center,
                                 style = AppTheme.typography.medium.copy(
                                     fontSize = 16.sp,
