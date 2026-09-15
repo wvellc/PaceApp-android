@@ -70,10 +70,7 @@ fun AnalyticsListItem(
             dataPoints = analytics.dataPoints,
             lineColor = analytics.type.color,
             modifier = Modifier.height(120.dp),
-            yAxisFormatter = { value -> "${value.toInt()}%" },
             yAxisStep = 25.0,
-            minY = 0.0,
-            maxY = 100.0,
         )
     }
 }

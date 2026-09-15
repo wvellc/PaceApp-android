@@ -14,7 +14,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import java.util.Locale
 import kotlin.math.ceil
+import kotlin.math.floor
 import net.paceapp.core.models.AnalyticsDataPoint
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
@@ -45,9 +47,6 @@ fun AppLineChart(
     dataPoints: List<AnalyticsDataPoint>,
     lineColor: Color,
     modifier: Modifier = Modifier,
-    yAxisFormatter: (Double) -> String = { it.toInt().toString() },
-    minY: Double? = null,
-    maxY: Double? = null,
     markersEnabled: Boolean = false,
     yAxisStep: Double = 20.0,
 ) {
@@ -56,13 +55,6 @@ fun AppLineChart(
     LaunchedEffect(dataPoints) {
         modelProducer.runTransaction {
             lineSeries { series(dataPoints.map { it.value }) }
-        }
-    }
-
-    //Common label formatter for Y axis
-    val startAxisFormatter = remember(yAxisFormatter) {
-        CartesianValueFormatter { _, yValue, _ ->
-            yAxisFormatter(yValue)
         }
     }
 
@@ -84,6 +76,17 @@ fun AppLineChart(
         overflow = TextOverflow.Ellipsis,
     )
 
+    // Bottom (duration) axis label — smaller font and no side margin so the period
+    // labels (e.g. weekdays / months) fit on one line instead of truncating. A top
+    // margin drops the labels clear of the bottom axis line so they don't overlap it.
+    val bottomAxisLabelComponent = rememberTextComponent(
+        style = AppTheme.typography.medium.copy(
+            fontSize = 9.sp, color = AppColors.Gray
+        ),
+        lineCount = 1,
+        margins = Insets(top = 6.dp),
+    )
+
     //Common line component for guidelines and axis
     val guideline = rememberLineComponent(
         thickness = 0.66.dp,
@@ -91,17 +94,23 @@ fun AppLineChart(
         fill = Fill(AppColors.LightGray),
     )
 
-    //Min and Max range on y axis. When the data overshoots the requested max (e.g. a
-    // Pace Percentage above 100%), raise the top to the next y-step multiple so the
-    // point shows in full instead of being drawn/clipped past a hard 100 cap.
-    val rangeProvider = remember(minY, maxY, yAxisStep, dataPoints) {
-        if (minY != null && maxY != null) {
-            val dataMax = dataPoints.maxOfOrNull { it.value } ?: maxY
-            val step = if (yAxisStep > 0.0) yAxisStep else 1.0
-            val grownMax = ceil(dataMax / step) * step
-            CartesianLayerRangeProvider.fixed(minY = minY, maxY = maxOf(maxY, grownMax))
-        } else {
+    // Dynamic Y range: fit to whatever data is available instead of a fixed 0–100 span,
+    // so a series sitting around ~19% fills the chart height rather than hugging the
+    // bottom. Min/max are floored/ceiled to the y-step so the guidelines still land on
+    // round values; a flat series gets a one-step span so it isn't zero-height.
+    val rangeProvider = remember(dataPoints, yAxisStep) {
+        val values = dataPoints.map { it.value }
+        if (values.isEmpty()) {
             CartesianLayerRangeProvider.auto()
+        } else {
+            val step = if (yAxisStep > 0.0) yAxisStep else 1.0
+            val rawMax = values.max()
+            val lo = floor(values.min() / step) * step
+            var hi = ceil(rawMax / step) * step
+            // Add a step of headroom when the peak sits on/near the top gridline so the
+            // line doesn't touch the top of the grid.
+            if (hi - rawMax < step * 0.2) hi += step
+            CartesianLayerRangeProvider.fixed(minY = lo, maxY = if (hi > lo) hi else lo + step)
         }
     }
     val currentStep by rememberUpdatedState(newValue = yAxisStep)
@@ -153,7 +162,8 @@ fun AppLineChart(
         label = markerLabel,
         valueFormatter = { _, targets ->
             targets.joinToString("\n") { target ->
-                "${dataPoints[target.x.toInt()].value}%"
+                // Trim the raw double to 2 decimals (e.g. 19.51361616 → "19.51%").
+                String.format(Locale.US, "%.2f%%", dataPoints[target.x.toInt()].value)
             }
         },
         indicator = { markerIndicator },
@@ -197,8 +207,8 @@ fun AppLineChart(
             ),
 
             startAxis = VerticalAxis.rememberStart(
-                label = axisLabelComponent,
-                valueFormatter = startAxisFormatter,
+                // Left-axis value labels removed; keep the horizontal guidelines only.
+                label = null,
                 guideline = guideline,
                 tick = guideline,
                 line = guideline,
@@ -206,7 +216,7 @@ fun AppLineChart(
                 itemPlacer = itemPlacer
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
-                label = axisLabelComponent,
+                label = bottomAxisLabelComponent,
                 valueFormatter = bottomAxisFormatter,
                 line = guideline,
                 tick = guideline,

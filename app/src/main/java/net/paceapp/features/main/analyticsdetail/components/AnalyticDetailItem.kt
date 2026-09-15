@@ -67,11 +67,8 @@ fun AnalyticDetailItem(
             dataPoints = summaryData.dataPoints,
             lineColor = summaryData.type.color,
             modifier = Modifier.height(160.dp),
-            yAxisFormatter = { value -> "${value.toInt()}%" },
             markersEnabled = true,
             yAxisStep = 10.0,
-            minY = 0.0,
-            maxY = 100.0,
         )
     }
 }
