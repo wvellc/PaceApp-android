@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -52,6 +53,9 @@ fun AppButton(
     backgroundColor: Color = AppColors.HintGray,
     contentColor: Color = AppColors.White,
     enabled: Boolean = true,
+    // While true the button shows a spinner and is not clickable — used to block
+    // duplicate submissions (e.g. creating/duplicating/editing an event).
+    isLoading: Boolean = false,
     padding: PaddingValues = PaddingValues(15.dp),
     textStyle: TextStyle = AppTheme.typography.medium.copy(
         fontSize =  16.sp,
@@ -61,6 +65,9 @@ fun AppButton(
     onClick: () -> Unit = {},
 ) {
 
+
+    // A loading button is not clickable, so a second tap can't re-trigger the action.
+    val isClickable = enabled && !isLoading
 
     // Styling based on the style enum
     val styleModifier = when (style) {
@@ -72,7 +79,7 @@ fun AppButton(
                 shape = cornerShape
             )
             .defaultClickable(
-                enabled = enabled,
+                enabled = isClickable,
                 rippleColor = AppColors.FluorescentMint,
                 onClick = onClick
             )
@@ -81,7 +88,7 @@ fun AppButton(
         AppButtonStyle.FILLED_GRADIENT -> Modifier
             .background(brush = Brush.verticalGradient(AppColors.buttonGradient))
             .defaultClickable(
-                enabled = enabled,
+                enabled = isClickable,
                 onClick = onClick,
                 rippleColor = AppColors.White20
             )
@@ -91,7 +98,7 @@ fun AppButton(
         AppButtonStyle.NONE -> Modifier
             .background(backgroundColor)
             .defaultClickable(
-                enabled = enabled,
+                enabled = isClickable,
                 onClick = onClick,
                 rippleColor = AppColors.FluorescentMint
             )
@@ -105,27 +112,37 @@ fun AppButton(
             .then(styleModifier)
             .padding(padding),
     ) {
-        Text(
-            title,
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(
-                    start = if (trailingIconRes != null) 32.dp else 0.dp,
-                    end = if (trailingIconRes != null) 32.dp else 0.dp
-                ),
-            style = textStyle,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-        if (trailingIconRes != null) {
-            Image(
-                painter = painterResource(trailingIconRes),
-                colorFilter = ColorFilter.tint(contentColor),
+        if (isLoading) {
+            CircularProgressIndicator(
                 modifier = Modifier
-                    .align(iconAlignment)
-                    .size(32.dp),
-                contentDescription = null,
+                    .align(Alignment.Center)
+                    .size(22.dp),
+                color = contentColor,
+                strokeWidth = 2.dp,
             )
+        } else {
+            Text(
+                title,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(
+                        start = if (trailingIconRes != null) 32.dp else 0.dp,
+                        end = if (trailingIconRes != null) 32.dp else 0.dp
+                    ),
+                style = textStyle,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (trailingIconRes != null) {
+                Image(
+                    painter = painterResource(trailingIconRes),
+                    colorFilter = ColorFilter.tint(contentColor),
+                    modifier = Modifier
+                        .align(iconAlignment)
+                        .size(32.dp),
+                    contentDescription = null,
+                )
+            }
         }
     }
 }

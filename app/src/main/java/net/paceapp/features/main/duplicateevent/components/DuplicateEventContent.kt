@@ -73,6 +73,7 @@ internal fun DuplicateEventContent(
                     .fillMaxWidth()
                     .systemBarsPadding(),
                 title = stringResource(R.string.save),
+                isLoading = state.isSaving,
                 onClick = {
                     coroutineScope.launch {
                         focusManager.clearFocus(force = true)

@@ -80,13 +80,20 @@ class EditEventViewModel @Inject constructor(
             return
         }
 
+        // Block a duplicate submit (e.g. double-tap on Save).
+        if (currentState.isSaving) return
+        setState { copy(isSaving = true) }
+
         // Load the authoritative event and override ONLY name/location so distance,
         // goal, segments, etc. are preserved. Keeping the same id makes this an
         // in-place upsert re-sent to the watch + Firestore. Falls back to a
         // minimal payload if the event can't be loaded.
         viewModelScope.launch {
             // Don't write on a session that no longer exists (account deleted elsewhere).
-            if (!authManager.verifyAccountStillValid()) return@launch
+            if (!authManager.verifyAccountStillValid()) {
+                setState { copy(isSaving = false) }
+                return@launch
+            }
 
             val existing = eventRepository.getEvent(currentState.eventId)
             val payload = existing

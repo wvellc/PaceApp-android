@@ -166,6 +166,7 @@ internal fun CreateEventContent(
                     .fillMaxWidth()
                     .systemBarsPadding(),
                 title = stringResource(state.currentStep.nextButtonRes),
+                isLoading = state.isSaving,
                 onClick = {
                     coroutineScope.launch {
                         focusManager.clearFocus(force = true)

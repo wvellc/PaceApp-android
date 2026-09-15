@@ -9,6 +9,8 @@ class EditEventContract {
     data class State(
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
+        // In-flight update — drives the button spinner and blocks a duplicate submit.
+        val isSaving: Boolean = false,
         // Original event id — kept so the save updates the same event in place.
         val eventId: Int = 0,
         val eventNameState: TextFieldState = TextFieldState(),

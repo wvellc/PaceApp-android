@@ -11,6 +11,8 @@ class DuplicateEventContract {
     data class State(
         val isInitialized: Boolean = false,
         val isLoading: Boolean = false,
+        // In-flight create — drives the button spinner and blocks a duplicate submit.
+        val isSaving: Boolean = false,
         val eventNameState: TextFieldState = TextFieldState(),
         val locationState: TextFieldState = TextFieldState(),
         val selectedDate: LocalDateTime = DateTimeHelper.now(),

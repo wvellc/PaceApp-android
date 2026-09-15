@@ -79,9 +79,16 @@ class DuplicateEventViewModel @Inject constructor(
             return
         }
 
+        // Block a duplicate submit (e.g. double-tap on Save).
+        if (currentState.isSaving) return
+        setState { copy(isSaving = true) }
+
         viewModelScope.launch {
             // Don't create on a session that no longer exists (account deleted elsewhere).
-            if (!authManager.verifyAccountStillValid()) return@launch
+            if (!authManager.verifyAccountStillValid()) {
+                setState { copy(isSaving = false) }
+                return@launch
+            }
 
             // New id → a brand new active event, then sync to watch/Firestore.
             val payload = buildEventPayload(eventName, location)

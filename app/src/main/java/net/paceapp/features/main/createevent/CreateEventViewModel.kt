@@ -188,11 +188,18 @@ class CreateEventViewModel @Inject constructor(
     }
 
     private fun createEventApi() {
+        // Block a duplicate submit (e.g. double-tap on the final Create button).
+        if (currentState.isSaving) return
+        setState { copy(isSaving = true) }
+
         val state = currentState
         viewModelScope.launch {
             // Don't create on a session that no longer exists (account deleted/disabled
             // elsewhere) — verifyAccountStillValid signs out + prompts, so just abort here.
-            if (!authManager.verifyAccountStillValid()) return@launch
+            if (!authManager.verifyAccountStillValid()) {
+                setState { copy(isSaving = false) }
+                return@launch
+            }
 
             val eventPayload = buildEventPayload(state)
             // Save locally + send create_event to watch

@@ -94,6 +94,7 @@ internal fun EditEventContent(
                     modifier = Modifier
                         .weight(1f),
                     title = stringResource(R.string.save),
+                    isLoading = state.isSaving,
                     onClick = {
                         coroutineScope.launch {
                             focusManager.clearFocus(force = true)
