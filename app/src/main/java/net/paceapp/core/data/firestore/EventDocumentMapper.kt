@@ -284,7 +284,9 @@ object EventDocumentMapper {
         return rounded
     }
 
-    // Rewrites "distance", "actualDist" and each segment "distance" in a watch payload as canonical strings.
+    // Rewrites distances at 2 dp: "distance"/"actualDist" as strings (the watch stores and shows
+    // them as text), each segment "distance" as a number (the watch does Float maths + .format on
+    // it, so a phone-created segmented event only works on the watch when segments are numbers).
     fun normalizingWatchDistances(payload: Map<String, Any?>): Map<String, Any?> {
         val result = payload.toMutableMap()
         val total = parseDouble(payload["distance"])
@@ -298,7 +300,9 @@ object EventDocumentMapper {
         if (segments.isNotEmpty() && segmentDistances.size == segments.size) {
             val canonical = canonicalSegmentDistances(segmentDistances, total ?: 0.0)
             result["segments"] = segments.mapIndexed { i, seg ->
-                seg.toMutableMap().apply { this["distance"] = watchDistanceString(canonical[i]) }
+                // Segment distance goes as a raw number (Double), not a string — the watch does
+                // Float maths on it. Event-level distance/actualDist above stay strings.
+                seg.toMutableMap().apply { this["distance"] = canonical[i] }
             }
         }
         return result
