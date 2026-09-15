@@ -34,6 +34,7 @@ data class EventDetailsUiModel(
     // --- Extra Analytics ---
     val lookBackIntervals: Int, // 1
     val averageHeartRateBpm: Int?, // 157
+    val averagePaceSeconds: Int?, // 510 -> 8:30 per mi/km (watch-provided; completed only)
 
     // --- Route & Map Data ---
     val encodedPolyline: String,

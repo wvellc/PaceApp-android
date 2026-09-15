@@ -29,6 +29,7 @@ import net.paceapp.core.extensions.displayValue
 import net.paceapp.features.main.eventdetails.models.EventDetailsUiModel
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
+import java.util.Locale
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -96,59 +97,68 @@ internal fun EventDataCard(
             isExpanded = isAnalyticsExpanded,
             onToggle = onToggleAnalytics
         ) {
+            // Build the visible analysis rows in reading order, then split them evenly
+            // across two columns. This keeps the original layout when everything is
+            // present, but when a row is hidden (e.g. Segments with 0) the remaining
+            // items rebalance instead of leaving an empty slot in one column.
+            val analysisItems = buildList {
+                add(stringResource(R.string.event_distance) to eventDetails.targetDistance.displayValue)
+                add(
+                    stringResource(R.string.finished_goal_time) to
+                        DateTimeHelper.formatDuration(eventDetails.finishTimeGoalInSeconds.seconds)
+                )
+                // Completed-only stats are hidden for an active/upcoming event
+                // (mirrors iOS filtering out "—" values).
+                if (eventDetails.isCompleted) {
+                    add(
+                        stringResource(R.string.time_variance) to
+                            DateTimeHelper.formatDuration(eventDetails.timeVarianceInSeconds.seconds)
+                    )
+                }
+                // Hide the Segments count in Analysis when the event has none
+                // (no "Segments: 0" for a plain run).
+                if (eventDetails.segments.isNotEmpty()) {
+                    add(stringResource(R.string.segments) to eventDetails.segments.size.toString())
+                }
+                if (eventDetails.isCompleted) {
+                    add(stringResource(R.string.completed_distance) to eventDetails.completedDistance.displayValue)
+                    add(
+                        stringResource(R.string.total_time_taken) to
+                            DateTimeHelper.formatDuration(eventDetails.totalTimeTakenInSeconds.seconds)
+                    )
+                }
+                add(stringResource(R.string.look_back_intervals) to eventDetails.lookBackIntervals.toString())
+                if (eventDetails.isCompleted) {
+                    add(
+                        stringResource(R.string.average_heart_rate) to
+                            "${eventDetails.averageHeartRateBpm ?: 0} bpm"
+                    )
+                    // Average Pace (watch-provided), shown as m:ss per the event's unit.
+                    eventDetails.averagePaceSeconds?.takeIf { it > 0 }?.let { paceSeconds ->
+                        val unit = stringResource(eventDetails.targetDistance.unit.unitNameRes)
+                        add(
+                            stringResource(R.string.average_pace) to
+                                String.format(Locale.US, "%d:%02d min/%s", paceSeconds / 60, paceSeconds % 60, unit)
+                        )
+                    }
+                }
+            }
+            val leftCount = (analysisItems.size + 1) / 2
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    EventTitleValue(
-                        title = stringResource(R.string.event_distance),
-                        value = eventDetails.targetDistance.displayValue
-                    )
-
-                    EventTitleValue(
-                        title = stringResource(R.string.finished_goal_time),
-                        value = DateTimeHelper.formatDuration(eventDetails.finishTimeGoalInSeconds.seconds)
-                    )
-
-                    // Completed-only stats are hidden for an active/upcoming event
-                    // (mirrors iOS filtering out "—" values).
-                    if (eventDetails.isCompleted) {
-                        EventTitleValue(
-                            title = stringResource(R.string.time_variance),
-                            value = DateTimeHelper.formatDuration(eventDetails.timeVarianceInSeconds.seconds)
-                        )
+                    analysisItems.take(leftCount).forEach { (title, value) ->
+                        EventTitleValue(title = title, value = value)
                     }
-                    EventTitleValue(
-                        title = stringResource(R.string.segments),
-                        value = eventDetails.segments.size.toString()
-                    )
-
                 }
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (eventDetails.isCompleted) {
-                        EventTitleValue(
-                            title = stringResource(R.string.completed_distance),
-                            value = eventDetails.completedDistance.displayValue
-                        )
-                        EventTitleValue(
-                            title = stringResource(R.string.total_time_taken),
-                            value = DateTimeHelper.formatDuration(eventDetails.totalTimeTakenInSeconds.seconds)
-                        )
-                    }
-
-                    EventTitleValue(
-                        title = stringResource(R.string.look_back_intervals),
-                        value = eventDetails.lookBackIntervals.toString()
-                    )
-                    if (eventDetails.isCompleted) {
-                        EventTitleValue(
-                            title = stringResource(R.string.average_heart_rate),
-                            value = "${eventDetails.averageHeartRateBpm ?: 0} bpm"
-                        )
+                    analysisItems.drop(leftCount).forEach { (title, value) ->
+                        EventTitleValue(title = title, value = value)
                     }
                 }
             }

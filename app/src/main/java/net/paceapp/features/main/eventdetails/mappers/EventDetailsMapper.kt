@@ -78,6 +78,7 @@ object EventDetailsMapper {
 
             lookBackIntervals = document.lookBackIntervals,
             averageHeartRateBpm = document.avgHeartRate,
+            averagePaceSeconds = document.avgPaceSeconds,
 
             encodedPolyline = document.routePolyline ?: "",
             coordinates = coordinates,

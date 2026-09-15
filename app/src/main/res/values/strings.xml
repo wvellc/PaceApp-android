@@ -146,6 +146,7 @@
     <string name="previous">Previous</string>
     <string name="done">Done</string>
     <string name="avg_pace">Avg Pace</string>
+    <string name="average_pace">Average Pace</string>
     <string name="avg_heart_rate">Avg Heart Rate</string>
     <string name="elevation">Elevation</string>
     <string name="avg_percentage">Pace Percentage</string>
