@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,7 +27,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +40,47 @@ import net.paceapp.features.main.profile.enums.ProfileOptions
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 import com.wvelabs.core_ui.components.InitialAvatarView
+import androidx.compose.ui.geometry.Offset
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.min
+import kotlin.math.sin
+
+// Upward-pointing regular pentagon with rounded corners that fills the avatar box
+// (vertices on the box's inscribed ellipse, first vertex at top-center). Each corner is
+// trimmed back along both edges and joined with a quadratic curve through the original
+// vertex, so the points read as softly rounded rather than sharp.
+private val PentagonShape = GenericShape { size, _ ->
+    val cx = size.width / 2f
+    val cy = size.height / 2f
+    val rx = size.width / 2f
+    val ry = size.height / 2f
+    // How far each corner is rounded — a fraction of the smaller side.
+    val cornerRadius = size.minDimension * 0.10f
+
+    val points = Array(5) { i ->
+        val angle = -PI / 2 + i * 2 * PI / 5
+        Offset(cx + rx * cos(angle).toFloat(), cy + ry * sin(angle).toFloat())
+    }
+
+    for (i in points.indices) {
+        val curr = points[i]
+        val prev = points[(i + points.size - 1) % points.size]
+        val next = points[(i + 1) % points.size]
+
+        val toPrev = prev - curr
+        val toNext = next - curr
+        // Clamp so adjacent roundings never overrun a (short) edge.
+        val startInset = min(cornerRadius, toPrev.getDistance() / 2f)
+        val endInset = min(cornerRadius, toNext.getDistance() / 2f)
+        val start = curr + toPrev / toPrev.getDistance() * startInset
+        val end = curr + toNext / toNext.getDistance() * endInset
+
+        if (i == 0) moveTo(start.x, start.y) else lineTo(start.x, start.y)
+        quadraticBezierTo(curr.x, curr.y, end.x, end.y)
+    }
+    close()
+}
 
 @Composable
 internal fun ProfileContent(
@@ -107,19 +147,14 @@ internal fun ProfileContent(
         ) {
             //Avtar based on initials
             InitialAvatarView(
-                size = DpSize(width = 100.dp, height = 108.dp),
+                size = DpSize(width = 100.dp, height = 100.dp),
                 modifier = Modifier.padding(top = 30.dp),
-                shape = RoundedCornerShape(
-                    topStart = 72.dp,
-                    topEnd = 72.dp,
-                    bottomEnd = 10.dp,
-                    bottomStart = 10.dp
-                ),
+                shape = PentagonShape,
                 name = state.userUiModel?.fullName ?: "",
                 backgroundColor = AppColors.White,
                 textStyle = AppTheme.typography.bold.copy(
                     color = AppColors.RadiantBlue,
-                    fontSize = 46.sp,
+                    fontSize = 40.sp,
                 )
             )
             //User info
