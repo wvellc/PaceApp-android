@@ -26,7 +26,7 @@ object HomeMetricsMapper {
                 value = (doc.avgHeartRate ?: 0).toString(),
                 unit = "bpm",
                 title = "Average Heart Rate",
-                description = "Your average heart rate recorded across the whole run.",
+                description = "Your average heart rate recorded across the whole event.",
             ),
             // 2 — Total distance ⇄ actual finish time (flashes back and forth).
             face(doc, showDistanceFace),
@@ -47,7 +47,7 @@ object HomeMetricsMapper {
                 value = formatPace(doc.avgPaceSeconds),
                 unit = paceUnit,
                 title = "Average Pace",
-                description = "Your average pace for this run.",
+                description = "Your average pace for this event.",
             ),
             // 5 — Goal time originally entered when creating the event.
             WatchMetric(
@@ -81,7 +81,7 @@ object HomeMetricsMapper {
             value = value,
             unit = unit,
             title = "Total Distance",
-            description = "The total distance you covered in this run.",
+            description = "The total distance you covered in this event.",
         )
     }
 
@@ -95,7 +95,7 @@ object HomeMetricsMapper {
             value = value,
             unit = "time",
             title = "Finish Time",
-            description = "Your actual finishing time for this run.",
+            description = "Your actual finishing time for this event.",
         )
     }
 

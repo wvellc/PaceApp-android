@@ -45,7 +45,7 @@ object NotificationDummyData {
         NotificationModel(
             id = UUID.randomUUID().toString(),
             title = "Watch battery low",
-            message = "Your Garmin is at 15%. Consider charging before your next run.",
+            message = "Your Garmin is at 15%. Consider charging before your next event.",
             updatedAt = "2026-05-19T09:50:00Z",
         )
     )
