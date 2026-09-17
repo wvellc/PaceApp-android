@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.paceapp.R
+import net.paceapp.core.extensions.activityIconRes
 import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.theme.AppColors
@@ -41,8 +42,8 @@ fun UpcomingActivityListItem(
     ) {
         // Icon
         Image(
-            painter = painterResource(id = R.drawable.ic_runner),
-            contentDescription = "Activity Icon",
+            painter = painterResource(id = activityIconRes(model.activityType)),
+            contentDescription = "${model.activityType} Icon",
             modifier = Modifier.size(38.dp)
         )
 

@@ -31,6 +31,7 @@ object EventDocumentUiMapper {
             paceDifference = variance?.let { EventDocumentMapper.formatSignedVariance(it) }.orEmpty(),
             // Negative variance = finished ahead of goal (matches iOS delta colouring).
             isAheadOfTime = (variance ?: 0) < 0,
+            activityType = doc.activityType,
         )
     }
 

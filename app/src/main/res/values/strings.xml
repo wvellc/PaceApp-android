@@ -135,7 +135,7 @@
     <string name="open_pace_app_to_sync">Open Pace App on your Garmin watch to sync</string>
     <string name="synced_time_ago">Synced %1$s</string>
     <string name="just_now">just now</string>
-    <string name="greetings_user">GM, %1$s</string>
+    <string name="greetings_user">Hi, %1$s</string>
     <string name="new_event">New Event</string>
     <string name="favorites">Favorites</string>
     <string name="upcoming_activities">Upcoming Activities</string>
@@ -215,6 +215,10 @@
     <string name="save">Save</string>
     <string name="edit_event">Edit Event</string>
     <string name="event_details">Event details</string>
+    <string name="run_details">Run Details</string>
+    <string name="walk_details">Walk Details</string>
+    <string name="cycle_details">Cycle Details</string>
+    <string name="other_details">Other Details</string>
     <string name="no_favorites_title">No favorite activities yet.</string>
 
     <!-- FAQ / Help -->

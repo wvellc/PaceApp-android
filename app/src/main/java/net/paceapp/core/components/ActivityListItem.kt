@@ -23,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.paceapp.R
+import net.paceapp.core.extensions.activityIconRes
 import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.theme.AppColors
@@ -51,8 +52,8 @@ fun ActivityListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
-                painter = painterResource(id = R.drawable.ic_runner),
-                contentDescription = "Run Icon",
+                painter = painterResource(id = activityIconRes(history.activityType)),
+                contentDescription = "${history.activityType} Icon",
                 modifier = Modifier,
             )
 

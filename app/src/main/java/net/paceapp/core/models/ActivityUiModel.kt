@@ -9,5 +9,7 @@ data class ActivityUiModel(
     val goalTime: String,
     val avgPace: String,
     val paceDifference: String,
-    val isAheadOfTime: Boolean
+    val isAheadOfTime: Boolean,
+    // Canonical activity type ("Run"/"Walking"/"Cycling"/"Other") — drives the row icon.
+    val activityType: String = "Run",
 )

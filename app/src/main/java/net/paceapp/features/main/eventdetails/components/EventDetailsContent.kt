@@ -31,6 +31,7 @@ import net.paceapp.core.components.AppBaseScreen
 import net.paceapp.core.components.AppLoadingIndicator
 import net.paceapp.core.components.CommonAppBar
 import net.paceapp.core.components.NoDataView
+import net.paceapp.core.extensions.activityDetailsTitleRes
 import net.paceapp.core.extensions.defaultClickable
 import net.paceapp.core.utils.StaticMapHelper
 import net.paceapp.features.main.eventdetails.EventDetailsContract.Event
@@ -60,9 +61,12 @@ internal fun EventDetailsContent(
         isLoading = state.isLoading,
         hasPattern = true,
         appBar = {
-            //App bar
+            //App bar — title reflects the activity type ("Run Details", "Cycle Details", …).
+            val titleRes = state.eventDetails
+                ?.let { activityDetailsTitleRes(it.activityType) }
+                ?: R.string.event_details
             CommonAppBar(
-                title = stringResource(R.string.event_details),
+                title = stringResource(titleRes),
                 onBackClick = {
                     onEvent(Event.OnBackClick)
                 },

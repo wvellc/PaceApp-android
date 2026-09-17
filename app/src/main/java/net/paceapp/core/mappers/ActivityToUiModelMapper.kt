@@ -23,7 +23,8 @@ class ActivityToUiModelMapper @Inject constructor(
             goalTime = formatter.formatGoalTime(model.goalTime.seconds),
             avgPace = model.avgPace,
             paceDifference = model.paceDifference,
-            isAheadOfTime = model.isAheadOfTime
+            isAheadOfTime = model.isAheadOfTime,
+            activityType = model.activityType,
         )
     }
 }

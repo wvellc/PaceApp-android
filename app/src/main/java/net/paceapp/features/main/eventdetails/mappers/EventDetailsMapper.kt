@@ -58,6 +58,7 @@ object EventDetailsMapper {
             location = document.location,
             dateTime = dateTime,
             eventTypeRes = eventTypeRes(document.activityType),
+            activityType = document.activityType,
 
             isCompleted = document.status == EventStatusValue.COMPLETED,
 

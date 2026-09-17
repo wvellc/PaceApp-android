@@ -12,6 +12,8 @@ data class EventDetailsUiModel(
     val dateTime: LocalDateTime,
 
     @param:StringRes val eventTypeRes: Int,
+    // Canonical activity type ("Run"/"Walking"/"Cycling"/"Other") — drives the screen title.
+    val activityType: String = "Run",
 
     // Whether the event has actuals (completed) vs upcoming/active. Gates the
     // completed-only stats/sections so an active event shows only its planned data
