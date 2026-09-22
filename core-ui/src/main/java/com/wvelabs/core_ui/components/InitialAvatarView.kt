@@ -2,6 +2,7 @@ package com.wvelabs.core_ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
@@ -55,6 +56,7 @@ fun InitialAvatarView(
         Text(
             text = initials,
             style = textStyle,
+            modifier = Modifier.padding(top = 8.dp),
         )
     }
 }
