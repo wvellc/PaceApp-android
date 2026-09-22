@@ -1,7 +1,13 @@
 package net.paceapp.core.components
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -11,12 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.util.Locale
 import kotlin.math.ceil
 import kotlin.math.floor
+import kotlin.math.log10
+import kotlin.math.pow
 import net.paceapp.core.models.AnalyticsDataPoint
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
@@ -25,7 +32,6 @@ import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianLayerRangeProvider
-import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.lineSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.LineCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberLine
@@ -41,6 +47,21 @@ import com.patrykandpatrick.vico.compose.common.component.rememberShapeComponent
 import com.patrykandpatrick.vico.compose.common.component.rememberTextComponent
 import com.wvelabs.core_ui.extensions.defaultAnimSpec
 
+
+// Rounds a rough step up to a "nice" 1/2/5×10ⁿ value so the y-grid uses tidy intervals
+// and only a few sections regardless of the data's magnitude.
+private fun niceStep(rough: Double): Double {
+    if (rough <= 0.0 || rough.isNaN() || rough.isInfinite()) return 1.0
+    val magnitude = 10.0.pow(floor(log10(rough)))
+    val residual = rough / magnitude
+    val niceResidual = when {
+        residual <= 1.0 -> 1.0
+        residual <= 2.0 -> 2.0
+        residual <= 5.0 -> 5.0
+        else -> 10.0
+    }
+    return niceResidual * magnitude
+}
 
 @Composable
 fun AppLineChart(
@@ -58,35 +79,6 @@ fun AppLineChart(
         }
     }
 
-    // X-axis labels come straight from each data point's bucket label so the bottom
-    // bar reads as the period's duration: Day → times, Week → weekdays, Month → weeks,
-    // Year → months (produced by AnalyticsAggregator.bucketRecords).
-    val bottomAxisFormatter = remember(dataPoints) {
-        CartesianValueFormatter { _, xValue, _ ->
-            dataPoints.getOrNull(xValue.toInt())?.label.orEmpty()
-        }
-    }
-    //Common label component
-    val axisLabelComponent = rememberTextComponent(
-        style = AppTheme.typography.medium.copy(
-            fontSize = 12.sp, color = AppColors.Gray
-        ),
-        lineCount = 1,
-        margins = Insets(end = 8.dp),
-        overflow = TextOverflow.Ellipsis,
-    )
-
-    // Bottom (duration) axis label — smaller font and no side margin so the period
-    // labels (e.g. weekdays / months) fit on one line instead of truncating. A top
-    // margin drops the labels clear of the bottom axis line so they don't overlap it.
-    val bottomAxisLabelComponent = rememberTextComponent(
-        style = AppTheme.typography.medium.copy(
-            fontSize = 9.sp, color = AppColors.Gray
-        ),
-        lineCount = 1,
-        margins = Insets(top = 6.dp),
-    )
-
     //Common line component for guidelines and axis
     val guideline = rememberLineComponent(
         thickness = 0.66.dp,
@@ -94,29 +86,37 @@ fun AppLineChart(
         fill = Fill(AppColors.LightGray),
     )
 
-    // Dynamic Y range: fit to whatever data is available instead of a fixed 0–100 span,
-    // so a series sitting around ~19% fills the chart height rather than hugging the
-    // bottom. Min/max are floored/ceiled to the y-step so the guidelines still land on
-    // round values; a flat series gets a one-step span so it isn't zero-height.
-    val rangeProvider = remember(dataPoints, yAxisStep) {
+    // Dynamic Y bounds with a "nice" step chosen from the data so the grid has only a few
+    // sections (mirrors iOS's ~4–5 gridlines) rather than a fixed step that multiplies
+    // lines on large ranges. The step targets ~4 sections and snaps to 1/2/5×10ⁿ; lo/hi
+    // are floored/ceiled to it (so gridlines land on round values and the line fills the
+    // height), plus a touch of top headroom so the peak doesn't sit on the top line.
+    val yBounds = remember(dataPoints) {
         val values = dataPoints.map { it.value }
         if (values.isEmpty()) {
-            CartesianLayerRangeProvider.auto()
+            null
         } else {
-            val step = if (yAxisStep > 0.0) yAxisStep else 1.0
+            val rawMin = values.min()
             val rawMax = values.max()
-            val lo = floor(values.min() / step) * step
+            val step = niceStep((rawMax - rawMin) / 4.0)
+            val lo = floor(rawMin / step) * step
             var hi = ceil(rawMax / step) * step
-            // Add a step of headroom when the peak sits on/near the top gridline so the
-            // line doesn't touch the top of the grid.
             if (hi - rawMax < step * 0.2) hi += step
-            CartesianLayerRangeProvider.fixed(minY = lo, maxY = if (hi > lo) hi else lo + step)
+            if (hi <= lo) hi = lo + step
+            Triple(lo, hi, step)
         }
     }
-    val currentStep by rememberUpdatedState(newValue = yAxisStep)
-    // Dynamic Item Placer based on passed arguments
+    val rangeProvider = remember(yBounds) {
+        yBounds?.let { (lo, hi, _) ->
+            CartesianLayerRangeProvider.fixed(minY = lo, maxY = hi)
+        } ?: CartesianLayerRangeProvider.auto()
+    }
+    // Draw a horizontal gridline at every "nice" step. The step placer (unlike the count
+    // placer) works even though the start-axis labels are hidden.
+    val yStep = yBounds?.third ?: yAxisStep
+    val currentYStep by rememberUpdatedState(newValue = yStep)
     val itemPlacer = remember {
-        VerticalAxis.ItemPlacer.step({ currentStep })
+        VerticalAxis.ItemPlacer.step({ currentYStep })
     }
 
     // Tooltip Bubble
@@ -174,9 +174,16 @@ fun AppLineChart(
     // points to the full width via Zoom.Content, so data is shown in full, never cut off.
     val scrollState = rememberVicoScrollState(scrollEnabled = false)
 
+    // Chart + its own x-axis label row. The chart plots edge-to-edge (no extreme label
+    // padding), and the labels are laid out manually below with SpaceBetween so the first
+    // hugs the left and the last hugs the right (iOS-style), instead of Vico insetting the
+    // plot to fit centred edge labels (which left an empty strip before the first point).
+    Column(modifier = modifier) {
     //Chart host
     CartesianChartHost(
-        modifier = modifier,
+        modifier = Modifier
+            .weight(1f)
+            .fillMaxWidth(),
         modelProducer = modelProducer,
         scrollState = scrollState,
         animationSpec = defaultAnimSpec(duration = 200),
@@ -216,8 +223,9 @@ fun AppLineChart(
                 itemPlacer = itemPlacer
             ),
             bottomAxis = HorizontalAxis.rememberBottom(
-                label = bottomAxisLabelComponent,
-                valueFormatter = bottomAxisFormatter,
+                // Labels are drawn by the manual row below; here we only want the bottom
+                // line + the vertical gridlines, edge-to-edge (no extreme label padding).
+                label = null,
                 line = guideline,
                 tick = guideline,
                 tickLength = 0.dp,
@@ -233,4 +241,27 @@ fun AppLineChart(
             }
         ),
     )
+
+        // Manual x-axis labels, aligned edge-to-edge with the plotted points: first label
+        // hugs the left, last hugs the right, the rest spread evenly between.
+        if (dataPoints.isNotEmpty()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 6.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                dataPoints.forEach { point ->
+                    Text(
+                        text = point.label,
+                        maxLines = 1,
+                        style = AppTheme.typography.medium.copy(
+                            fontSize = 9.sp,
+                            color = AppColors.Gray,
+                        ),
+                    )
+                }
+            }
+        }
+    }
 }
