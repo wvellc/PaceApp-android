@@ -29,6 +29,7 @@ import com.wvelabs.core_ui.alerts.MessageType
 import net.paceapp.R
 import net.paceapp.core.data.ProfileSessionSync
 import net.paceapp.core.garmin.GarminDeviceManager
+import net.paceapp.core.revenuecat.ProManager
 import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.domain.enums.LoginTypes
 import net.paceapp.core.domain.models.UserData
@@ -50,6 +51,7 @@ class AuthManager @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val garminDeviceManager: GarminDeviceManager,
     private val stravaManager: StravaManager,
+    private val proManager: ProManager,
     private val sessionManager: AppSessionManager,
     private val profileSessionSync: ProfileSessionSync,
     @param:ApplicationScope private val appScope: CoroutineScope,
@@ -98,11 +100,15 @@ class AuthManager @Inject constructor(
             if (fb.currentUser != null) {
                 hadSignedInUser = true
                 forcedLogout = false
+                // Identify the RevenueCat purchaser as this Firebase uid (covers sign-in and
+                // cold-start session restore) — never leave the SDK on an anonymous id.
+                proManager.logIn(fb.currentUser!!.uid)
                 // Live-mirror users/{uid} → session so other-device profile edits refresh UI.
                 profileSessionSync.start()
             } else {
                 profileSessionSync.stop()
                 if (hadSignedInUser) {
+                    proManager.logOut()
                     appScope.launch {
                         if (sessionManager.isAuthenticated()) {
                             AppLogger.w("[Auth] signed-in user vanished (remote deletion?) — forcing logout")
@@ -344,6 +350,7 @@ class AuthManager @Inject constructor(
         user.delete().await()
 
         runCatching { auth.signOut() }
+        runCatching { proManager.logOut() }
         runCatching { sessionManager.clearSession() }
         isReauthenticatingForDeletion = false
     }
@@ -354,6 +361,7 @@ class AuthManager @Inject constructor(
         // Intentional local sign-out — suppress the remote-deletion watcher.
         hadSignedInUser = false
         auth.signOut()
+        proManager.logOut()
         sessionManager.clearSession()
     }
 

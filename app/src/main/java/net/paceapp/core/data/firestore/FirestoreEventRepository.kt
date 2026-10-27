@@ -212,6 +212,19 @@ class FirestoreEventRepository @Inject constructor(
         return ConnectIQEventSnapshot(active, completed, deletedIds)
     }
 
+    // Live-event count for the Pace Pro gate = active + completed (deleted excluded). One
+    // query, partitioned client-side (same cheap pattern as fetchAllEventPayloads, minus the
+    // payload mapping). `get()` falls back to the local cache when offline.
+    override suspend fun countLiveEvents(userId: String): Int {
+        val snapshot = eventsCollection().whereEqualTo("userId", userId).get().await()
+        return snapshot.documents.count { doc ->
+            when (doc.getString("status")) {
+                EventStatusValue.ACTIVE, EventStatusValue.COMPLETED -> true
+                else -> false
+            }
+        }
+    }
+
     // Hard-delete every event doc for this user (full account deletion). Best-effort
     // per doc so one failure doesn't strand the rest — the Auth account delete follows.
     override suspend fun deleteAllForUser(userId: String) {

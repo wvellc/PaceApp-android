@@ -24,6 +24,8 @@ import net.paceapp.core.mappers.ActivityToUiModelMapper
 import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.core.providers.AppResourceProvider
+import net.paceapp.core.revenuecat.PaywallController
+import net.paceapp.core.revenuecat.ProManager
 import net.paceapp.R
 import net.paceapp.features.main.home.HomeContract.Effect
 import net.paceapp.features.main.home.HomeContract.Event
@@ -39,6 +41,7 @@ class HomeViewModel @Inject constructor(
     private val authManager: AuthManager,
     private val eventSyncManager: EventSyncManager,
     private val resourceProvider: AppResourceProvider,
+    private val proManager: ProManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     // Latest completed event backing the header metrics + the distance⇄finish flash.
@@ -227,8 +230,23 @@ class HomeViewModel @Inject constructor(
     }
 
 
+    // Pace Pro gate: a free user past the live-event limit sees the paywall instead of the
+    // create flow. Pro users skip the count read. Mirrors iOS SubscriptionManager gate.
     private fun handleOnNewEventClick() {
-        setEffect { Effect.NavigateToCreateEvent }
+        viewModelScope.launch {
+            val count = if (proManager.isPro.value) 0 else liveEventCount()
+            if (proManager.canCreateEvent(count)) {
+                setEffect { Effect.NavigateToCreateEvent }
+            } else {
+                // Unlocking Pro from the paywall proceeds straight into the create flow.
+                PaywallController.show { setEffect { Effect.NavigateToCreateEvent } }
+            }
+        }
+    }
+
+    private suspend fun liveEventCount(): Int {
+        val uid = authManager.currentUid ?: return 0
+        return runCatching { eventRepository.countLiveEvents(uid) }.getOrDefault(0)
     }
 
     private fun handleOnFavoriteClick() {

@@ -44,6 +44,11 @@ interface EventRepository {
     // One read → client-side partition, to seed the watch handshake.
     suspend fun fetchAllEventPayloads(userId: String): ConnectIQEventSnapshot
 
+    // Count of the user's LIVE events (active + completed, excluding deleted) — the number
+    // the Pace Pro free-tier gate checks against RevenueCatConst.freeEventLimit. Mirrors the
+    // iOS live-event count. Reads from the Firestore cache when offline.
+    suspend fun countLiveEvents(userId: String): Int
+
     // Hard-delete every event doc owned by this user — part of full account deletion
     // (not a soft delete; the account is going away entirely). Mirrors iOS deleteAccount.
     suspend fun deleteAllForUser(userId: String)

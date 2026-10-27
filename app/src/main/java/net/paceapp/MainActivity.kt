@@ -20,6 +20,7 @@ import net.paceapp.core.strava.StravaConst
 import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.components.AppActionDialog
 import net.paceapp.core.components.CustomToast
+import net.paceapp.core.revenuecat.AppPaywallHost
 import net.paceapp.navigation.AppNavHost
 import net.paceapp.session.AppSessionManager
 import net.paceapp.theme.PaceAppTheme
@@ -86,6 +87,9 @@ class MainActivity : ComponentActivity() {
                         sessionManager = sessionManager,
                         authManager = authManager
                     )
+
+                    // Pace Pro paywall — floats over the whole app when the event gate trips.
+                    AppPaywallHost()
                 }
             }
         }

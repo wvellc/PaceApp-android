@@ -20,6 +20,8 @@ import net.paceapp.features.main.eventdetails.EventDetailsContract.State
 import net.paceapp.features.main.eventdetails.mappers.EventDetailsMapper
 import net.paceapp.features.main.eventdetails.navigation.EventDetailsRoute
 import net.paceapp.core.garmin.EventSyncManager
+import net.paceapp.core.revenuecat.PaywallController
+import net.paceapp.core.revenuecat.ProManager
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,6 +31,7 @@ class EventDetailsViewModel @Inject constructor(
     private val eventRepository: EventRepository,
     private val favoriteRepository: FavoriteRepository,
     private val authManager: AuthManager,
+    private val proManager: ProManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     // Firestore document id of the event being viewed (String(id)) — used for favorites.
@@ -141,14 +144,32 @@ class EventDetailsViewModel @Inject constructor(
     // Copies the plan into the existing Duplicate flow, which starts a fresh upcoming event.
     private fun handleOnDuplicateButtonClick() {
         val event = currentState.eventDetails ?: return
-        setEffect {
-            Effect.NavigateToDuplicateEvent(
-                id = event.id,
-                eventName = event.title,
-                location = event.location,
-                date = DateTimeHelper.formatDateTime(event.dateTime, AppDateFormat.DATE_SHORT_DM).orEmpty(),
-            )
+        // A duplicate creates a fresh event, so it goes through the same Pace Pro gate as a
+        // new event: a free user past the live-event limit sees the paywall instead.
+        viewModelScope.launch {
+            val count = if (proManager.isPro.value) 0 else liveEventCount()
+            val navigateToDuplicate: () -> Unit = {
+                setEffect {
+                    Effect.NavigateToDuplicateEvent(
+                        id = event.id,
+                        eventName = event.title,
+                        location = event.location,
+                        date = DateTimeHelper.formatDateTime(event.dateTime, AppDateFormat.DATE_SHORT_DM).orEmpty(),
+                    )
+                }
+            }
+            if (!proManager.canCreateEvent(count)) {
+                // Unlocking Pro from the paywall proceeds straight into the duplicate flow.
+                PaywallController.show(navigateToDuplicate)
+                return@launch
+            }
+            navigateToDuplicate()
         }
+    }
+
+    private suspend fun liveEventCount(): Int {
+        val uid = authManager.currentUid ?: return 0
+        return runCatching { eventRepository.countLiveEvents(uid) }.getOrDefault(0)
     }
 
     private fun handleOnDeleteButtonClick() {
