@@ -156,6 +156,12 @@ dependencies {
     implementation(libs.firebase.firestore)
 
     // ---------------------------------------------------------
+    // REVENUECAT — Pace Pro subscription + hosted paywall (parity with iOS)
+    // ---------------------------------------------------------
+    implementation(libs.revenuecat.purchases)
+    implementation(libs.revenuecat.purchases.ui)
+
+    // ---------------------------------------------------------
     // CAPSULE - For smooth rounded corner
     // ---------------------------------------------------------
     implementation(libs.capsule)
