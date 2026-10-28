@@ -72,6 +72,16 @@ internal fun SettingsContent(
                 contentPadding = PaddingValues(top = 24.dp)
             ) {
 
+                // Inline Pace Pro subscription card (mirrors iOS Settings subscriptionSection):
+                // Go Pro opens the paywall, Manage Subscription opens the Customer Center.
+                item(key = "pace_pro_card") {
+                    PaceProSettingsCard(
+                        isPro = state.isPro,
+                        onGoPro = { onEvent(Event.OnGoProClick) },
+                        onManageSubscription = { onEvent(Event.OnManageSubscriptionClick) },
+                    )
+                }
+
                 // HEADER
                 item(key = "setting_distance_tabs") {
                     Box(

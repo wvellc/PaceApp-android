@@ -239,4 +239,11 @@
     <string name="strava_resync">Resync</string>
     <string name="strava_status_connected">Connected</string>
     <string name="strava_status_not_connected">Not connected</string>
+
+    <!-- Pace Pro subscription (Settings card) -->
+    <string name="pace_pro_title">Pace Pro</string>
+    <string name="pace_pro_status_active">You\'re on Pace Pro</string>
+    <string name="pace_pro_status_inactive">Unlock unlimited events</string>
+    <string name="pace_pro_go_pro">Go Pro</string>
+    <string name="pace_pro_manage">Manage Subscription</string>
 </resources>
