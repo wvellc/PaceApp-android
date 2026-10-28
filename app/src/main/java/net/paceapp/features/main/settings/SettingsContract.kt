@@ -22,8 +22,6 @@ class SettingsContract {
         val isStravaConnected: Boolean = false,
         val stravaAthleteName: String? = null,
         val isStravaWorking: Boolean = false,
-        // Pace Pro subscription state (mirrored from ProManager) — drives the inline card.
-        val isPro: Boolean = false,
     ) : ViewState
 
     // Which re-auth surface to present before deleting. Phone → enter the OTP sent to
@@ -63,11 +61,6 @@ class SettingsContract {
         data class OnStravaConnect(val context: Context) : Event()
         data object OnStravaDisconnect : Event()
         data object OnStravaResync : Event()
-
-        // Inline Pace Pro card actions. Go Pro opens the paywall; Manage opens the
-        // RevenueCat Customer Center (mirrors iOS subscriptionSection).
-        data object OnGoProClick : Event()
-        data object OnManageSubscriptionClick : Event()
     }
 
     sealed class Effect : ViewSideEffect {

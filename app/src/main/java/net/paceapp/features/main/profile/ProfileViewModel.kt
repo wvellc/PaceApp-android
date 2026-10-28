@@ -6,6 +6,9 @@ import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.domain.usecases.ObserveUserUiModelUseCase
 import net.paceapp.core.garmin.EventSyncManager
+import net.paceapp.core.revenuecat.CustomerCenterController
+import net.paceapp.core.revenuecat.PaywallController
+import net.paceapp.core.revenuecat.ProManager
 import net.paceapp.features.main.profile.ProfileContract.Effect
 import net.paceapp.features.main.profile.ProfileContract.Event
 import net.paceapp.features.main.profile.ProfileContract.State
@@ -24,6 +27,7 @@ class ProfileViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val eventSyncManager: EventSyncManager,
     private val authManager: AuthManager,
+    private val proManager: ProManager,
     @param:ApplicationScope private val appScope: CoroutineScope,
 ) : BaseViewModel<State, Event, Effect>() {
     override fun setInitialState() = State()
@@ -39,6 +43,12 @@ class ProfileViewModel @Inject constructor(
             is Event.OnEditProfileClick -> handleOnEditProfileClick()
             is Event.OnToggleSwitch -> handleOnToggleSwitch(event.option, event.isEnabled)
             is Event.OnProfileOptionClick -> handleOnProfileOptionClick(event.option)
+            is Event.OnSubscriptionClick -> handleOnSubscriptionClick()
+            is Event.OnDismissPlanDialog -> setState { copy(showPlanDialog = false) }
+            is Event.OnManageSubscriptionClick -> {
+                setState { copy(showPlanDialog = false) }
+                CustomerCenterController.show()
+            }
         }
     }
 
@@ -49,7 +59,28 @@ class ProfileViewModel @Inject constructor(
         eventSyncManager.requestWatchSettings()
         observeUserData()
         observeIntervalSettings()
+        observeProState()
         setState { copy(isInitialized = true) }
+    }
+
+    // Mirror ProManager into the Subscription row + plan dialog. The row title flips
+    // ("Subscription" ↔ "Subscribed") and the dialog's plan details update live.
+    private fun observeProState() {
+        proManager.isPro
+            .onEach { isPro -> setState { copy(isPro = isPro) } }
+            .launchIn(viewModelScope)
+        proManager.planInfo
+            .onEach { info -> setState { copy(planInfo = info) } }
+            .launchIn(viewModelScope)
+    }
+
+    // Free user → open the paywall; subscriber → open the plan-details dialog.
+    private fun handleOnSubscriptionClick() {
+        if (currentState.isPro) {
+            setState { copy(showPlanDialog = true) }
+        } else {
+            PaywallController.show()
+        }
     }
 
     private fun observeUserData() {

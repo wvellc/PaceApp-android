@@ -11,9 +11,6 @@ import net.paceapp.core.base.BaseViewModel
 import net.paceapp.core.data.firestore.UserProfileRepository
 import net.paceapp.core.enums.DistanceUnits
 import net.paceapp.core.providers.AppResourceProvider
-import net.paceapp.core.revenuecat.CustomerCenterController
-import net.paceapp.core.revenuecat.PaywallController
-import net.paceapp.core.revenuecat.ProManager
 import net.paceapp.core.strava.StravaManager
 import net.paceapp.features.main.settings.SettingsContract.Effect
 import net.paceapp.features.main.settings.SettingsContract.Event
@@ -37,7 +34,6 @@ class SettingsViewModel @Inject constructor(
     private val userProfileRepository: UserProfileRepository,
     private val authManager: AuthManager,
     private val stravaManager: StravaManager,
-    private val proManager: ProManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     override fun setInitialState() = State()
@@ -62,8 +58,6 @@ class SettingsViewModel @Inject constructor(
             is Event.OnStravaConnect -> stravaManager.connect(event.context)
             is Event.OnStravaDisconnect -> stravaManager.disconnect()
             is Event.OnStravaResync -> stravaManager.syncRecent()
-            is Event.OnGoProClick -> PaywallController.show()
-            is Event.OnManageSubscriptionClick -> CustomerCenterController.show()
         }
     }
 
@@ -72,17 +66,8 @@ class SettingsViewModel @Inject constructor(
         if (currentState.isInitialized) return
         getDistanceUnits()
         observeStravaState()
-        observeProState()
         setState { copy(isInitialized = true) }
 
-    }
-
-    // Mirror ProManager.isPro into the inline Pace Pro card so the button flips between
-    // "Go Pro" and "Manage Subscription" the moment a purchase (or restore) unlocks Pro.
-    private fun observeProState() {
-        proManager.isPro
-            .onEach { isPro -> setState { copy(isPro = isPro) } }
-            .launchIn(viewModelScope)
     }
 
     // Mirror StravaManager's connection state (users/{uid}.strava) into the inline

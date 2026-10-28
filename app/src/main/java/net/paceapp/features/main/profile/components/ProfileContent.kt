@@ -199,7 +199,26 @@ internal fun ProfileContent(
                         onEvent(Event.OnProfileOptionClick(option))
                     }
                 }
+
+                // Subscription row sits directly under Manage your watch (mirrors iOS).
+                if (option == ProfileOptions.MANAGE_YOUR_WATCH) {
+                    key("subscription_row") {
+                        SubscriptionProfileRow(
+                            isPro = state.isPro,
+                            onClick = { onEvent(Event.OnSubscriptionClick) },
+                        )
+                    }
+                }
             }
+        }
+
+        // Plan-details dialog for subscribers.
+        if (state.showPlanDialog && state.planInfo != null) {
+            PlanDetailsDialog(
+                planInfo = state.planInfo,
+                onManage = { onEvent(Event.OnManageSubscriptionClick) },
+                onClose = { onEvent(Event.OnDismissPlanDialog) },
+            )
         }
     }
 }

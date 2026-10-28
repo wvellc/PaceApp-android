@@ -1,6 +1,7 @@
 package net.paceapp.features.main.profile
 
 import net.paceapp.core.models.UserUiModel
+import net.paceapp.core.revenuecat.ProPlanInfo
 import net.paceapp.features.main.profile.enums.ProfileOptions
 import com.wvelabs.core_ui.base.ViewEvent
 import com.wvelabs.core_ui.base.ViewSideEffect
@@ -12,7 +13,12 @@ class ProfileContract {
         val isLoading: Boolean = false,
         val userUiModel: UserUiModel? = null,
         val isIntervalVibrateEnabled: Boolean = false,
-        val isIntervalBeepEnabled: Boolean = false
+        val isIntervalBeepEnabled: Boolean = false,
+        // Pace Pro subscription (mirrored from ProManager). Drives the Subscription row
+        // title and the plan-details dialog.
+        val isPro: Boolean = false,
+        val planInfo: ProPlanInfo? = null,
+        val showPlanDialog: Boolean = false,
     ) : ViewState
 
     sealed class Event : ViewEvent {
@@ -22,6 +28,10 @@ class ProfileContract {
         data object OnEditProfileClick : Event()
         data class OnToggleSwitch(val option: ProfileOptions, val isEnabled: Boolean) : Event()
         data class OnProfileOptionClick(val option: ProfileOptions) : Event()
+        // Subscription row: free → paywall, subscribed → plan-details dialog.
+        data object OnSubscriptionClick : Event()
+        data object OnDismissPlanDialog : Event()
+        data object OnManageSubscriptionClick : Event()
     }
 
     sealed class Effect : ViewSideEffect {

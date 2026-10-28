@@ -240,10 +240,18 @@
     <string name="strava_status_connected">Connected</string>
     <string name="strava_status_not_connected">Not connected</string>
 
-    <!-- Pace Pro subscription (Settings card) -->
+    <!-- Pace Pro subscription (Profile row + plan-details dialog) -->
     <string name="pace_pro_title">Pace Pro</string>
-    <string name="pace_pro_status_active">You\'re on Pace Pro</string>
-    <string name="pace_pro_status_inactive">Unlock unlimited events</string>
-    <string name="pace_pro_go_pro">Go Pro</string>
     <string name="pace_pro_manage">Manage Subscription</string>
+    <string name="subscription_title">Subscription</string>
+    <string name="subscription_subscribed">Subscribed</string>
+    <string name="plan_active_label">Active Plan</string>
+    <string name="plan_events_label">Events</string>
+    <string name="plan_unlimited">Unlimited</string>
+    <string name="plan_billing_label">Billing</string>
+    <string name="plan_monthly">Monthly</string>
+    <string name="plan_yearly">Yearly</string>
+    <string name="plan_next_renewal">Next Renewal</string>
+    <string name="plan_expires_on">Expires On</string>
+    <string name="plan_close">Close</string>
 </resources>
