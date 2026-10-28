@@ -21,7 +21,7 @@ plugins {
 android {
     signingConfigs {
         create("release") {
-            storeFile = file("keyStore\\paceapp_key")
+            storeFile = file("keyStore/paceapp_key")
             storePassword = "PaceApp!@#246"
             keyPassword = "PaceApp!@#246"
             keyAlias = "PaceApp"
