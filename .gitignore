@@ -46,3 +46,4 @@ replay_pid*
 /app/keyStore
 /app/release
 credentials.txt
+key.properties
