@@ -7,10 +7,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallActivityLauncher
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResult
+import com.revenuecat.purchases.ui.revenuecatui.activity.PaywallResultHandler
 import net.paceapp.core.auth.AuthErrorMapper
 import net.paceapp.core.auth.AuthManager
 import net.paceapp.core.domain.repositories.UserRepository
@@ -21,7 +25,8 @@ import net.paceapp.core.strava.StravaManager
 import net.paceapp.core.components.AppActionDialog
 import net.paceapp.core.components.CustomToast
 import net.paceapp.core.revenuecat.AppCustomerCenterHost
-import net.paceapp.core.revenuecat.AppPaywallHost
+import net.paceapp.core.revenuecat.PaywallController
+import net.paceapp.core.revenuecat.RevenueCatConst
 import net.paceapp.navigation.AppNavHost
 import net.paceapp.session.AppSessionManager
 import net.paceapp.theme.PaceAppTheme
@@ -53,6 +58,11 @@ class MainActivity : ComponentActivity() {
     // Re-arms the remembered-watch reconnect when the phone's Bluetooth turns back on.
     private val bluetoothStateReceiver = BluetoothStateReceiver { restoreWatchConnection() }
 
+    // Presents the dashboard paywall full-screen via RevenueCat's PaywallActivity. Registered
+    // in onCreate (ActivityResultLaunchers require registration before STARTED) and driven by
+    // PaywallController. A purchase/pace_app_pro-active restore proceeds the gated flow.
+    private lateinit var paywallLauncher: PaywallActivityLauncher
+
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         // A Strava OAuth redirect takes priority; otherwise complete a passwordless
@@ -66,8 +76,33 @@ class MainActivity : ComponentActivity() {
         )
 
         super.onCreate(savedInstanceState)
+
+        // Register before STARTED. Purchase or a pace_app_pro-active restore proceeds the gated
+        // flow; cancel/error just drops it.
+        paywallLauncher = PaywallActivityLauncher(this, object : PaywallResultHandler {
+            override fun onActivityResult(result: PaywallResult) {
+                when (result) {
+                    is PaywallResult.Purchased -> PaywallController.completeAndDismiss()
+                    is PaywallResult.Restored -> {
+                        val proActive = result.customerInfo
+                            .entitlements[RevenueCatConst.entitlementPro]?.isActive == true
+                        if (proActive) PaywallController.completeAndDismiss() else PaywallController.dismiss()
+                    }
+                    is PaywallResult.Cancelled, is PaywallResult.Error -> PaywallController.dismiss()
+                }
+            }
+        })
+
         setContent {
             val navController = rememberNavController()
+
+            // Present the dashboard paywall full-screen whenever a ViewModel asks via
+            // PaywallController. launch(offering = null) uses the current offering.
+            LaunchedEffect(Unit) {
+                PaywallController.launchRequests.collect {
+                    paywallLauncher.launch(shouldDisplayDismissButton = true)
+                }
+            }
 
             PaceAppTheme {
                 // Snackbar / Dialogs / Toasts container
@@ -88,9 +123,6 @@ class MainActivity : ComponentActivity() {
                         sessionManager = sessionManager,
                         authManager = authManager
                     )
-
-                    // Pace Pro paywall — floats over the whole app when the event gate trips.
-                    AppPaywallHost()
 
                     // Customer Center — floats over the app from Settings → Manage Subscription.
                     AppCustomerCenterHost()
