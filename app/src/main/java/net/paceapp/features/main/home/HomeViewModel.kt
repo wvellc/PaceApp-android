@@ -65,6 +65,7 @@ class HomeViewModel @Inject constructor(
             is Event.OnNewEventClick -> handleOnNewEventClick()
             is Event.OnFavoriteClick -> handleOnFavoriteClick()
             is Event.OnFaqClick -> setEffect { Effect.OpenFaq }
+            is Event.OnGetProClick -> PaywallController.show()
         }
     }
 
@@ -77,7 +78,17 @@ class HomeViewModel @Inject constructor(
         fetchUpcomingActivities()
         observeLatestCompletedMetrics()
         observeLastSync()
+        observeProState()
         setState { copy(isInitialized = true) }
+    }
+
+    // Mirror the Pace Pro entitlement into state so the free-limit upsell footer can
+    // appear/disappear live (it hides the moment the user upgrades). No Firestore cost —
+    // ProManager.isPro is a StateFlow backed by RevenueCat's CustomerInfo.
+    private fun observeProState() {
+        proManager.isPro
+            .onEach { isPro -> setState { copy(isPro = isPro) } }
+            .launchIn(viewModelScope)
     }
 
     // Home greeting sync label: "Synced <time ago>" once the watch has synced, else a
@@ -141,6 +152,9 @@ class HomeViewModel @Inject constructor(
         val uid = authManager.currentUid ?: return
         eventRepository.observeCompletedEvents(uid)
             .onEach { docs ->
+                // completedCount feeds the free-limit gate (active + completed); tracked
+                // here to reuse this listener rather than open a second count query.
+                setState { copy(completedCount = docs.size) }
                 val latest = docs.firstOrNull()
                 latestCompletedDoc = latest
                 if (latest == null) {

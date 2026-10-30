@@ -204,6 +204,14 @@ internal fun HomeContent(
                         }
                     )
                 }
+
+                // Free-limit upsell footer — only for a non-Pro user at/over the event
+                // limit, where the next create/duplicate would be gated by the paywall.
+                if (state.showProUpsell) {
+                    item(key = "pro_upsell_footer") {
+                        ProUpsellFooter(onClick = { onEvent(Event.OnGetProClick) })
+                    }
+                }
             }
 
             selectedMetricInfoIndex?.let { currentIndex ->

@@ -8,6 +8,7 @@ import net.paceapp.core.garmin.models.WatchModel
 import net.paceapp.core.garmin.state.GarminSdkState
 import net.paceapp.core.models.ActivityUiModel
 import net.paceapp.core.models.UserUiModel
+import net.paceapp.core.revenuecat.RevenueCatConst
 import net.paceapp.features.main.home.models.WatchMetric
 
 class HomeContract {
@@ -22,7 +23,16 @@ class HomeContract {
         // lastSyncLabel). Empty until observed so no stale placeholder shows.
         val lastSyncDate: String = "",
         val garminSdkStatus: GarminSdkState = GarminSdkState.Uninitialized,
-    ) : ViewState
+        // Pace Pro gate, mirrored from ProManager. completedCount + active (upcoming) make
+        // up the live-event total the free limit is measured against.
+        val isPro: Boolean = false,
+        val completedCount: Int = 0,
+    ) : ViewState {
+        // The upsell footer shows once a free user hits the free event limit (active +
+        // completed) — the exact point the next create/duplicate would be gated.
+        val showProUpsell: Boolean
+            get() = !isPro && (upcomingActivities.size + completedCount) >= RevenueCatConst.freeEventLimit
+    }
 
     sealed class Event : ViewEvent {
         data object Init : Event()
@@ -36,6 +46,8 @@ class HomeContract {
         data object OnNewEventClick : Event()
         data object OnFavoriteClick : Event()
         data object OnFaqClick : Event()
+        // Tapping the free-limit upsell footer opens the paywall.
+        data object OnGetProClick : Event()
 
     }
 
