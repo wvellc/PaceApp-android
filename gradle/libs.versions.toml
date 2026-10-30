@@ -96,6 +96,7 @@ ciq-companion-app-sdk = { group = "com.garmin.connectiq", name = "ciq-companion-
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config" }
 
 # RevenueCat — Pace Pro subscription + hosted paywall (RevenueCatUI), parity with iOS
 revenuecat-purchases = { group = "com.revenuecat.purchases", name = "purchases", version.ref = "revenuecat" }

@@ -1,5 +1,12 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.FileInputStream
 import java.util.Properties
+
+// Release signing secrets live in a gitignored key.properties at the repo root, never in git.
+val keystoreProperties = Properties().apply {
+    val file = rootProject.file("key.properties")
+    if (file.exists()) FileInputStream(file).use { load(it) }
+}
 
 plugins {
     alias(libs.plugins.android.application)
@@ -21,10 +28,13 @@ plugins {
 android {
     signingConfigs {
         create("release") {
-            storeFile = file("keyStore/paceapp_key")
-            storePassword = "PaceApp!@#246"
-            keyPassword = "PaceApp!@#246"
-            keyAlias = "PaceApp"
+            // Signing values come only from key.properties; absent (debug-only env) leaves it unset.
+            keystoreProperties.getProperty("storeFile")?.let { storePath ->
+                storeFile = file(storePath)
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+            }
         }
     }
     namespace = "net.paceapp"
@@ -154,6 +164,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    // Remote Config — remotely-tunable free event limit (fallback RevenueCatConst.freeEventLimit).
+    implementation(libs.firebase.config)
 
     // ---------------------------------------------------------
     // REVENUECAT — Pace Pro subscription + hosted paywall (parity with iOS)
