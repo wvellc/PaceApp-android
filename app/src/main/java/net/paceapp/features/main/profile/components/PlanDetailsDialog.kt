@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -31,12 +30,10 @@ import net.paceapp.theme.AppTheme
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-// Plan-details dialog for subscribers (mirrors iOS): a dark card over a dimmed backdrop.
-// Header (Active Plan / Pace Pro), the plan facts, then Manage Subscription + Close.
+// Plan-details dialog for subscribers: a light card. Pace Pro title, the plan facts, then Close.
 @Composable
 internal fun PlanDetailsDialog(
 	planInfo: ProPlanInfo,
-	onManage: () -> Unit,
 	onClose: () -> Unit,
 ) {
 	Dialog(onDismissRequest = onClose) {
@@ -44,27 +41,21 @@ internal fun PlanDetailsDialog(
 			modifier = Modifier
 				.fillMaxWidth()
 				.clip(RoundedCornerShape(20.dp))
-				.background(Brush.verticalGradient(AppColors.backgroundGradient))
+				.background(AppColors.White)
 				.padding(20.dp),
 			verticalArrangement = Arrangement.spacedBy(16.dp),
 		) {
 			// Header
-			Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-				Text(
-					text = stringResource(R.string.plan_active_label),
-					style = AppTheme.typography.medium.copy(color = AppColors.FashionGray, fontSize = 13.sp),
-				)
-				Text(
-					text = stringResource(R.string.pace_pro_title),
-					style = AppTheme.typography.bold.copy(color = AppColors.FluorescentMint, fontSize = 24.sp),
-				)
-			}
+			Text(
+				text = stringResource(R.string.pace_pro_title),
+				style = AppTheme.typography.bold.copy(color = AppColors.DarkCharcoal, fontSize = 24.sp),
+			)
 
 			Box(
 				modifier = Modifier
 					.fillMaxWidth()
 					.height(1.dp)
-					.background(AppColors.White20),
+					.background(AppColors.DarkCharcoal.copy(alpha = 0.12f)),
 			)
 
 			// Facts
@@ -89,35 +80,19 @@ internal fun PlanDetailsDialog(
 				)
 			}
 
-			// Primary — Manage Subscription (brand gradient).
+			// Close (bordered).
 			Box(
 				modifier = Modifier
 					.fillMaxWidth()
 					.clip(CircleShape)
-					.background(Brush.verticalGradient(AppColors.buttonGradient))
-					.defaultClickable(onClick = onManage)
-					.padding(vertical = 12.dp),
-				contentAlignment = Alignment.Center,
-			) {
-				Text(
-					text = stringResource(R.string.pace_pro_manage),
-					style = AppTheme.typography.semiBold.copy(color = AppColors.White, fontSize = 14.sp),
-				)
-			}
-
-			// Secondary — Close (bordered).
-			Box(
-				modifier = Modifier
-					.fillMaxWidth()
-					.clip(CircleShape)
-					.border(1.dp, AppColors.White20, CircleShape)
+					.border(1.dp, AppColors.DarkCharcoal.copy(alpha = 0.3f), CircleShape)
 					.defaultClickable(onClick = onClose)
 					.padding(vertical = 12.dp),
 				contentAlignment = Alignment.Center,
 			) {
 				Text(
 					text = stringResource(R.string.plan_close),
-					style = AppTheme.typography.semiBold.copy(color = AppColors.White, fontSize = 14.sp),
+					style = AppTheme.typography.semiBold.copy(color = AppColors.DarkCharcoal, fontSize = 14.sp),
 				)
 			}
 		}
@@ -134,12 +109,12 @@ private fun PlanRow(label: String, value: String) {
 		Text(
 			modifier = Modifier.weight(1f),
 			text = label,
-			style = AppTheme.typography.medium.copy(color = AppColors.White.copy(alpha = 0.6f), fontSize = 14.sp),
+			style = AppTheme.typography.medium.copy(color = AppColors.DarkCharcoal.copy(alpha = 0.6f), fontSize = 14.sp),
 		)
 		Text(
 			text = value,
 			textAlign = TextAlign.End,
-			style = AppTheme.typography.semiBold.copy(color = AppColors.White, fontSize = 14.sp),
+			style = AppTheme.typography.semiBold.copy(color = AppColors.DarkCharcoal, fontSize = 14.sp),
 		)
 	}
 }

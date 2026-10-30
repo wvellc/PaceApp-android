@@ -216,7 +216,6 @@ internal fun ProfileContent(
         if (state.showPlanDialog && state.planInfo != null) {
             PlanDetailsDialog(
                 planInfo = state.planInfo,
-                onManage = { onEvent(Event.OnManageSubscriptionClick) },
                 onClose = { onEvent(Event.OnDismissPlanDialog) },
             )
         }
