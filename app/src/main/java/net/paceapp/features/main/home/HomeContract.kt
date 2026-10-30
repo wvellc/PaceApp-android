@@ -27,11 +27,13 @@ class HomeContract {
         // up the live-event total the free limit is measured against.
         val isPro: Boolean = false,
         val completedCount: Int = 0,
+        // Remote-configurable free-tier limit (Firebase Remote Config); defaults to the constant.
+        val freeEventLimit: Int = RevenueCatConst.freeEventLimit,
     ) : ViewState {
         // The upsell footer shows once a free user hits the free event limit (active +
         // completed) — the exact point the next create/duplicate would be gated.
         val showProUpsell: Boolean
-            get() = !isPro && (upcomingActivities.size + completedCount) >= RevenueCatConst.freeEventLimit
+            get() = !isPro && (upcomingActivities.size + completedCount) >= freeEventLimit
     }
 
     sealed class Event : ViewEvent {

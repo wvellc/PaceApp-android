@@ -164,6 +164,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
+    // Remote Config — remotely-tunable free event limit (fallback RevenueCatConst.freeEventLimit).
+    implementation(libs.firebase.config)
 
     // ---------------------------------------------------------
     // REVENUECAT — Pace Pro subscription + hosted paywall (parity with iOS)

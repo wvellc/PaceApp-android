@@ -9,7 +9,9 @@ object RevenueCatConst {
 	// Entitlement that unlocks Pace Pro (matches the iOS RevenueCat project).
 	const val entitlementPro = "pace_app_pro"
 
-	// A free user may keep at most this many live events (active + completed) before the
-	// paywall gates further creation. Mirrors iOS SubscriptionManager.freeEventLimit.
+	// Fallback free-tier limit: a free user may keep at most this many live events (active +
+	// completed) before the paywall gates further creation. The live value is remote-configurable
+	// via Firebase Remote Config ("free_event_limit"); this constant is the offline/default.
+	// Mirrors iOS SubscriptionManager.freeEventLimit.
 	const val freeEventLimit = 15
 }

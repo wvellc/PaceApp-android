@@ -23,6 +23,7 @@ import net.paceapp.core.garmin.enums.WatchConnectionState
 import net.paceapp.core.mappers.ActivityToUiModelMapper
 import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
+import net.paceapp.core.config.RemoteConfigManager
 import net.paceapp.core.providers.AppResourceProvider
 import net.paceapp.core.revenuecat.PaywallController
 import net.paceapp.core.revenuecat.ProManager
@@ -42,6 +43,7 @@ class HomeViewModel @Inject constructor(
     private val eventSyncManager: EventSyncManager,
     private val resourceProvider: AppResourceProvider,
     private val proManager: ProManager,
+    private val remoteConfigManager: RemoteConfigManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
     // Latest completed event backing the header metrics + the distance⇄finish flash.
@@ -84,10 +86,15 @@ class HomeViewModel @Inject constructor(
 
     // Mirror the Pace Pro entitlement into state so the free-limit upsell footer can
     // appear/disappear live (it hides the moment the user upgrades). No Firestore cost —
-    // ProManager.isPro is a StateFlow backed by RevenueCat's CustomerInfo.
+    // ProManager.isPro is a StateFlow backed by RevenueCat's CustomerInfo. Also tracks the
+    // remote-configurable free limit so the footer's threshold + copy update when it changes.
     private fun observeProState() {
         proManager.isPro
             .onEach { isPro -> setState { copy(isPro = isPro) } }
+            .launchIn(viewModelScope)
+        remoteConfigManager.refresh()
+        remoteConfigManager.freeEventLimit
+            .onEach { limit -> setState { copy(freeEventLimit = limit) } }
             .launchIn(viewModelScope)
     }
 

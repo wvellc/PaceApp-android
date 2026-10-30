@@ -8,6 +8,7 @@ import com.revenuecat.purchases.awaitLogOut
 import com.revenuecat.purchases.interfaces.UpdatedCustomerInfoListener
 import com.wvelabs.core_network.di.ApplicationScope
 import com.wvelabs.core_network.utils.AppLogger
+import net.paceapp.core.config.RemoteConfigManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -34,6 +35,7 @@ data class ProPlanInfo(
 @Singleton
 class ProManager @Inject constructor(
 	@param:ApplicationScope private val appScope: CoroutineScope,
+	private val remoteConfigManager: RemoteConfigManager,
 ) {
 	private val _isPro = MutableStateFlow(false)
 	val isPro: StateFlow<Boolean> = _isPro.asStateFlow()
@@ -93,9 +95,10 @@ class ProManager @Inject constructor(
 	}
 
 	// The gate: a free user may create an event only below the free limit; Pro is unlimited.
-	// Mirrors iOS SubscriptionManager.canCreateEvent(currentLiveEventCount:).
+	// The limit is remote-configurable (Firebase Remote Config), falling back to the compiled
+	// constant. Mirrors iOS SubscriptionManager.canCreateEvent(currentLiveEventCount:).
 	fun canCreateEvent(currentLiveEventCount: Int): Boolean =
-		isPro.value || currentLiveEventCount < RevenueCatConst.freeEventLimit
+		isPro.value || currentLiveEventCount < remoteConfigManager.currentFreeEventLimit
 
 	private fun CustomerInfo.isProActive(): Boolean =
 		entitlements[RevenueCatConst.entitlementPro]?.isActive == true

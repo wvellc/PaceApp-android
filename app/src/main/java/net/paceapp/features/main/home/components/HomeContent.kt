@@ -209,7 +209,10 @@ internal fun HomeContent(
                 // limit, where the next create/duplicate would be gated by the paywall.
                 if (state.showProUpsell) {
                     item(key = "pro_upsell_footer") {
-                        ProUpsellFooter(onClick = { onEvent(Event.OnGetProClick) })
+                        ProUpsellFooter(
+                            freeEventLimit = state.freeEventLimit,
+                            onClick = { onEvent(Event.OnGetProClick) },
+                        )
                     }
                 }
             }

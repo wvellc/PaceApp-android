@@ -22,14 +22,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.paceapp.R
 import net.paceapp.core.extensions.defaultClickable
-import net.paceapp.core.revenuecat.RevenueCatConst
 import net.paceapp.theme.AppColors
 import net.paceapp.theme.AppTheme
 
 // Home event-list footer shown to free users once they hit the free event limit. Tapping it
 // opens the Pace Pro paywall; it disappears the moment the user upgrades (state.showProUpsell).
+// The limit is passed in (remote-configurable) so the subtitle always shows the live value.
 @Composable
 internal fun ProUpsellFooter(
+	freeEventLimit: Int,
 	onClick: () -> Unit,
 ) {
 	Row(
@@ -57,7 +58,7 @@ internal fun ProUpsellFooter(
 				),
 			)
 			Text(
-				text = stringResource(R.string.pro_upsell_footer_subtitle, RevenueCatConst.freeEventLimit),
+				text = stringResource(R.string.pro_upsell_footer_subtitle, freeEventLimit),
 				style = AppTheme.typography.medium.copy(
 					color = AppColors.White.copy(alpha = 0.7f),
 					fontSize = 13.sp,
