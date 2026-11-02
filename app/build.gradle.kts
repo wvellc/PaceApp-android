@@ -68,7 +68,12 @@ android {
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            // Sign the release only when key.properties supplies a keystore. Without it (a dev/CI
+            // machine that doesn't hold the signing key) build an UNSIGNED release instead of
+            // hard-failing with "SigningConfig 'release' is missing required property 'storeFile'".
+            if (keystoreProperties.getProperty("storeFile") != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             isShrinkResources = false
             proguardFiles(
