@@ -21,10 +21,13 @@ fun ValidatorType.isPasswordTypeField(): Boolean =
 
 object Validator {
     fun validate(value: String?, type: ValidatorType): Int? {
+        // Phone is digit-based, not a single regex, so it gets its own path.
+        if (type == ValidatorType.Phone) return validatePhone(value)
+
         val regEx = when (type) {
             ValidatorType.Email -> Patterns.EMAIL_ADDRESS
             ValidatorType.Name -> Pattern.compile("^[a-zA-Z ]{2,}$")
-            ValidatorType.Phone -> Pattern.compile("^(?:[+0]9)?[0-9]{10,14}$")
+            ValidatorType.Phone -> null
             ValidatorType.Text -> Pattern.compile("^([a-zA-Z0-9\\s\\n'`!@#$%^&*()])+$")
             ValidatorType.Number -> Pattern.compile("^\\d*\\.?\\d+\$")
             /// Password (Hard) Regex
@@ -38,6 +41,18 @@ object Validator {
         return when {
             regEx?.matcher(value ?: "")?.matches() == true -> null
             else -> type.errorResId
+        }
+    }
+
+    // Phone: exactly 10 digits (grouping ignored), a leading 2–9 as every real
+    // numbering plan uses, and not the same digit ten times over. Ten identical
+    // digits gets its own gentle message instead of the generic one.
+    private fun validatePhone(value: String?): Int? {
+        val digits = (value ?: "").filter { it.isDigit() }
+        return when {
+            digits.length == 10 && digits.toSet().size == 1 -> R.string.phone_repeated_digits
+            digits.matches(Regex("^[2-9][0-9]{9}$")) -> null
+            else -> R.string.enter_a_valid_phone_number
         }
     }
 

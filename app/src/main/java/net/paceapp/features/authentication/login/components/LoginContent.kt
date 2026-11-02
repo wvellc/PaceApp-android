@@ -138,7 +138,7 @@ internal fun LoginContent(
 
                         //Phone number field
                         LoginTypes.PHONE -> AppTextField(
-                            hint = "1234567890",
+                            hint = "98765 43210",
                             state = state.phoneState,
                             borderColor = AppColors.White20,
                             modifier = Modifier.fillMaxWidth(),

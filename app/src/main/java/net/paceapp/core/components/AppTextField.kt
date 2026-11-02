@@ -24,7 +24,9 @@ import androidx.compose.foundation.text.BasicSecureTextField
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
+import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -122,34 +124,44 @@ fun AppTextField(
         ValidatorType.None -> KeyboardType.Text
     }
 
+    // Phone fields: keep the stored value digits-only and capped at 10 so invalid states
+    // are unreachable, and group it as "98765 43210" for display only — validation and the
+    // E.164 number still read plain digits.
+    val phoneInput = remember {
+        InputTransformation {
+            val original = asCharSequence().toString()
+            val sanitized = original.filter { it.isDigit() }.take(10)
+            if (sanitized != original) replace(0, length, sanitized)
+        }
+    }
+    val phoneOutput = remember {
+        OutputTransformation {
+            if (length > 5) replace(5, 5, " ")
+        }
+    }
 
     var isPasswordShown by remember { mutableStateOf(false) }
     var isFocused by remember { mutableStateOf(false) }
     val keyboard = LocalSoftwareKeyboardController.current
     var isInitialized by rememberSaveable { mutableStateOf(state.text.isNotEmpty()) }
 
-    val isError = remember(state.text, isFocused, isInitialized, oldPasswordState?.text) {
+    // The specific message to show (null = valid). Phone returns a gentle, context-aware
+    // res for ten identical digits, so this must be the res we surface — not the static one.
+    val validationErrorRes = remember(state.text, isFocused, isInitialized, oldPasswordState?.text) {
         val currentText = state.text.toString()
-
-        val hasValidationError = if (validatorType == ValidatorType.ConfirmPassword) {
-            when {
-                currentText.isBlank() -> false // Don't show "no match" if empty
-                oldPasswordState?.text?.toString() != currentText -> true
-                else -> Validator.validate(currentText, validatorType) != null
-            }
-        } else {
-            when {
-                // An empty field is "not filled yet", not a format error — never flag it.
-                // (Prevents a programmatically cleared field, e.g. after the email-link is
-                // sent, from showing a spurious "invalid" error.)
-                currentText.isBlank() -> false
-                else -> Validator.validate(currentText, validatorType) != null
-            }
+        when {
+            // An empty field is "not filled yet", not a format error — never flag it.
+            // (Prevents a programmatically cleared field, e.g. after the email-link is
+            // sent, from showing a spurious "invalid" error.)
+            currentText.isBlank() -> null
+            validatorType == ValidatorType.ConfirmPassword &&
+                oldPasswordState?.text?.toString() != currentText -> ValidatorType.ConfirmPassword.errorResId
+            else -> Validator.validate(currentText, validatorType)
         }
-
-        // ONLY show the error if the field is dirty (has been touched)
-        isInitialized && hasValidationError
     }
+
+    // ONLY show the error if the field is dirty (has been touched)
+    val isError = isInitialized && validationErrorRes != null
 
 
     val currentBorderColor = when {
@@ -316,6 +328,8 @@ fun AppTextField(
                         onKeyboardAction = onKeyboardAction,
                         interactionSource = interactionSource,
                         decorator = decorator,
+                        inputTransformation = if (validatorType == ValidatorType.Phone) phoneInput else null,
+                        outputTransformation = if (validatorType == ValidatorType.Phone) phoneOutput else null,
                         lineLimits = if (maxLines == 1) TextFieldLineLimits.SingleLine else TextFieldLineLimits.MultiLine(
                             minLines,
                             maxLines
@@ -324,7 +338,7 @@ fun AppTextField(
                 }
 
                 // The Animated Error Message
-                (errorMessageRes ?: validatorType.errorResId)?.let { errorRes ->
+                (errorMessageRes ?: validationErrorRes ?: validatorType.errorResId)?.let { errorRes ->
                     AnimatedVisibility(
                         visible = isError && showErrorMessage,
                         enter = expandVertically() + fadeIn(),
