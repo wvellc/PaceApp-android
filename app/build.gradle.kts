@@ -166,6 +166,10 @@ dependencies {
     implementation(libs.firebase.firestore)
     // Remote Config — remotely-tunable free event limit (fallback RevenueCatConst.freeEventLimit).
     implementation(libs.firebase.config)
+    // App Check — attest requests so the backend can reject non-genuine clients. Play Integrity in
+    // release; the debug provider is debug-only so the attestation bypass never ships to production.
+    implementation(libs.firebase.appcheck.playintegrity)
+    debugImplementation(libs.firebase.appcheck.debug)
 
     // ---------------------------------------------------------
     // REVENUECAT — Pace Pro subscription + hosted paywall (parity with iOS)
