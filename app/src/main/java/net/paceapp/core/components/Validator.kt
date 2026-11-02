@@ -44,14 +44,14 @@ object Validator {
         }
     }
 
-    // Phone: exactly 10 digits (grouping ignored), a leading 2–9 as every real
-    // numbering plan uses, and not the same digit ten times over. Ten identical
-    // digits gets its own gentle message instead of the generic one.
+    // Phone: 7–15 digits (the E.164 national-number range, so every country fits — the
+    // country code is chosen separately), and not the same digit repeated. A repeated
+    // run gets its own gentle message instead of the generic one.
     private fun validatePhone(value: String?): Int? {
         val digits = (value ?: "").filter { it.isDigit() }
         return when {
-            digits.length == 10 && digits.toSet().size == 1 -> R.string.phone_repeated_digits
-            digits.matches(Regex("^[2-9][0-9]{9}$")) -> null
+            digits.length >= 7 && digits.toSet().size == 1 -> R.string.phone_repeated_digits
+            digits.length in 7..15 -> null
             else -> R.string.enter_a_valid_phone_number
         }
     }
