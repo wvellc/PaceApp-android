@@ -9,6 +9,7 @@ import net.paceapp.core.data.firestore.FavoriteRepository
 import net.paceapp.core.mappers.ActivityToUiModelMapper
 import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
+import net.paceapp.core.revenuecat.ProManager
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Effect
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.Event
 import net.paceapp.features.main.favoriteactivities.FavoriteActivitiesContract.State
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class FavoriteActivitiesViewModel @Inject constructor(
     private val favoriteRepository: FavoriteRepository,
     private val authManager: AuthManager,
+    private val proManager: ProManager,
     private val activityToUiModelMapper: ActivityToUiModelMapper,
 ) : BaseViewModel<State, Event, Effect>() {
 
@@ -71,7 +73,10 @@ class FavoriteActivitiesViewModel @Inject constructor(
     // them into the list UI model. Empty when signed out.
     private suspend fun fetchFavoriteActivities(): List<ActivityUiModel> {
         val uid = authManager.currentUid ?: return emptyList()
+        // Free-tier display cap: show at most [visibleEventLimit] favorites (Pro = Int.MAX_VALUE = all).
+        // One-shot fetch, so it re-caps on next entry after a purchase/restore.
         return favoriteRepository.fetchFavoriteEvents(uid)
+            .take(proManager.visibleEventLimit.value)
             .map { EventDocumentUiMapper.toActivityModel(it) }
             .map { activityToUiModelMapper.map(it) }
     }

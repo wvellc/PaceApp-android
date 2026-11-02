@@ -210,11 +210,17 @@ class HomeViewModel @Inject constructor(
     // filter — overdue-but-active events stay visible (matches iOS Home).
     private fun fetchUpcomingActivities() {
         val uid = authManager.currentUid ?: return
-        eventRepository.observeActiveEvents(uid)
-            .onEach { docs ->
-                val activities = docs
+        // Free users see only the most-recent [visibleEventLimit] upcoming events (Pro = all),
+        // but upcomingCount keeps the TRUE size so the gate/footer threshold stays correct.
+        // Re-caps live on purchase/restore. Sync is untouched.
+        combine(
+            eventRepository.observeActiveEvents(uid),
+            proManager.visibleEventLimit,
+        ) { docs, limit -> docs.size to docs.take(limit) }
+            .onEach { (count, capped) ->
+                val activities = capped
                     .map { activityToUiModelMapper.map(EventDocumentUiMapper.toActivityModel(it)) }
-                setState { copy(upcomingActivities = activities) }
+                setState { copy(upcomingActivities = activities, upcomingCount = count) }
             }
             .launchIn(viewModelScope)
     }

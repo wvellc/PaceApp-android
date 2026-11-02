@@ -4,6 +4,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.viewModelScope
 import com.wvelabs.core_ui.extensions.debounceInput
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -14,6 +15,7 @@ import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.mappers.ActivityToUiModelMapper
 import net.paceapp.core.mappers.EventDocumentUiMapper
 import net.paceapp.core.models.ActivityUiModel
+import net.paceapp.core.revenuecat.ProManager
 import net.paceapp.features.main.history.HistoryContract.Effect
 import net.paceapp.features.main.history.HistoryContract.Event
 import net.paceapp.features.main.history.HistoryContract.State
@@ -28,6 +30,7 @@ class HistoryViewModel @Inject constructor(
     private val activityToUiModelMapper: ActivityToUiModelMapper,
     private val eventSyncManager: EventSyncManager,
     private val eventRepository: EventRepository,
+    private val proManager: ProManager,
     private val authManager: AuthManager,
 ) : BaseViewModel<State, Event, Effect>() {
 
@@ -66,7 +69,13 @@ class HistoryViewModel @Inject constructor(
     // currently active filter/search so live updates respect user filtering.
     private fun fetchHistoryList() {
         val uid = authManager.currentUid ?: return
-        eventRepository.observeCompletedEvents(uid)
+        // Free users see only the most-recent [visibleEventLimit] completed events; Pro = all.
+        // observeCompletedEvents is updatedAt-DESC, so take(limit) keeps the latest N. The cap
+        // re-applies live when isPro flips (purchase/restore expands the list). Sync is untouched.
+        combine(
+            eventRepository.observeCompletedEvents(uid),
+            proManager.visibleEventLimit,
+        ) { docs, limit -> docs.take(limit) }
             .onEach { docs ->
                 completedActivities = docs
                     .map { activityToUiModelMapper.map(EventDocumentUiMapper.toActivityModel(it)) }

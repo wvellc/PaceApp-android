@@ -11,8 +11,11 @@ import com.wvelabs.core_network.utils.AppLogger
 import net.paceapp.core.config.RemoteConfigManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -43,6 +46,14 @@ class ProManager @Inject constructor(
 	// Active-plan details for the Profile plan-details dialog. Null while not subscribed.
 	private val _planInfo = MutableStateFlow<ProPlanInfo?>(null)
 	val planInfo: StateFlow<ProPlanInfo?> = _planInfo.asStateFlow()
+
+	// Free-tier DISPLAY cap: how many of the most-recent events a user may see in any list.
+	// Pro = unlimited (Int.MAX_VALUE); free = the remote free_event_limit. Reactive, so lists
+	// re-expand instantly on purchase/restore. Sync + Firestore are unaffected — display only.
+	val visibleEventLimit: StateFlow<Int> =
+		combine(isPro, remoteConfigManager.freeEventLimit) { pro, limit ->
+			if (pro) Int.MAX_VALUE else limit
+		}.stateIn(appScope, SharingStarted.Eagerly, remoteConfigManager.currentFreeEventLimit)
 
 	init {
 		// Purchases is configured in PaceApplication.onCreate, which always runs before any

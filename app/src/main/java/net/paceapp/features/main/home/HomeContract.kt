@@ -27,13 +27,17 @@ class HomeContract {
         // up the live-event total the free limit is measured against.
         val isPro: Boolean = false,
         val completedCount: Int = 0,
+        // True count of active (upcoming) events. The DISPLAYED upcomingActivities list is
+        // separately capped for free users, so the count — not the list size — drives the gate.
+        val upcomingCount: Int = 0,
         // Remote-configurable free-tier limit (Firebase Remote Config); defaults to the constant.
         val freeEventLimit: Int = RevenueCatConst.freeEventLimit,
     ) : ViewState {
         // The upsell footer shows once a free user hits the free event limit (active +
-        // completed) — the exact point the next create/duplicate would be gated.
+        // completed) — the exact point the next create/duplicate would be gated. Uses the TRUE
+        // counts, not the capped display list.
         val showProUpsell: Boolean
-            get() = !isPro && (upcomingActivities.size + completedCount) >= freeEventLimit
+            get() = !isPro && (upcomingCount + completedCount) >= freeEventLimit
     }
 
     sealed class Event : ViewEvent {
