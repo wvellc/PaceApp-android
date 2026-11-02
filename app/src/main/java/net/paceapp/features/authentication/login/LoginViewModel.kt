@@ -67,7 +67,7 @@ class LoginViewModel @Inject constructor(
         setState {
             copy(
                 emailState = TextFieldState("max@mailinator.com"),
-                phoneState = TextFieldState("1234567890"),
+                phoneState = TextFieldState("9876543210"),
                 selectedLoginType = LoginTypes.EMAIL,
                 countryCode = "+1",
             )
