@@ -443,7 +443,7 @@ class AuthManager @Inject constructor(
     companion object {
         // Must be an authorized domain in the Firebase console + backed by an
         // assetlinks.json App Link on the hosting site (parity with iOS continueURL).
-        private const val EMAIL_LINK_CONTINUE_URL = "https://thepaceapp.firebaseapp.com/emailSignIn"
+        private const val EMAIL_LINK_CONTINUE_URL = "https://auth.paceapp.net/emailSignIn"
         private const val KEY_PENDING_EMAIL = "pending_email_for_signin"
     }
 }
