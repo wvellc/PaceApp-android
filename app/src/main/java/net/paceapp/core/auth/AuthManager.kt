@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.paceapp.core.config.RemoteConfigManager
 import net.paceapp.core.data.firestore.EventRepository
 import net.paceapp.core.data.firestore.FavoriteRepository
 import net.paceapp.core.data.firestore.UserDocument
@@ -52,6 +53,7 @@ class AuthManager @Inject constructor(
     private val garminDeviceManager: GarminDeviceManager,
     private val stravaManager: StravaManager,
     private val proManager: ProManager,
+    private val remoteConfigManager: RemoteConfigManager,
     private val sessionManager: AppSessionManager,
     private val profileSessionSync: ProfileSessionSync,
     @param:ApplicationScope private val appScope: CoroutineScope,
@@ -213,7 +215,7 @@ class AuthManager @Inject constructor(
 
     suspend fun sendEmailLink(email: String): Result<Unit> = runCatching {
         val settings = ActionCodeSettings.newBuilder()
-            .setUrl(EMAIL_LINK_CONTINUE_URL)
+            .setUrl(remoteConfigManager.emailLinkContinueUrl())
             .setHandleCodeInApp(true)
             .setAndroidPackageName(context.packageName, true, null)
             .build()
@@ -441,9 +443,6 @@ class AuthManager @Inject constructor(
     }
 
     companion object {
-        // Must be an authorized domain in the Firebase console + backed by an
-        // assetlinks.json App Link on the hosting site (parity with iOS continueURL).
-        private const val EMAIL_LINK_CONTINUE_URL = "https://auth.paceapp.net/emailSignIn"
         private const val KEY_PENDING_EMAIL = "pending_email_for_signin"
     }
 }

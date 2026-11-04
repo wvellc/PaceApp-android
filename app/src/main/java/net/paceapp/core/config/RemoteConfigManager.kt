@@ -25,7 +25,12 @@ class RemoteConfigManager @Inject constructor() {
 				.build()
 		)
 		// Fallback = the compiled constant, so the gate works offline / before the first fetch.
-		setDefaultsAsync(mapOf<String, Any>(KEY_FREE_EVENT_LIMIT to RevenueCatConst.freeEventLimit.toLong()))
+		setDefaultsAsync(
+			mapOf<String, Any>(
+				KEY_FREE_EVENT_LIMIT to RevenueCatConst.freeEventLimit.toLong(),
+				KEY_EMAIL_LINK_DOMAIN to PRIMARY_EMAIL_LINK_DOMAIN,
+			)
+		)
 	}
 
 	// Free-tier event limit, live. Seeded from the defaults, updated after each activate.
@@ -56,9 +61,27 @@ class RemoteConfigManager @Inject constructor() {
 		return if (value > 0) value else RevenueCatConst.freeEventLimit
 	}
 
+	// Email sign-in continue URL, read live from Remote Config at send time. Default = the
+	// branded custom domain; set the console value to the Firebase default domain to fail over
+	// if auth.paceapp.net ever has issues. An unknown/blank value falls back to the default, so
+	// a console typo can't break sign-in. Both hosts serve /emailSignIn and are Firebase
+	// authorized domains, and both apps accept incoming links from either on the receive side.
+	fun emailLinkContinueUrl(): String {
+		val domain = remoteConfig.getString(KEY_EMAIL_LINK_DOMAIN).trim()
+		val host = if (domain in ALLOWED_EMAIL_LINK_DOMAINS) domain else PRIMARY_EMAIL_LINK_DOMAIN
+		return "https://$host/emailSignIn"
+	}
+
 	companion object {
 		// Shared key with iOS — must match the Firebase console parameter name.
 		private const val KEY_FREE_EVENT_LIMIT = "free_event_limit"
 		private const val MIN_FETCH_INTERVAL_SECONDS = 3600L
+
+		// Email sign-in continue-URL host, remotely switchable (shared key with iOS). Default =
+		// the branded custom domain; set the console value to the fallback host to fail over.
+		private const val KEY_EMAIL_LINK_DOMAIN = "email_link_domain"
+		const val PRIMARY_EMAIL_LINK_DOMAIN = "auth.paceapp.net"
+		const val FALLBACK_EMAIL_LINK_DOMAIN = "thepaceapp.firebaseapp.com"
+		private val ALLOWED_EMAIL_LINK_DOMAINS = setOf(PRIMARY_EMAIL_LINK_DOMAIN, FALLBACK_EMAIL_LINK_DOMAIN)
 	}
 }
