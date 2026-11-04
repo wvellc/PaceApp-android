@@ -61,15 +61,14 @@ class RemoteConfigManager @Inject constructor() {
 		return if (value > 0) value else RevenueCatConst.freeEventLimit
 	}
 
-	// Email sign-in continue URL, read live from Remote Config at send time. Default = the
-	// branded custom domain; set the console value to the Firebase default domain to fail over
-	// if auth.paceapp.net ever has issues. An unknown/blank value falls back to the default, so
-	// a console typo can't break sign-in. Both hosts serve /emailSignIn and are Firebase
-	// authorized domains, and both apps accept incoming links from either on the receive side.
-	fun emailLinkContinueUrl(): String {
+	// Email sign-in link domain, read live from Remote Config at send time. Used as the
+	// ActionCodeSettings linkDomain (which sets the host shown in the email link itself) and to
+	// build the continue URL. Default = the branded custom domain; set the console value to the
+	// Firebase default domain to fail over if auth.paceapp.net ever has issues. An unknown/blank
+	// value falls back to the default, so a console typo can't break sign-in.
+	fun emailLinkDomain(): String {
 		val domain = remoteConfig.getString(KEY_EMAIL_LINK_DOMAIN).trim()
-		val host = if (domain in ALLOWED_EMAIL_LINK_DOMAINS) domain else PRIMARY_EMAIL_LINK_DOMAIN
-		return "https://$host/emailSignIn"
+		return if (domain in ALLOWED_EMAIL_LINK_DOMAINS) domain else PRIMARY_EMAIL_LINK_DOMAIN
 	}
 
 	companion object {

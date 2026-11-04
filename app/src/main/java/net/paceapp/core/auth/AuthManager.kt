@@ -214,10 +214,17 @@ class AuthManager @Inject constructor(
     }
 
     suspend fun sendEmailLink(email: String): Result<Unit> = runCatching {
+        // linkDomain sets the host shown in the email link itself and must be a CUSTOM Hosting
+        // domain, so the default firebaseapp.com is used only as the continue URL and omitted
+        // from linkDomain (Firebase then falls back to the default domain automatically).
+        val domain = remoteConfigManager.emailLinkDomain()
         val settings = ActionCodeSettings.newBuilder()
-            .setUrl(remoteConfigManager.emailLinkContinueUrl())
+            .setUrl("https://$domain/emailSignIn")
             .setHandleCodeInApp(true)
             .setAndroidPackageName(context.packageName, true, null)
+            .apply {
+                if (domain != RemoteConfigManager.FALLBACK_EMAIL_LINK_DOMAIN) setLinkDomain(domain)
+            }
             .build()
         auth.sendSignInLinkToEmail(email, settings).await()
         prefs.edit().putString(KEY_PENDING_EMAIL, email).apply()
