@@ -65,17 +65,21 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
-        // A Strava OAuth redirect takes priority; otherwise complete a passwordless
-        // email-link sign-in if the app was opened via the link.
-        if (!handleStravaCallback(intent)) {
-            handleEmailSignInLink(intent)
-        }
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.Companion.dark(Color.TRANSPARENT)
         )
 
         super.onCreate(savedInstanceState)
+
+        // Handle deep links AFTER super.onCreate(): Hilt field injection runs there, so the
+        // injected managers below are only ready now. A cold start from the email-sign-in link
+        // (or Strava redirect) lands here, so calling these earlier crashed on uninitialized
+        // lateinit deps. A Strava OAuth redirect takes priority; otherwise complete a
+        // passwordless email-link sign-in if the app was opened via the link.
+        if (!handleStravaCallback(intent)) {
+            handleEmailSignInLink(intent)
+        }
 
         // Register before STARTED. Purchase or a pace_app_pro-active restore proceeds the gated
         // flow; cancel/error just drops it.
