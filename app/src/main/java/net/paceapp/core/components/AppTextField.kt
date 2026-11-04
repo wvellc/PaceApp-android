@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
-import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
@@ -125,20 +124,12 @@ fun AppTextField(
     }
 
     // Phone fields: keep the stored value digits-only and capped at 15 (the E.164 ceiling)
-    // so invalid states are unreachable, and group it into blocks of 5 for display only —
-    // validation and the E.164 number still read plain digits.
+    // so invalid states are unreachable. Shown as plain digits — no display grouping.
     val phoneInput = remember {
         InputTransformation {
             val original = asCharSequence().toString()
             val sanitized = original.filter { it.isDigit() }.take(15)
             if (sanitized != original) replace(0, length, sanitized)
-        }
-    }
-    val phoneOutput = remember {
-        OutputTransformation {
-            // Group into blocks of 5; insert from the right so earlier indices don't shift.
-            if (length > 10) replace(10, 10, " ")
-            if (length > 5) replace(5, 5, " ")
         }
     }
 
@@ -331,7 +322,7 @@ fun AppTextField(
                         interactionSource = interactionSource,
                         decorator = decorator,
                         inputTransformation = if (validatorType == ValidatorType.Phone) phoneInput else null,
-                        outputTransformation = if (validatorType == ValidatorType.Phone) phoneOutput else null,
+                        outputTransformation = null,
                         lineLimits = if (maxLines == 1) TextFieldLineLimits.SingleLine else TextFieldLineLimits.MultiLine(
                             minLines,
                             maxLines
